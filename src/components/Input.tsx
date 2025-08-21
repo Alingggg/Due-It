@@ -4,6 +4,7 @@ import { FiEye, FiEyeOff } from "react-icons/fi";
 
 interface InputProps {
   type?: string;
+  id: string;
   className?: string;
   placeholder?: string;
   disabled?: boolean;
@@ -11,6 +12,7 @@ interface InputProps {
 
 function Input({
   type = "text",
+  id,
   className = "",
   placeholder,
   disabled = false,

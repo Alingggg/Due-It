@@ -1,5 +1,24 @@
 @import "tailwindcss";
 
+html ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+html ::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+html ::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+html ::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
 input[type="password"]::-ms-reveal,
 input[type="password"]::-ms-clear {
   display: none;
