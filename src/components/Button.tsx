@@ -3,6 +3,7 @@ interface ButtonProps {
   variant?: "primary" | "outline";
   className?: string;
   disabled?: boolean;
+  onClick?: () => void;
 }
 
 const baseStyles =
@@ -19,11 +20,20 @@ function Button({
   variant = "primary",
   className = "",
   disabled = false,
+  onClick,
   ...props
 }: ButtonProps) {
+  // Remove hover/active styles if disabled
+  const variantClass = disabled
+    ? variants[variant]
+        .replace(/hover:[^\s]+/g, "")
+        .replace(/active:[^\s]+/g, "")
+    : variants[variant];
+
   return (
     <button
-      className={`${baseStyles} ${variants[variant]} ${className}`}
+      onClick={onClick}
+      className={`${baseStyles} ${variantClass} ${className}`}
       disabled={disabled}
       {...props}
     >
