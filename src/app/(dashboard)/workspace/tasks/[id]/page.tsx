@@ -14,7 +14,6 @@ import { notFound } from "next/navigation";
 
 interface TaskDetailPageProps {
   params: Promise<{ id: string }>;
-
 }
 
 function TaskDetailPage({ params }: TaskDetailPageProps) {
@@ -67,7 +66,7 @@ function TaskDetailPage({ params }: TaskDetailPageProps) {
         className="inline-flex items-center text-blue-600 hover:text-blue-700 transition-colors"
       >
         <FaArrowLeft className="w-4 h-4 mr-2" />
-        Back to Tasks
+        Back
       </button>
 
       {/* Single Container for Everything */}
