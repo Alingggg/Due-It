@@ -9,6 +9,7 @@ import {
   FaSignOutAlt,
   FaBars,
   FaTimes,
+  FaCog,
 } from "react-icons/fa";
 
 function Sidebar() {
@@ -30,6 +31,11 @@ function Sidebar() {
       name: "Members",
       href: "/workspace/members",
       icon: FaUsers,
+    },
+    {
+      name: "Settings",
+      href: "/workspace/settings",
+      icon: FaCog,
     },
   ];
 

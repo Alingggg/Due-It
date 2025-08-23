@@ -31,6 +31,13 @@ export interface WorkspaceMember {
   role: "admin" | "co" | "member";
 }
 
+export interface InviteCode {
+  id: string;
+  workspaceId: string;
+  code: string;
+  enabled: boolean;
+}
+
 export const mockWorkspaces: Workspace[] = [
   {
     id: "1",
@@ -241,6 +248,26 @@ export const mockWorkspaceMembers: WorkspaceMember[] = [
   },
 ];
 
+export const mockInviteCodes: InviteCode[] = [
+  {
+    id: "1",
+    workspaceId: "1",
+    code: "CS2025-ABC123",
+    enabled: true,
+  },
+  {
+    id: "2",
+    workspaceId: "2",
+    code: "MATH2025-XYZ789",
+    enabled: false,
+  },
+];
+
+// Current user context (hardcoded for now)
+export const currentUser = {
+  id: "1", // John Doe - admin of workspace 1
+};
+
 // Helper functions to get related data
 export const getSubjectById = (subjectId: string): Subject | undefined => {
   return mockSubjects.find((subject) => subject.id === subjectId);
@@ -271,5 +298,36 @@ export const getWorkspaceMembersByWorkspaceId = (
       ...member,
       profile: getProfileById(member.userId)!,
     }))
-    .filter((member) => member.profile); // Filter out any members without profiles
+    .filter((member) => member.profile);
+};
+
+export const getInviteCodeByWorkspaceId = (
+  workspaceId: string
+): InviteCode | undefined => {
+  return mockInviteCodes.find((invite) => invite.workspaceId === workspaceId);
+};
+
+export const getCurrentUserRole = (
+  workspaceId: string
+): "admin" | "co" | "member" | null => {
+  const member = mockWorkspaceMembers.find(
+    (m) => m.workspaceId === workspaceId && m.userId === currentUser.id
+  );
+  return member?.role || null;
+};
+
+export const canManageWorkspace = (workspaceId: string): boolean => {
+  const role = getCurrentUserRole(workspaceId);
+  return role === "admin" || role === "co";
+};
+
+// Mock functions to simulate API calls
+export const generateNewInviteCode = (): string => {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  const prefix = "INV2025-";
+  let result = prefix;
+  for (let i = 0; i < 6; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
 };
