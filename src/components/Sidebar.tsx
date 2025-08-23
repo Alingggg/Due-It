@@ -17,8 +17,8 @@ function Sidebar() {
 
   const navigationItems = [
     {
-      name: "To Do",
-      href: "/workspace/to-do",
+      name: "Tasks",
+      href: "/workspace/tasks",
       icon: FaCheckSquare,
     },
     {
