@@ -1,3 +1,6 @@
+"use client";
+import { use } from "react";
+import { useRouter } from "next/navigation";
 import { mockTasks, getSubjectById } from "@/data/mockData";
 import {
   FaClock,
@@ -7,15 +10,17 @@ import {
   FaClipboardList,
   FaArrowLeft,
 } from "react-icons/fa";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
 interface TaskDetailPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
+
 }
 
 function TaskDetailPage({ params }: TaskDetailPageProps) {
-  const task = mockTasks.find((t) => t.id === params.id);
+  const { id } = use(params);
+  const router = useRouter();
+  const task = mockTasks.find((t) => t.id === id);
 
   if (!task) {
     notFound();
@@ -57,13 +62,13 @@ function TaskDetailPage({ params }: TaskDetailPageProps) {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Back Button */}
-      <Link
-        href="/workspace/tasks"
+      <button
+        onClick={() => router.back()}
         className="inline-flex items-center text-blue-600 hover:text-blue-700 transition-colors"
       >
         <FaArrowLeft className="w-4 h-4 mr-2" />
         Back to Tasks
-      </Link>
+      </button>
 
       {/* Single Container for Everything */}
       <div className="bg-white rounded-lg border border-slate-200 p-6">
