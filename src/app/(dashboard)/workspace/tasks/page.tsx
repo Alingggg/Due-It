@@ -1,5 +1,6 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { TaskCard, Dropdown } from "@/components";
 import {
   getTasksByWorkspaceId,
@@ -9,10 +10,35 @@ import {
 import { FaClipboardList, FaFilter } from "react-icons/fa";
 
 function TasksPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const tasks = getTasksByWorkspaceId("1");
-  const [sortBy, setSortBy] = useState("dueDate");
-  const [filterType, setFilterType] = useState("all");
-  const [filterDoneBy, setFilterDoneBy] = useState("all");
+
+  // Initialize states from URL params or defaults
+  const [sortBy, setSortBy] = useState(searchParams.get("sort") || "dueDate");
+  const [filterType, setFilterType] = useState(
+    searchParams.get("type") || "all"
+  );
+  const [filterDoneBy, setFilterDoneBy] = useState(
+    searchParams.get("doneBy") || "all"
+  );
+
+  // Update URL when filters change
+  useEffect(() => {
+    const params = new URLSearchParams();
+
+    // Only add non-default values to keep URL clean
+    if (sortBy !== "dueDate") params.set("sort", sortBy);
+    if (filterType !== "all") params.set("type", filterType);
+    if (filterDoneBy !== "all") params.set("doneBy", filterDoneBy);
+
+    const newUrl = params.toString()
+      ? `/workspace/tasks?${params.toString()}`
+      : "/workspace/tasks";
+
+    // Replace current URL without page reload
+    router.replace(newUrl, { scroll: false });
+  }, [sortBy, filterType, filterDoneBy, router]);
 
   // Get subjects for this workspace
   const workspaceSubjects = mockSubjects.filter(
