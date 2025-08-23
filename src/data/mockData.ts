@@ -19,6 +19,18 @@ export interface Task {
   dueDate: string;
 }
 
+export interface Profile {
+  id: string;
+  firstName: string;
+  lastName: string;
+}
+
+export interface WorkspaceMember {
+  workspaceId: string;
+  userId: string;
+  role: "admin" | "co" | "member";
+}
+
 export const mockWorkspaces: Workspace[] = [
   {
     id: "1",
@@ -140,6 +152,95 @@ export const mockTasks: Task[] = [
   },
 ];
 
+export const mockProfiles: Profile[] = [
+  {
+    id: "1",
+    firstName: "John",
+    lastName: "Doe",
+  },
+  {
+    id: "2",
+    firstName: "Jane",
+    lastName: "Smith",
+  },
+  {
+    id: "3",
+    firstName: "Michael",
+    lastName: "Johnson",
+  },
+  {
+    id: "4",
+    firstName: "Sarah",
+    lastName: "Williams",
+  },
+  {
+    id: "5",
+    firstName: "David",
+    lastName: "Brown",
+  },
+  {
+    id: "6",
+    firstName: "Emily",
+    lastName: "Davis",
+  },
+  {
+    id: "7",
+    firstName: "Chris",
+    lastName: "Wilson",
+  },
+  {
+    id: "8",
+    firstName: "Lisa",
+    lastName: "Anderson",
+  },
+];
+
+export const mockWorkspaceMembers: WorkspaceMember[] = [
+  // Computer Science Department (workspace 1)
+  {
+    workspaceId: "1",
+    userId: "1",
+    role: "admin",
+  },
+  {
+    workspaceId: "1",
+    userId: "2",
+    role: "co",
+  },
+  {
+    workspaceId: "1",
+    userId: "3",
+    role: "member",
+  },
+  {
+    workspaceId: "1",
+    userId: "4",
+    role: "member",
+  },
+  {
+    workspaceId: "1",
+    userId: "5",
+    role: "member",
+  },
+
+  // Mathematics Department (workspace 2)
+  {
+    workspaceId: "2",
+    userId: "6",
+    role: "admin",
+  },
+  {
+    workspaceId: "2",
+    userId: "7",
+    role: "co",
+  },
+  {
+    workspaceId: "2",
+    userId: "8",
+    role: "member",
+  },
+];
+
 // Helper functions to get related data
 export const getSubjectById = (subjectId: string): Subject | undefined => {
   return mockSubjects.find((subject) => subject.id === subjectId);
@@ -155,4 +256,20 @@ export const getTasksByWorkspaceId = (workspaceId: string): Task[] => {
   );
   const subjectIds = workspaceSubjects.map((subject) => subject.id);
   return mockTasks.filter((task) => subjectIds.includes(task.subjectId));
+};
+
+export const getProfileById = (userId: string): Profile | undefined => {
+  return mockProfiles.find((profile) => profile.id === userId);
+};
+
+export const getWorkspaceMembersByWorkspaceId = (
+  workspaceId: string
+): (WorkspaceMember & { profile: Profile })[] => {
+  return mockWorkspaceMembers
+    .filter((member) => member.workspaceId === workspaceId)
+    .map((member) => ({
+      ...member,
+      profile: getProfileById(member.userId)!,
+    }))
+    .filter((member) => member.profile); // Filter out any members without profiles
 };
