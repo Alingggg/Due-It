@@ -67,49 +67,52 @@ function TaskCard({ task, hideSubject = false }: TaskCardProps) {
   return (
     <div
       onClick={handleCardClick}
-      className="bg-white rounded-lg border border-slate-200 p-4 hover:shadow-md hover:border-blue-200 transition-all cursor-pointer"
+      className="bg-white rounded-lg border border-slate-200 p-3 sm:p-4 hover:shadow-md hover:border-blue-200 transition-all cursor-pointer"
     >
-      <div className="flex items-center justify-between">
-        {/* Left Section */}
-        <div className="flex items-center flex-1">
-          <div className="p-3 bg-blue-50 rounded-lg mr-4">
-            <TypeIcon className="w-5 h-5 text-blue-600" />
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+        {/* Main Content */}
+        <div className="flex items-start sm:items-center flex-1">
+          <div className="p-2 sm:p-3 bg-blue-50 rounded-lg mr-3 sm:mr-4 shrink-0">
+            <TypeIcon className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
           </div>
-          <div className="flex-1">
-            <h3 className="text-lg font-semibold text-slate-800 mb-1">
+          <div className="flex-1 min-w-0">
+            <h3 className="text-base sm:text-lg font-semibold text-slate-800 mb-1 leading-tight">
               {task.title}
             </h3>
-            <div className="flex items-center space-x-4 text-sm text-slate-600">
+
+            <div className="text-xs sm:text-sm text-slate-600 flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-4">
               {!hideSubject && (
                 <>
-                  <span>{subject?.name || "Unknown Subject"}</span>
-                  <span className="text-slate-400">•</span>
+                  <span className="truncate">
+                    {subject?.name || "Unknown Subject"}
+                  </span>
+                  <span className="text-slate-400 hidden sm:inline">•</span>
                 </>
               )}
-              <span className="capitalize">{task.type}</span>
-              <span className="text-slate-400">•</span>
-              <span className="capitalize">{task.doneBy}</span>
+              <div className="flex items-center space-x-2">
+                <span className="capitalize">{task.type}</span>
+                <span className="text-slate-400">•</span>
+                <span className="capitalize">{task.doneBy}</span>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Right Section */}
-        <div className="flex items-center space-x-4">
-          <div className="text-right min-w-[120px]">
-            <div className="text-sm text-slate-600 mb-1">
-              {new Date(task.dueDate).toLocaleDateString()}
-            </div>
-            <div className="h-5 flex justify-end">
-              {dueInfo.showBadge ? (
-                <span
-                  className={`text-xs font-medium px-2 py-1 rounded-full ${dueInfo.color}`}
-                >
-                  {dueInfo.text}
-                </span>
-              ) : (
-                <div className="h-5"></div>
-              )}
-            </div>
+        {/* Due Date Section */}
+        <div className="flex items-center justify-between sm:justify-end sm:flex-col sm:items-end space-x-2 sm:space-x-0 sm:min-w-[120px]">
+          <div className="text-xs sm:text-sm text-slate-600 sm:mb-1 sm:text-right">
+            {new Date(task.dueDate).toLocaleDateString()}
+          </div>
+          <div className="flex justify-end">
+            {dueInfo.showBadge ? (
+              <span
+                className={`text-xs font-medium px-2 py-1 rounded-full whitespace-nowrap ${dueInfo.color}`}
+              >
+                {dueInfo.text}
+              </span>
+            ) : (
+              <div className="h-5"></div>
+            )}
           </div>
         </div>
       </div>
