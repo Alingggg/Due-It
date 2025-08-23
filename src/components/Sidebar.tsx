@@ -88,7 +88,6 @@ function Sidebar() {
           <h1 className="text-xl font-bold text-blue-600 hidden lg:block">
             Due It
           </h1>
-          <p className="text-sm text-slate-600 lg:mt-1">Workspace Name</p>
         </div>
 
         {/* Navigation */}
