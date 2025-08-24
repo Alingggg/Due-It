@@ -581,11 +581,11 @@ export const getInviteCodeByWorkspaceId = (
 
 export const getCurrentUserRole = (
   workspaceId: string
-): "admin" | "co" | "member" | null => {
+): "admin" | "co" | "member" => {
   const member = mockWorkspaceMembers.find(
     (m) => m.workspaceId === workspaceId && m.userId === currentUser.id
   );
-  return member?.role || null;
+  return member?.role || "member";
 };
 
 export const canManageWorkspace = (workspaceId: string): boolean => {
@@ -627,4 +627,8 @@ export const getFileIcon = (fileType: string): string => {
   if (fileType.includes("video")) return "FaFileVideo";
   if (fileType.includes("audio")) return "FaFileAudio";
   return "FaFile";
+};
+
+export const getCurrentUser = (): { id: string } => {
+  return currentUser;
 };
