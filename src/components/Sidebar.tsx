@@ -12,29 +12,29 @@ import {
   FaCog,
 } from "react-icons/fa";
 
-function Sidebar() {
+function Sidebar({ workspaceId }: { workspaceId: string }) {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navigationItems = [
     {
       name: "Tasks",
-      href: "/workspace/tasks",
+      href: `/workspace/${workspaceId}/tasks`,
       icon: FaCheckSquare,
     },
     {
       name: "Materials",
-      href: "/workspace/materials",
+      href: `/workspace/${workspaceId}/materials`,
       icon: FaBook,
     },
     {
       name: "Members",
-      href: "/workspace/members",
+      href: `/workspace/${workspaceId}/members`,
       icon: FaUsers,
     },
     {
       name: "Settings",
-      href: "/workspace/settings",
+      href: `/workspace/${workspaceId}/settings`,
       icon: FaCog,
     },
   ];

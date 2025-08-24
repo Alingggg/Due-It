@@ -30,15 +30,16 @@ import {
 
 interface MaterialGroupDetailsPageProps {
   params: Promise<{
-    id: string;
+    workspaceId: string;
+    materialGroupId: string;
   }>;
 }
 
 function MaterialGroupDetailsPage({ params }: MaterialGroupDetailsPageProps) {
-  const { id } = use(params);
+  const { workspaceId, materialGroupId } = use(params);
   const router = useRouter();
-  const materialGroup = getMaterialGroupById(id);
-  const materials = getMaterialsByGroupId(id);
+  const materialGroup = getMaterialGroupById(materialGroupId);
+  const materials = getMaterialsByGroupId(materialGroupId);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   if (!materialGroup) {
@@ -46,7 +47,7 @@ function MaterialGroupDetailsPage({ params }: MaterialGroupDetailsPageProps) {
   }
 
   const subject = getSubjectById(materialGroup.subjectId);
-  const canManage = canManageWorkspace("1"); // Hardcoded for now
+  const canManage = canManageWorkspace(workspaceId);
 
   // Get appropriate file/link icon
   const getIcon = (fileType: string, isLink: boolean) => {
@@ -87,7 +88,7 @@ function MaterialGroupDetailsPage({ params }: MaterialGroupDetailsPageProps) {
     // In a real app, this would delete from Supabase and update state
     console.log("Deleting material group:", materialGroup.id);
     setShowDeleteConfirm(false);
-    router.push("/workspace/materials");
+    router.push(`/workspace/${workspaceId}/materials`);
   };
 
   const handleEdit = () => {

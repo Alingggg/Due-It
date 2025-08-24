@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { MaterialGroupCard, Dropdown, Button } from "@/components";
 import {
   getMaterialGroupsByWorkspaceId,
@@ -12,7 +12,8 @@ import { FaFolderOpen, FaFilter, FaPlus } from "react-icons/fa";
 function MaterialsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const materialGroups = getMaterialGroupsByWorkspaceId("1");
+  const { workspaceId } = useParams<{ workspaceId: string }>();
+  const materialGroups = getMaterialGroupsByWorkspaceId(workspaceId);
 
   // Initialize states from URL params or defaults
   const [sortBy, setSortBy] = useState(
@@ -31,8 +32,8 @@ function MaterialsPage() {
     if (filterSubject !== "all") params.set("subject", filterSubject);
 
     const newUrl = params.toString()
-      ? `/workspace/materials?${params.toString()}`
-      : "/workspace/materials";
+      ? `/workspace/${workspaceId}/materials?${params.toString()}`
+      : `/workspace/${workspaceId}/materials`;
 
     // Replace current URL without page reload
     router.replace(newUrl, { scroll: false });
@@ -40,7 +41,7 @@ function MaterialsPage() {
 
   // Get subjects for this workspace
   const workspaceSubjects = mockSubjects.filter(
-    (subject) => subject.workspaceId === "1"
+    (subject) => subject.workspaceId === workspaceId
   );
 
   // Filter material groups
@@ -106,6 +107,7 @@ function MaterialsPage() {
                 <MaterialGroupCard
                   key={materialGroup.id}
                   materialGroup={materialGroup}
+                  workspaceId={workspaceId}
                   hideSubject={true}
                 />
               ))}
@@ -117,6 +119,7 @@ function MaterialsPage() {
       return sortedMaterialGroups.map((materialGroup) => (
         <MaterialGroupCard
           key={materialGroup.id}
+          workspaceId={workspaceId}
           materialGroup={materialGroup}
         />
       ));

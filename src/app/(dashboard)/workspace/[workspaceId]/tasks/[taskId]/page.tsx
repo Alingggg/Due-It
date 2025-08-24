@@ -13,13 +13,13 @@ import {
 import { notFound } from "next/navigation";
 
 interface TaskDetailPageProps {
-  params: Promise<{ id: string }>;
+  params: Promise<{ taskId: string }>;
 }
 
 function TaskDetailPage({ params }: TaskDetailPageProps) {
-  const { id } = use(params);
+  const { taskId } = use(params);
   const router = useRouter();
-  const task = mockTasks.find((t) => t.id === id);
+  const task = mockTasks.find((t) => t.id === taskId);
 
   if (!task) {
     notFound();

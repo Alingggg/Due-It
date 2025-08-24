@@ -9,11 +9,13 @@ import { FaFolder, FaPaperclip } from "react-icons/fa";
 
 interface MaterialGroupCardProps {
   materialGroup: MaterialGroup;
+  workspaceId: string;
   hideSubject?: boolean;
 }
 
 function MaterialGroupCard({
   materialGroup,
+  workspaceId,
   hideSubject = false,
 }: MaterialGroupCardProps) {
   const router = useRouter();
@@ -21,7 +23,7 @@ function MaterialGroupCard({
   const materials = getMaterialsByGroupId(materialGroup.id);
 
   const handleCardClick = () => {
-    router.push(`/workspace/materials/${materialGroup.id}`);
+    router.push(`/workspace/${workspaceId}/materials/${materialGroup.id}`);
   };
 
   // Format date

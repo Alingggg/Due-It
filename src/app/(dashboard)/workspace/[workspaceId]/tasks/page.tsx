@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { TaskCard, Dropdown } from "@/components";
 import {
   getTasksByWorkspaceId,
@@ -12,7 +12,8 @@ import { FaClipboardList, FaFilter } from "react-icons/fa";
 function TasksPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const tasks = getTasksByWorkspaceId("1");
+  const { workspaceId } = useParams<{ workspaceId: string }>();
+  const tasks = getTasksByWorkspaceId(workspaceId);
 
   // Initialize states from URL params or defaults
   const [sortBy, setSortBy] = useState(searchParams.get("sort") || "dueDate");
@@ -33,8 +34,8 @@ function TasksPage() {
     if (filterDoneBy !== "all") params.set("doneBy", filterDoneBy);
 
     const newUrl = params.toString()
-      ? `/workspace/tasks?${params.toString()}`
-      : "/workspace/tasks";
+      ? `/workspace/${workspaceId}/tasks?${params.toString()}`
+      : `/workspace/${workspaceId}/tasks`;
 
     // Replace current URL without page reload
     router.replace(newUrl, { scroll: false });
@@ -42,7 +43,7 @@ function TasksPage() {
 
   // Get subjects for this workspace
   const workspaceSubjects = mockSubjects.filter(
-    (subject) => subject.workspaceId === "1"
+    (subject) => subject.workspaceId === workspaceId
   );
 
   // Filter tasks
@@ -101,13 +102,20 @@ function TasksPage() {
           </div>
           <div className="space-y-4">
             {subjectTasks.map((task) => (
-              <TaskCard key={task.id} task={task} hideSubject={true} />
+              <TaskCard
+                key={task.id}
+                task={task}
+                workspaceId={workspaceId}
+                hideSubject={true}
+              />
             ))}
           </div>
         </div>
       ));
     } else {
-      return sortedTasks.map((task) => <TaskCard key={task.id} task={task} />);
+      return sortedTasks.map((task) => (
+        <TaskCard key={task.id} workspaceId={workspaceId} task={task} />
+      ));
     }
   };
 

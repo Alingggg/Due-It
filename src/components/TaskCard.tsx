@@ -5,15 +5,16 @@ import { Task, getSubjectById } from "@/data/mockData";
 
 interface TaskCardProps {
   task: Task;
+  workspaceId: string;
   hideSubject?: boolean;
 }
 
-function TaskCard({ task, hideSubject = false }: TaskCardProps) {
+function TaskCard({ task, workspaceId, hideSubject = false }: TaskCardProps) {
   const router = useRouter();
   const subject = getSubjectById(task.subjectId);
 
   const handleCardClick = () => {
-    router.push(`/workspace/tasks/${task.id}`);
+    router.push(`/workspace/${workspaceId}/tasks/${task.id}`);
   };
 
   // Format due date

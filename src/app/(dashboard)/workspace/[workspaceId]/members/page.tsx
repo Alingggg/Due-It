@@ -1,10 +1,13 @@
-"use client";
 import { getWorkspaceMembersByWorkspaceId } from "@/data/mockData";
 import { FaUser, FaCrown, FaUserTie, FaUsers } from "react-icons/fa";
 
-function MembersPage() {
-  // Show members for workspace 1 (Computer Science Department)
-  const members = getWorkspaceMembersByWorkspaceId("1");
+async function MembersPage({
+  params,
+}: {
+  params: Promise<{ workspaceId: string }>;
+}) {
+  const { workspaceId } = await params;
+  const members = getWorkspaceMembersByWorkspaceId(workspaceId);
 
   const getRoleInfo = (role: string) => {
     switch (role) {

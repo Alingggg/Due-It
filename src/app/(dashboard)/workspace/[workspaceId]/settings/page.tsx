@@ -12,9 +12,10 @@ import {
 import { FaUserTimes, FaCheck } from "react-icons/fa";
 import { FiCopy, FiRefreshCw } from "react-icons/fi";
 import { Button } from "@/components";
+import { useParams } from "next/navigation";
 
 function WorkspaceSettingsPage() {
-  const workspaceId = "1"; // Hardcoded for now
+  const { workspaceId } = useParams<{ workspaceId: string }>();
   const [inviteCode, setInviteCode] = useState(
     getInviteCodeByWorkspaceId(workspaceId)
   );
