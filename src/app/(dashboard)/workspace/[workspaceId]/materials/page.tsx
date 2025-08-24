@@ -6,6 +6,7 @@ import {
   getMaterialGroupsByWorkspaceId,
   mockSubjects,
   getSubjectById,
+  getCurrentUserRole,
 } from "@/data/mockData";
 import { FaFolderOpen, FaFilter, FaPlus } from "react-icons/fa";
 
@@ -14,6 +15,9 @@ function MaterialsPage() {
   const searchParams = useSearchParams();
   const { workspaceId } = useParams<{ workspaceId: string }>();
   const materialGroups = getMaterialGroupsByWorkspaceId(workspaceId);
+
+  // Get current user's role in this workspace
+  const currentUserRole = getCurrentUserRole(workspaceId);
 
   // Initialize states from URL params or defaults
   const [sortBy, setSortBy] = useState(
@@ -145,10 +149,12 @@ function MaterialsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-slate-800">Materials</h1>
-        <Button className="flex items-center space-x-2">
-          <FaPlus className="w-4 h-4" />
-          <span>Create</span>
-        </Button>
+        {(currentUserRole === "admin" || currentUserRole === "co") && (
+          <Button className="flex items-center space-x-2">
+            <FaPlus className="w-4 h-4" />
+            <span>Create</span>
+          </Button>
+        )}
       </div>
 
       {/* Filters */}
@@ -175,7 +181,7 @@ function MaterialsPage() {
         </div>
       </div>
 
-      {/* Material Groups List */}
+      {/* Materials List */}
       <div className="space-y-6">{renderMaterialGroups()}</div>
 
       {/* Empty State */}
@@ -185,17 +191,19 @@ function MaterialsPage() {
             <FaFolderOpen className="w-12 h-12 mx-auto" />
           </div>
           <h3 className="text-lg font-medium text-slate-800 mb-1">
-            No material groups found
+            No materials found
           </h3>
           <p className="text-slate-600 mb-4">
             {filterSubject !== "all"
               ? "Try selecting a different subject to see more materials."
-              : "No material groups have been created yet."}
+              : "No materials have been created yet."}
           </p>
-          <Button className="flex items-center space-x-2 mx-auto">
-            <FaPlus className="w-4 h-4" />
-            <span>Create First Material Group</span>
-          </Button>
+          {(currentUserRole === "admin" || currentUserRole === "co") && (
+            <Button className="flex items-center space-x-2 mx-auto">
+              <FaPlus className="w-4 h-4" />
+              <span>Create First Material</span>
+            </Button>
+          )}
         </div>
       )}
     </div>
