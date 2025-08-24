@@ -101,7 +101,9 @@ function Sidebar({ workspaceId }: { workspaceId: string }) {
           <ul className="space-y-2">
             {navigationItems.map((item) => {
               const Icon = item.icon;
-              const isActive = pathname === item.href;
+              // Highlight if pathname starts with the item's href (and next char is / or end)
+              const isActive =
+                pathname === item.href || pathname.startsWith(item.href + "/");
 
               return (
                 <li key={item.name}>
