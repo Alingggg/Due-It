@@ -1,19 +1,23 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { TaskCard, Dropdown } from "@/components";
+import { TaskCard, Dropdown, Button } from "@/components";
 import {
   getTasksByWorkspaceId,
   mockSubjects,
   getSubjectById,
+  getCurrentUserRole,
 } from "@/data/mockData";
-import { FaClipboardList, FaFilter } from "react-icons/fa";
+import { FaClipboardList, FaFilter, FaPlus } from "react-icons/fa";
 
 function TasksPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { workspaceId } = useParams<{ workspaceId: string }>();
   const tasks = getTasksByWorkspaceId(workspaceId);
+
+  // Get current user's role in this workspace
+  const currentUserRole = getCurrentUserRole(workspaceId);
 
   // Initialize states from URL params or defaults
   const [sortBy, setSortBy] = useState(searchParams.get("sort") || "dueDate");
@@ -39,7 +43,7 @@ function TasksPage() {
 
     // Replace current URL without page reload
     router.replace(newUrl, { scroll: false });
-  }, [sortBy, filterType, filterDoneBy, router]);
+  }, [sortBy, filterType, filterDoneBy, router, workspaceId]);
 
   // Get subjects for this workspace
   const workspaceSubjects = mockSubjects.filter(
@@ -143,8 +147,16 @@ function TasksPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-slate-800">Tasks</h1>
-        <div className="text-sm text-slate-500">
-          {sortedTasks.length} of {tasks.length} tasks
+        <div className="flex items-center space-x-4">
+          <div className="text-sm text-slate-500">
+            {sortedTasks.length} of {tasks.length} tasks
+          </div>
+          {(currentUserRole === "admin" || currentUserRole === "co") && (
+            <Button className="flex items-center space-x-2">
+              <FaPlus className="w-4 h-4" />
+              <span>Create</span>
+            </Button>
+          )}
         </div>
       </div>
 
@@ -192,11 +204,22 @@ function TasksPage() {
             <FaClipboardList className="w-12 h-12 mx-auto" />
           </div>
           <h3 className="text-lg font-medium text-slate-800 mb-1">
-            No tasks match your filters
+            {tasks.length === 0
+              ? "No tasks created yet"
+              : "No tasks match your filters"}
           </h3>
-          <p className="text-slate-600">
-            Try adjusting your filters to see more tasks.
+          <p className="text-slate-600 mb-4">
+            {tasks.length === 0
+              ? "Create your first task to get started."
+              : "Try adjusting your filters to see more tasks."}
           </p>
+          {(currentUserRole === "admin" || currentUserRole === "co") &&
+            tasks.length === 0 && (
+              <Button className="flex items-center space-x-2 mx-auto">
+                <FaPlus className="w-4 h-4" />
+                <span>Create First Task</span>
+              </Button>
+            )}
         </div>
       )}
     </div>
