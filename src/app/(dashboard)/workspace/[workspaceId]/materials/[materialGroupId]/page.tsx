@@ -102,7 +102,7 @@ function MaterialGroupDetailsPage({ params }: MaterialGroupDetailsPageProps) {
       <div>
         <button
           onClick={() => router.back()}
-          className="inline-flex items-center text-blue-600 hover:text-blue-700 transition-colors"
+          className="inline-flex items-center text-blue-600 hover:text-blue-700 transition-colors hover:cursor-pointer"
         >
           <FaArrowLeft className="w-4 h-4 mr-2" />
           Back
