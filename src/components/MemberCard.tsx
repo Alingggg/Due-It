@@ -168,23 +168,25 @@ function MemberCard({
   const availableActions = getAvailableActions(currentUserRole);
 
   return (
-    <div className="bg-white rounded-lg border border-slate-200 p-4 hover:shadow-md hover:border-blue-200 transition-all relative">
+    <div className="bg-white rounded-lg border border-slate-200 p-3 sm:p-4 hover:shadow-md hover:border-blue-200 transition-all relative">
       <div className="flex items-center justify-between">
         {/* Left Section */}
         <div className="flex items-center flex-1">
-          <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
-            <span className="text-blue-700 font-semibold text-sm">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-full flex items-center justify-center mr-3 sm:mr-4">
+            <span className="text-blue-700 font-semibold text-xs sm:text-sm">
               {initials}
             </span>
           </div>
           <div className="flex-1">
-            <h3 className="text-lg font-semibold text-slate-800 mb-1">
+            <h3 className="text-base sm:text-lg font-semibold text-slate-800 mb-0.5 sm:mb-1">
               {member.profile.firstName} {member.profile.lastName}
               {member.userId === currentUser?.id && (
-                <span className="text-sm text-slate-500 ml-2">(You)</span>
+                <span className="text-xs sm:text-sm text-slate-500 ml-1 sm:ml-2">
+                  (You)
+                </span>
               )}
             </h3>
-            <div className="flex items-center space-x-4 text-sm text-slate-600">
+            <div className="flex items-center space-x-2 sm:space-x-4 text-xs sm:text-sm text-slate-600">
               <span>
                 @{member.profile.firstName.toLowerCase()}
                 {member.profile.lastName.toLowerCase()}
@@ -194,10 +196,10 @@ function MemberCard({
         </div>
 
         {/* Right Section */}
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2 sm:space-x-4">
           <div className="text-right">
             <span
-              className={`text-xs font-medium px-2 py-1 rounded-full ${roleInfo.color}`}
+              className={`text-[11px] sm:text-xs font-medium px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full ${roleInfo.color}`}
             >
               <RoleIcon className="w-3 h-3 mr-1 inline" />
               {roleInfo.text}
@@ -209,7 +211,7 @@ function MemberCard({
             <div className="relative">
               <button
                 onClick={toggleMenu}
-                className="p-2 rounded-lg hover:bg-slate-100 text-slate-600"
+                className="p-1.5 sm:p-2 rounded-lg hover:bg-slate-100 text-slate-600"
               >
                 <FaEllipsisV className="w-4 h-4" />
               </button>
@@ -221,7 +223,7 @@ function MemberCard({
                   <div className="fixed inset-0 z-10" onClick={closeMenu} />
 
                   {/* Menu - appears to the left of the button */}
-                  <div className="absolute right-full top-1/2 -translate-y-1/2 mr-2 w-48 bg-white rounded-lg shadow-lg border border-slate-200 z-20">
+                  <div className="absolute right-full top-1/2 -translate-y-1/2 mr-2 w-40 sm:w-48 bg-white rounded-lg shadow-lg border border-slate-200 z-20">
                     <div className="py-1">
                       {availableActions.map((action, index) => {
                         const ActionIcon = action.icon;
@@ -229,13 +231,13 @@ function MemberCard({
                           <button
                             key={index}
                             onClick={action.action}
-                            className={`w-full text-left px-4 py-2 text-sm hover:bg-slate-50 flex items-center ${
+                            className={`w-full text-left px-3 py-2 text-xs sm:text-sm hover:bg-slate-50 flex items-center ${
                               action.danger
                                 ? "text-red-600 hover:bg-red-50"
                                 : "text-slate-700"
                             }`}
                           >
-                            <ActionIcon className="w-4 h-4 mr-3" />
+                            <ActionIcon className="w-4 h-4 mr-2 sm:mr-3" />
                             {action.label}
                           </button>
                         );

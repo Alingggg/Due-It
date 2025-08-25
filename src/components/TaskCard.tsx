@@ -70,18 +70,18 @@ function TaskCard({ task, workspaceId, hideSubject = false }: TaskCardProps) {
       onClick={handleCardClick}
       className="bg-white rounded-lg border border-slate-200 p-3 sm:p-4 hover:shadow-md hover:border-blue-200 transition-all cursor-pointer"
     >
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
         {/* Main Content */}
         <div className="flex items-start sm:items-center flex-1">
-          <div className="p-2 sm:p-3 bg-blue-50 rounded-lg mr-3 sm:mr-4 shrink-0">
+          <div className="p-2 sm:p-3 bg-blue-50 rounded-lg mr-2 sm:mr-4 shrink-0">
             <TypeIcon className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="text-base sm:text-lg font-semibold text-slate-800 mb-1 leading-tight">
+            <h3 className="text-sm sm:text-lg font-semibold text-slate-800 mb-0.5 sm:mb-1 leading-tight">
               {task.title}
             </h3>
 
-            <div className="text-xs sm:text-sm text-slate-600 flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-4">
+            <div className="text-xs sm:text-sm text-slate-600 flex flex-col sm:flex-row sm:items-center space-y-0.5 sm:space-y-0 sm:space-x-4">
               {!hideSubject && (
                 <>
                   <span className="truncate">

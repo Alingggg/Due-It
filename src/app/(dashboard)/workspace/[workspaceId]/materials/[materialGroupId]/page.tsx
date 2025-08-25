@@ -1,7 +1,6 @@
 "use client";
 import { use, useState } from "react";
-import { useRouter } from "next/navigation";
-import { notFound } from "next/navigation";
+import { notFound, useRouter } from "next/navigation";
 import {
   getMaterialGroupById,
   getMaterialsByGroupId,

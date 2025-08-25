@@ -1,6 +1,6 @@
 "use client";
 import { use, useState } from "react";
-import { useRouter } from "next/navigation";
+import { notFound, useRouter } from "next/navigation";
 import { mockTasks, getSubjectById, getCurrentUserRole } from "@/data/mockData";
 import { Button } from "@/components";
 import {
@@ -13,7 +13,6 @@ import {
   FaEdit,
   FaTrash,
 } from "react-icons/fa";
-import { notFound } from "next/navigation";
 
 interface TaskDetailPageProps {
   params: Promise<{ workspaceId: string; taskId: string }>;
@@ -91,23 +90,23 @@ function TaskDetailPage({ params }: TaskDetailPageProps) {
       </div>
 
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <h1 className="text-2xl font-bold text-slate-800">Task Details</h1>
         {canManageTask && (
           <div className="flex items-center space-x-2">
             <Button
               onClick={handleEdit}
               variant="outline"
-              className="flex items-center space-x-2"
+              className="flex items-center space-x-2 text-sm"
             >
-              <FaEdit className="w-4 h-4" />
+              <FaEdit className="w-3 h-3" />
               <span>Edit</span>
             </Button>
             <Button
               onClick={() => setShowDeleteConfirm(true)}
-              className="bg-red-600 hover:bg-red-700 text-white flex items-center space-x-2"
+              className="bg-red-600 hover:bg-red-700 text-white flex items-center space-x-2 text-sm"
             >
-              <FaTrash className="w-4 h-4" />
+              <FaTrash className="w-3 h-3" />
               <span>Delete</span>
             </Button>
           </div>
@@ -115,31 +114,35 @@ function TaskDetailPage({ params }: TaskDetailPageProps) {
       </div>
 
       {/* Single Container for Everything */}
-      <div className="bg-white rounded-lg border border-slate-200 p-6">
-        {/* Task Header */}
-        <div className="flex items-start space-x-4">
-          <div className="p-4 bg-blue-50 rounded-xl">
-            <TypeIcon className="w-8 h-8 text-blue-600" />
+      <div className="bg-white rounded-lg border border-slate-200 p-4 sm:p-6">
+        {/* Task Header - Mobile responsive layout */}
+        <div className="flex flex-col sm:flex-row sm:items-start sm:space-x-4 space-y-4 sm:space-y-0">
+          {/* Icon - smaller on mobile */}
+          <div className="p-3 sm:p-4 bg-blue-50 rounded-xl self-start">
+            <TypeIcon className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600" />
           </div>
-          <div className="flex-1">
-            <h2 className="text-2xl font-bold text-slate-800 mb-2">
+
+          <div className="flex-1 min-w-0">
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-800 mb-2 break-words">
               {task.title}
             </h2>
             <div className="text-sm text-blue-600 mb-4">{subject?.name}</div>
 
-            {/* Task Meta */}
-            <div className="flex items-center space-x-6 text-sm text-slate-600 mb-4">
+            {/* Task Meta - Stack on mobile */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-6 space-y-2 sm:space-y-0 text-sm text-slate-600 mb-4">
               <div className="flex items-center">
-                <TypeIcon className="w-4 h-4 mr-2" />
+                <TypeIcon className="w-4 h-4 mr-2 flex-shrink-0" />
                 <span className="capitalize">{task.type}</span>
               </div>
               <div className="flex items-center">
-                <DoneByIcon className="w-4 h-4 mr-2" />
+                <DoneByIcon className="w-4 h-4 mr-2 flex-shrink-0" />
                 <span>{doneByInfo.text}</span>
               </div>
               <div className="flex items-center">
-                <FaClock className="w-4 h-4 mr-2" />
-                <span>{formatDateNoSeconds(task.dueDate)}</span>
+                <FaClock className="w-4 h-4 mr-2 flex-shrink-0" />
+                <span className="break-all">
+                  {formatDateNoSeconds(task.dueDate)}
+                </span>
               </div>
             </div>
 
@@ -148,14 +151,14 @@ function TaskDetailPage({ params }: TaskDetailPageProps) {
               <h3 className="text-lg font-semibold text-slate-800 mb-3">
                 Description
               </h3>
-              <p className="text-slate-600 leading-relaxed">
+              <p className="text-slate-600 leading-relaxed break-words">
                 {task.description}
               </p>
             </div>
 
             {/* Action Button */}
             <div className="pt-4 border-t border-slate-100">
-              <Button className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700">
+              <Button className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white hover:bg-blue-700">
                 Mark as Done
               </Button>
             </div>
@@ -170,21 +173,22 @@ function TaskDetailPage({ params }: TaskDetailPageProps) {
             <h3 className="text-lg font-semibold text-slate-800 mb-2">
               Delete Task?
             </h3>
-            <p className="text-sm text-slate-600 mb-6">
+            <p className="text-sm text-slate-600 mb-6 break-words">
               Are you sure you want to delete "{task.title}"? This action cannot
               be undone.
             </p>
 
-            <div className="flex justify-end space-x-3">
+            <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3">
               <Button
                 onClick={() => setShowDeleteConfirm(false)}
                 variant="outline"
+                className="w-full sm:w-auto"
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleDelete}
-                className="bg-red-600 hover:bg-red-700 text-white flex items-center space-x-2"
+                className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white flex items-center justify-center space-x-2"
               >
                 <FaTrash className="w-4 h-4" />
                 <span>Delete Task</span>

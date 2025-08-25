@@ -93,29 +93,31 @@ function WorkspaceSettingsPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8 px-2 sm:px-0">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-slate-800">
+        <h1 className="text-lg sm:text-2xl font-bold text-slate-800">
           Workspace Settings
         </h1>
       </div>
 
       {/* Invite Code Section - Only for admins and co-admins */}
       {canManage && inviteCode && (
-        <div className="bg-white rounded-lg border border-slate-200 p-6">
-          <h2 className="text-lg font-semibold text-slate-800 mb-4">
+        <div className="bg-white rounded-lg border border-slate-200 p-4 sm:p-6">
+          <h2 className="text-base sm:text-lg font-semibold text-slate-800 mb-3 sm:mb-4">
             Invite Code
           </h2>
 
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {/* Code Display */}
-            <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg border">
-              <div className="font-mono text-base">{inviteCode.code}</div>
+            <div className="flex items-center justify-between p-2 sm:p-4 bg-slate-50 rounded-lg border">
+              <div className="font-mono text-sm sm:text-base break-all">
+                {inviteCode.code}
+              </div>
 
               <div className="relative">
                 <button
                   onClick={handleCopyCode}
-                  className="p-2 text-slate-500 hover:text-slate-700 transition-colors group"
+                  className="p-1.5 sm:p-2 text-slate-500 hover:text-slate-700 transition-colors group"
                   title={copied ? "Copied!" : "Copy"}
                 >
                   {copied ? (
@@ -132,14 +134,15 @@ function WorkspaceSettingsPage() {
             </div>
 
             {/* Status and Controls */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <span className="text-sm font-medium text-slate-700">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start space-y-1 sm:space-y-0">
+              <div className="space-y-1">
+                {/* Status row */}
+                <div className="flex items-center space-x-2 sm:space-x-3">
+                  <span className="text-xs sm:text-sm font-medium text-slate-700">
                     Status:
                   </span>
                   <span
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                    className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                       inviteCode.enabled
                         ? "bg-green-100 text-green-800"
                         : "bg-red-100 text-red-800"
@@ -148,38 +151,38 @@ function WorkspaceSettingsPage() {
                     {inviteCode.enabled ? "Active" : "Disabled"}
                   </span>
                 </div>
-
-                {canManage && (
-                  <div className="flex items-center space-x-2">
-                    <Button
-                      onClick={handleToggleInviteCode}
-                      variant="outline"
-                      className={`text-sm border ${
-                        inviteCode.enabled
-                          ? "border-red-600 text-red-700 bg-red-50 hover:bg-red-100"
-                          : "border-green-600 text-green-700 bg-green-50 hover:bg-green-100"
-                      }`}
-                    >
-                      {inviteCode.enabled ? "Disable" : "Enable"}
-                    </Button>
-
-                    <Button
-                      onClick={handleRenewCode}
-                      variant="outline"
-                      className="text-sm flex items-center space-x-1.5"
-                    >
-                      <FiRefreshCw className="w-3.5 h-3.5" />
-                      <span>Renew</span>
-                    </Button>
-                  </div>
+                {/* Subtle disabled message - directly under status */}
+                {!inviteCode.enabled && (
+                  <span className="block text-xs text-slate-500 mt-1">
+                    New members cannot join using this code
+                  </span>
                 )}
               </div>
 
-              {/* Subtle disabled message */}
-              {!inviteCode.enabled && (
-                <p className="text-xs text-slate-500">
-                  New members cannot join using this code
-                </p>
+              {/* Buttons row */}
+              {canManage && (
+                <div className="flex items-center space-x-2 mt-2 sm:mt-0">
+                  <Button
+                    onClick={handleToggleInviteCode}
+                    variant="outline"
+                    className={`text-xs sm:text-sm border px-2 py-1 sm:px-3 sm:py-1.5 ${
+                      inviteCode.enabled
+                        ? "border-red-600 text-red-700 bg-red-50 hover:bg-red-100"
+                        : "border-green-600 text-green-700 bg-green-50 hover:bg-green-100"
+                    }`}
+                  >
+                    {inviteCode.enabled ? "Disable" : "Enable"}
+                  </Button>
+
+                  <Button
+                    onClick={handleRenewCode}
+                    variant="outline"
+                    className="text-xs sm:text-sm flex items-center space-x-1.5 px-2 py-1 sm:px-3 sm:py-1.5"
+                  >
+                    <FiRefreshCw className="w-3.5 h-3.5" />
+                    <span>Renew</span>
+                  </Button>
+                </div>
               )}
             </div>
           </div>
@@ -188,13 +191,13 @@ function WorkspaceSettingsPage() {
 
       {/* Leave Workspace Section - Only for non-admin members */}
       {userRole !== "admin" && (
-        <div className="bg-white rounded-lg border border-slate-200 p-6">
-          <div className="flex items-center justify-between">
-            <div className="flex-1 pr-6">
-              <h3 className="text-lg font-semibold text-slate-800 mb-2">
+        <div className="bg-white rounded-lg border border-slate-200 p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="flex-1 pr-0 sm:pr-6">
+              <h3 className="text-base sm:text-lg font-semibold text-slate-800 mb-1 sm:mb-2">
                 Leave Workspace
               </h3>
-              <p className="text-sm text-slate-600">
+              <p className="text-xs sm:text-sm text-slate-600">
                 If you leave this workspace, you'll lose access to all tasks,
                 materials, and discussions. You can rejoin at any time using a
                 valid invite code.
@@ -203,7 +206,7 @@ function WorkspaceSettingsPage() {
 
             <Button
               onClick={() => setShowLeaveConfirm(true)}
-              className="bg-red-600 hover:bg-red-700 text-white flex items-center space-x-2 flex-shrink-0"
+              className="bg-red-600 hover:bg-red-700 text-white flex items-center space-x-2 flex-shrink-0 text-xs sm:text-sm px-3 py-1.5 sm:px-4 sm:py-2"
             >
               <FaUserTimes className="w-4 h-4" />
               <span>Leave</span>
@@ -215,26 +218,27 @@ function WorkspaceSettingsPage() {
       {/* Leave Confirmation Modal */}
       {showLeaveConfirm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-md w-full p-6">
-            <h3 className="text-lg font-semibold text-slate-800 mb-2">
+          <div className="bg-white rounded-lg max-w-md w-full p-4 sm:p-6">
+            <h3 className="text-base sm:text-lg font-semibold text-slate-800 mb-2">
               Leave Workspace?
             </h3>
-            <p className="text-sm text-slate-600 mb-6">
+            <p className="text-xs sm:text-sm text-slate-600 mb-6">
               Are you sure you want to leave this workspace? You will lose
               access to all its content. You can rejoin later using a valid
               invite code if joining is enabled.
             </p>
 
-            <div className="flex justify-end space-x-3">
+            <div className="flex justify-end space-x-2 sm:space-x-3">
               <Button
                 onClick={() => setShowLeaveConfirm(false)}
                 variant="outline"
+                className="text-xs sm:text-sm px-3 py-1.5 sm:px-4 sm:py-2"
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleLeaveWorkspace}
-                className="bg-red-600 hover:bg-red-700 text-white flex items-center space-x-2"
+                className="bg-red-600 hover:bg-red-700 text-white flex items-center space-x-2 text-xs sm:text-sm px-3 py-1.5 sm:px-4 sm:py-2"
               >
                 <FaUserTimes className="w-4 h-4" />
                 <span>Leave Workspace</span>

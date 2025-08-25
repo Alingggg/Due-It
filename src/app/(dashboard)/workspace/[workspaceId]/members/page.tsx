@@ -1,16 +1,12 @@
 "use client";
 import { useState, useEffect } from "react";
-import {
-  getWorkspaceMembersByWorkspaceId,
-  getCurrentUser,
-} from "@/data/mockData";
+import { getWorkspaceMembersByWorkspaceId } from "@/data/mockData";
 import { FaUsers } from "react-icons/fa";
-import MemberCard from "@/components/MemberCard";
+import { MemberCard } from "@/components";
 
 function MembersPage({ params }: { params: Promise<{ workspaceId: string }> }) {
   const [workspaceId, setWorkspaceId] = useState<string>("");
   const [members, setMembers] = useState<any[]>([]);
-  const currentUser = getCurrentUser();
 
   useEffect(() => {
     params.then(({ workspaceId }) => {
