@@ -6,3 +6,5 @@ export { default as Dropdown } from "./Dropdown";
 export { default as TaskCard } from "./TaskCard";
 export { default as MaterialGroupCard } from "./MaterialGroupCard";
 export { default as MemberCard } from "./MemberCard";
+
+export { default as ModalContainer } from "./ModalContainer";
