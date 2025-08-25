@@ -1,5 +1,5 @@
 "use client";
-import { use, useState } from "react";
+import { use } from "react";
 import { notFound, useRouter } from "next/navigation";
 import { mockTasks, getSubjectById, getCurrentUserRole } from "@/data/mockData";
 import { Button } from "@/components";
@@ -14,6 +14,7 @@ import {
   FaTrash,
 } from "react-icons/fa";
 import { format } from "date-fns";
+import { useModalContext } from "@/hooks";
 
 interface TaskDetailPageProps {
   params: Promise<{ workspaceId: string; taskId: string }>;
@@ -23,7 +24,7 @@ function TaskDetailPage({ params }: TaskDetailPageProps) {
   const { workspaceId, taskId } = use(params);
   const router = useRouter();
   const task = mockTasks.find((t) => t.id === taskId);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const { openModal } = useModalContext();
 
   // Get current user's role in this workspace
   const currentUserRole = getCurrentUserRole(workspaceId);
@@ -53,17 +54,6 @@ function TaskDetailPage({ params }: TaskDetailPageProps) {
   const TypeIcon = task.type === "quiz" ? FaQuestionCircle : FaClipboardList;
   const DoneByIcon = doneByInfo.icon;
 
-  const handleEdit = () => {
-    router.push(`/workspace/${workspaceId}/tasks/${taskId}/edit`);
-  };
-
-  const handleDelete = () => {
-    // In a real app, this would delete from database and update state
-    console.log("Deleting task:", taskId);
-    setShowDeleteConfirm(false);
-    router.push(`/workspace/${workspaceId}/tasks`);
-  };
-
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Back Button Row */}
@@ -83,7 +73,7 @@ function TaskDetailPage({ params }: TaskDetailPageProps) {
         {canManageTask && (
           <div className="flex items-center space-x-2">
             <Button
-              onClick={handleEdit}
+              onClick={() => openModal("UPSERT_TASK", task)}
               variant="outline"
               className="flex items-center space-x-2 text-sm"
             >
@@ -91,7 +81,9 @@ function TaskDetailPage({ params }: TaskDetailPageProps) {
               <span>Edit</span>
             </Button>
             <Button
-              onClick={() => setShowDeleteConfirm(true)}
+              onClick={() =>
+                openModal("DELETE_TASK", { taskTitle: task.title })
+              }
               className="bg-red-600 hover:bg-red-700 text-white flex items-center space-x-2 text-sm"
             >
               <FaTrash className="w-3 h-3" />
@@ -153,38 +145,6 @@ function TaskDetailPage({ params }: TaskDetailPageProps) {
           </div>
         </div>
       </div>
-
-      {/* Delete Confirmation Modal */}
-      {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-md w-full p-6">
-            <h3 className="text-lg font-semibold text-slate-800 mb-2">
-              Delete Task?
-            </h3>
-            <p className="text-sm text-slate-600 mb-6 break-words">
-              Are you sure you want to delete "{task.title}"? This action cannot
-              be undone.
-            </p>
-
-            <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3">
-              <Button
-                onClick={() => setShowDeleteConfirm(false)}
-                variant="outline"
-                className="w-full sm:w-auto"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleDelete}
-                className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white flex items-center justify-center space-x-2"
-              >
-                <FaTrash className="w-4 h-4" />
-                <span>Delete Task</span>
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

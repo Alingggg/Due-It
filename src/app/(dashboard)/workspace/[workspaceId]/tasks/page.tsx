@@ -9,12 +9,14 @@ import {
   getCurrentUserRole,
 } from "@/data/mockData";
 import { FaClipboardList, FaFilter, FaPlus } from "react-icons/fa";
+import { useModalContext } from "@/hooks";
 
 function TasksPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { workspaceId } = useParams<{ workspaceId: string }>();
   const tasks = getTasksByWorkspaceId(workspaceId);
+  const { openModal } = useModalContext();
 
   // Get current user's role in this workspace
   const currentUserRole = getCurrentUserRole(workspaceId);
@@ -152,7 +154,10 @@ function TasksPage() {
             {sortedTasks.length} of {tasks.length} tasks
           </div>
           {(currentUserRole === "admin" || currentUserRole === "co") && (
-            <Button className="flex items-center space-x-2">
+            <Button
+              onClick={() => openModal("UPSERT_TASK")}
+              className="flex items-center space-x-2"
+            >
               <FaPlus className="w-4 h-4" />
               <span>Create</span>
             </Button>
@@ -213,13 +218,6 @@ function TasksPage() {
               ? "Create your first task to get started."
               : "Try adjusting your filters to see more tasks."}
           </p>
-          {(currentUserRole === "admin" || currentUserRole === "co") &&
-            tasks.length === 0 && (
-              <Button className="flex items-center space-x-2 mx-auto">
-                <FaPlus className="w-4 h-4" />
-                <span>Create First Task</span>
-              </Button>
-            )}
         </div>
       )}
     </div>

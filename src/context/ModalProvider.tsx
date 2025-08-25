@@ -1,7 +1,11 @@
 import { ModalContainer } from "@/components";
 import { createContext, useState } from "react";
 
-type ModalType = "REQUEST_RESET_PASSWORD" | null;
+type ModalType =
+  | "REQUEST_RESET_PASSWORD"
+  | "UPSERT_TASK"
+  | "DELETE_TASK"
+  | null;
 
 interface ModalContextType {
   openModal: (type: ModalType, props?: any) => void;

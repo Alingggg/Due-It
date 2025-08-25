@@ -1,7 +1,11 @@
 "use client";
 import { createPortal } from "react-dom";
 import { useModalContext } from "@/hooks";
-import { RequestResetPasswordModal } from "@/components";
+import {
+  DeleteTaskModal,
+  RequestResetPasswordModal,
+  UpsertTaskModal,
+} from "@/components";
 
 export default function ModalContainer() {
   const { modalType, modalProps, closeModal } = useModalContext();
@@ -12,6 +16,8 @@ export default function ModalContainer() {
     REQUEST_RESET_PASSWORD: (
       <RequestResetPasswordModal {...modalProps} onClose={closeModal} />
     ),
+    UPSERT_TASK: <UpsertTaskModal {...modalProps} onClose={closeModal} />,
+    DELETE_TASK: <DeleteTaskModal {...modalProps} onClose={closeModal} />,
   };
 
   const modalRoot = document.getElementById("modal-root");
@@ -19,7 +25,7 @@ export default function ModalContainer() {
   if (!modalRoot) return null;
 
   return createPortal(
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
       {modalMap[modalType] || null}
     </div>,
     modalRoot
