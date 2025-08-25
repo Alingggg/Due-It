@@ -13,20 +13,19 @@ function SignUp() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-md">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-blue-600 mb-2">Due It</h1>
-          <h2 className="text-xl font-semibold text-slate-800 mb-1">
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-2 py-6 sm:p-4">
+      <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8 w-full max-w-xs sm:max-w-md">
+        <div className="text-center mb-5 sm:mb-8">
+          <h1 className="text-xl sm:text-3xl font-bold text-blue-600 mb-2">
+            Due It
+          </h1>
+          <h2 className="text-lg sm:text-xl font-semibold text-slate-800">
             Create account
           </h2>
-          <p className="text-slate-600">
-            Join your workspace and stay organized
-          </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-3">
+        <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label
                 htmlFor="firstName"
@@ -87,14 +86,14 @@ function SignUp() {
 
           <Button
             disabled={isLoading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 sm:py-3"
           >
             {isLoading ? "Creating account..." : "Create account"}
           </Button>
         </form>
 
-        <div className="text-center mt-6">
-          <p className="text-slate-600">
+        <div className="text-center mt-5 sm:mt-6">
+          <p className="text-slate-600 text-sm sm:text-base">
             Already have an account?{" "}
             <Link
               href="/sign-in"
