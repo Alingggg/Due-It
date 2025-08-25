@@ -4,7 +4,7 @@ import { FiEye, FiEyeOff } from "react-icons/fi";
 
 interface InputProps {
   type?: string;
-  id: string;
+  id?: string;
   className?: string;
   placeholder?: string;
   disabled?: boolean;
@@ -30,7 +30,7 @@ function Input({
         placeholder={placeholder}
         disabled={disabled}
         {...rest}
-        className={`w-full px-4 py-3 border border-slate-300 rounded-lg bg-white text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent transition-all duration-200 ${
+        className={`w-full px-3 py-2 text-sm md:px-4 md:py-3 md:text-base border border-slate-300 rounded-lg bg-white text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent transition-all duration-200 ${
           isPassword ? "pr-12" : ""
         } ${className}`}
       />

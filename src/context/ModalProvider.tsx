@@ -1,7 +1,7 @@
 import { ModalContainer } from "@/components";
 import { createContext, useState } from "react";
 
-type ModalType = null;
+type ModalType = "REQUEST_RESET_PASSWORD" | null;
 
 interface ModalContextType {
   openModal: (type: ModalType, props?: any) => void;

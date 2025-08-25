@@ -2,9 +2,11 @@
 import { useState } from "react";
 import { Input, Button } from "@/components";
 import Link from "next/link";
+import { useModalContext } from "@/hooks";
 
 function SignIn() {
   const [isLoading, setIsLoading] = useState(false);
+  const { openModal } = useModalContext();
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -49,17 +51,17 @@ function SignIn() {
           </div>
 
           <div className="text-right">
-            <Link
-              href="/forgot-password"
-              className="text-sm text-blue-600 hover:text-blue-700 transition-colors"
+            <button
+              onClick={() => openModal("REQUEST_RESET_PASSWORD")}
+              className="text-sm text-blue-600 hover:text-blue-700 transition-colors hover:cursor-pointer"
             >
-              Forgot password?
-            </Link>
+              Forgot Password?
+            </button>
           </div>
 
           <Button
             disabled={isLoading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white"
           >
             {isLoading ? "Signing in..." : "Sign in"}
           </Button>

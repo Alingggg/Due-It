@@ -1,12 +1,17 @@
 import { createPortal } from "react-dom";
 import { useModalContext } from "@/hooks";
+import { RequestResetPasswordModal } from "@/components";
 
 export default function ModalContainer() {
   const { modalType, modalProps, closeModal } = useModalContext();
 
   if (!modalType) return null;
 
-  const modalMap = {};
+  const modalMap = {
+    REQUEST_RESET_PASSWORD: (
+      <RequestResetPasswordModal {...modalProps} onClose={closeModal} />
+    ),
+  };
 
   const modalRoot = document.getElementById("modal-root");
 

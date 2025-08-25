@@ -8,3 +8,4 @@ export { default as MaterialGroupCard } from "./MaterialGroupCard";
 export { default as MemberCard } from "./MemberCard";
 
 export { default as ModalContainer } from "./ModalContainer";
+export { default as RequestResetPasswordModal } from "./modals/RequestResetPasswordModal";

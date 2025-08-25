@@ -7,7 +7,7 @@ interface ButtonProps {
 }
 
 const baseStyles =
-  "px-4 py-2 rounded font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center";
+  "px-3 py-2 text-sm md:px-4 md:py-2 md:text-base rounded font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center";
 
 const variants = {
   primary: "bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800",
