@@ -1,3 +1,4 @@
+"use client";
 import { ModalContext } from "@/context";
 import { useContext } from "react";
 

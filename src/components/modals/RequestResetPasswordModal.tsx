@@ -1,3 +1,4 @@
+"use client";
 import { useState } from "react";
 import { Input, Button } from "@/components";
 import { FiX } from "react-icons/fi";

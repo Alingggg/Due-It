@@ -1,3 +1,4 @@
+"use client";
 import { createPortal } from "react-dom";
 import { useModalContext } from "@/hooks";
 import { RequestResetPasswordModal } from "@/components";
