@@ -5,6 +5,7 @@ type ModalType =
   | "REQUEST_RESET_PASSWORD"
   | "UPSERT_TASK"
   | "DELETE_TASK"
+  | "CONFIRM_MEMBER_ACTION"
   | null;
 
 interface ModalContextType {

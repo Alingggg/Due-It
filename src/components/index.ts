@@ -11,3 +11,4 @@ export { default as ModalContainer } from "./ModalContainer";
 export { default as RequestResetPasswordModal } from "./modals/RequestResetPasswordModal";
 export { default as UpsertTaskModal } from "./modals/UpsertTaskModal";
 export { default as DeleteTaskModal } from "./modals/DeleteTaskModal";
+export { default as ConfirmMemberActionModal } from "./modals/ConfirmMemberActionModal";

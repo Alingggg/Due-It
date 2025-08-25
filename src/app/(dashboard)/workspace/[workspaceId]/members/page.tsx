@@ -15,32 +15,6 @@ function MembersPage({ params }: { params: Promise<{ workspaceId: string }> }) {
     });
   }, [params]);
 
-  const handleRoleChange = (userId: string, newRole: string) => {
-    setMembers((prev) => {
-      // If promoting to admin, demote current admin to co-admin
-      if (newRole === "admin") {
-        const currentAdmin = prev.find((m) => m.role === "admin");
-        return prev.map((member) => {
-          if (member.userId === userId) {
-            return { ...member, role: "admin" };
-          }
-          if (currentAdmin && member.userId === currentAdmin.userId) {
-            return { ...member, role: "co" };
-          }
-          return member;
-        });
-      }
-      // Otherwise, just update the role as usual
-      return prev.map((member) =>
-        member.userId === userId ? { ...member, role: newRole } : member
-      );
-    });
-  };
-
-  const handleKickMember = (userId: string) => {
-    setMembers((prev) => prev.filter((member) => member.userId !== userId));
-  };
-
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Header */}
@@ -56,8 +30,6 @@ function MembersPage({ params }: { params: Promise<{ workspaceId: string }> }) {
             key={member.userId}
             member={member}
             workspaceId={workspaceId}
-            onRoleChange={handleRoleChange}
-            onKickMember={handleKickMember}
           />
         ))}
       </div>

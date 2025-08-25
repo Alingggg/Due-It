@@ -2,6 +2,7 @@
 import { createPortal } from "react-dom";
 import { useModalContext } from "@/hooks";
 import {
+  ConfirmMemberActionModal,
   DeleteTaskModal,
   RequestResetPasswordModal,
   UpsertTaskModal,
@@ -18,6 +19,9 @@ export default function ModalContainer() {
     ),
     UPSERT_TASK: <UpsertTaskModal {...modalProps} onClose={closeModal} />,
     DELETE_TASK: <DeleteTaskModal {...modalProps} onClose={closeModal} />,
+    CONFIRM_MEMBER_ACTION: (
+      <ConfirmMemberActionModal {...modalProps} onClose={closeModal} />
+    ),
   };
 
   const modalRoot = document.getElementById("modal-root");

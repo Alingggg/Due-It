@@ -10,22 +10,17 @@ import {
   FaUserMinus,
 } from "react-icons/fa";
 import { IconType } from "react-icons";
+import { useModalContext } from "@/hooks";
 
 interface MemberCardProps {
   member: any;
   workspaceId: string;
-  onRoleChange: (userId: string, newRole: string) => void;
-  onKickMember: (userId: string) => void;
 }
 
-function MemberCard({
-  member,
-  workspaceId,
-  onRoleChange,
-  onKickMember,
-}: MemberCardProps) {
+function MemberCard({ member, workspaceId }: MemberCardProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const currentUser = getCurrentUser();
+  const { openModal } = useModalContext();
 
   const getRoleInfo = (role: string) => {
     switch (role) {
@@ -69,12 +64,22 @@ function MemberCard({
   };
 
   const handleRoleChange = (newRole: string) => {
-    onRoleChange(member.userId, newRole);
+    const action = newRole === "member" ? "demote" : "promote";
+    openModal("CONFIRM_MEMBER_ACTION", {
+      action,
+      to: newRole,
+      memberId: member.userId,
+      memberName: `${member.profile.firstName} ${member.profile.lastName}`,
+    });
     closeMenu();
   };
 
   const handleKickMember = () => {
-    onKickMember(member.userId);
+    openModal("CONFIRM_MEMBER_ACTION", {
+      action: "kick",
+      memberId: member.userId,
+      memberName: `${member.profile.firstName} ${member.profile.lastName}`,
+    });
     closeMenu();
   };
 
@@ -164,7 +169,7 @@ function MemberCard({
     member.profile.firstName,
     member.profile.lastName
   );
-  const currentUserRole = getCurrentUserRole(workspaceId); // <-- Use workspaceId here
+  const currentUserRole = getCurrentUserRole(workspaceId);
   const availableActions = getAvailableActions(currentUserRole);
 
   return (
