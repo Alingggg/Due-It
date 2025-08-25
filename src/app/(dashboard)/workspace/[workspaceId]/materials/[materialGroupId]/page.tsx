@@ -26,6 +26,7 @@ import {
   FaYoutube,
   FaGlobe,
 } from "react-icons/fa";
+import { format } from "date-fns";
 
 interface MaterialGroupDetailsPageProps {
   params: Promise<{
@@ -66,16 +67,6 @@ function MaterialGroupDetailsPage({ params }: MaterialGroupDetailsPageProps) {
       return FaFileArchive;
     if (fileType.includes("sql")) return FaFileCode;
     return FaFile;
-  };
-
-  // Format date - simplified (just date, no time or day)
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString(undefined, {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
   };
 
   const handleOpenMaterial = (material: any) => {
@@ -147,7 +138,7 @@ function MaterialGroupDetailsPage({ params }: MaterialGroupDetailsPageProps) {
               {materialGroup.description}
             </p>
             <div className="flex items-center text-sm text-slate-500">
-              {formatDate(materialGroup.createdDate)}
+              {format(new Date(materialGroup.createdDate), "MMMM d, yyyy")}
             </div>
           </div>
         </div>

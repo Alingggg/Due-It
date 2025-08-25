@@ -13,6 +13,7 @@ import {
   FaEdit,
   FaTrash,
 } from "react-icons/fa";
+import { format } from "date-fns";
 
 interface TaskDetailPageProps {
   params: Promise<{ workspaceId: string; taskId: string }>;
@@ -51,19 +52,6 @@ function TaskDetailPage({ params }: TaskDetailPageProps) {
   const doneByInfo = getDoneByInfo(task.doneBy);
   const TypeIcon = task.type === "quiz" ? FaQuestionCircle : FaClipboardList;
   const DoneByIcon = doneByInfo.icon;
-
-  // Format date without seconds
-  const formatDateNoSeconds = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleString(undefined, {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    });
-  };
 
   const handleEdit = () => {
     router.push(`/workspace/${workspaceId}/tasks/${taskId}/edit`);
@@ -141,7 +129,7 @@ function TaskDetailPage({ params }: TaskDetailPageProps) {
               <div className="flex items-center">
                 <FaClock className="w-4 h-4 mr-2 flex-shrink-0" />
                 <span className="break-all">
-                  {formatDateNoSeconds(task.dueDate)}
+                  {format(new Date(task.dueDate), "MMM d, yyyy, hh:mm a")}
                 </span>
               </div>
             </div>

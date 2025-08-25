@@ -2,6 +2,12 @@
 import { useRouter } from "next/navigation";
 import { FaQuestionCircle, FaClipboardList } from "react-icons/fa";
 import { Task, getSubjectById } from "@/data/mockData";
+import {
+  format,
+  isToday,
+  isTomorrow,
+  differenceInCalendarDays,
+} from "date-fns";
 
 interface TaskCardProps {
   task: Task;
@@ -21,39 +27,40 @@ function TaskCard({ task, workspaceId, hideSubject = false }: TaskCardProps) {
   const formatDueDate = (dueDate: string) => {
     const date = new Date(dueDate);
     const now = new Date();
-    const diffTime = date.getTime() - now.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-    if (diffDays < 0) {
+    if (date < now) {
       return {
         text: "Overdue",
         color: "text-red-600 bg-red-50",
         showBadge: true,
       };
-    } else if (diffDays === 0) {
+    } else if (isToday(date)) {
       return {
         text: "Due today",
         color: "text-orange-600 bg-orange-50",
         showBadge: true,
       };
-    } else if (diffDays === 1) {
+    } else if (isTomorrow(date)) {
       return {
         text: "Due tomorrow",
         color: "text-yellow-600 bg-yellow-50",
         showBadge: true,
       };
-    } else if (diffDays <= 7) {
-      return {
-        text: `Due in ${diffDays} days`,
-        color: "text-blue-600 bg-blue-50",
-        showBadge: true,
-      };
     } else {
-      return {
-        text: `Due ${date.toLocaleDateString()}`,
-        color: "text-slate-600 bg-slate-50",
-        showBadge: false,
-      };
+      const diffDays = differenceInCalendarDays(date, now);
+      if (diffDays <= 7) {
+        return {
+          text: `Due in ${diffDays} days`,
+          color: "text-blue-600 bg-blue-50",
+          showBadge: true,
+        };
+      } else {
+        return {
+          text: "",
+          color: "",
+          showBadge: false,
+        };
+      }
     }
   };
 
@@ -102,7 +109,7 @@ function TaskCard({ task, workspaceId, hideSubject = false }: TaskCardProps) {
         {/* Due Date Section */}
         <div className="flex items-center justify-between sm:justify-end sm:flex-col sm:items-end space-x-2 sm:space-x-0 sm:min-w-[120px]">
           <div className="text-xs sm:text-sm text-slate-600 sm:mb-1 sm:text-right">
-            {new Date(task.dueDate).toLocaleDateString()}
+            {format(new Date(task.dueDate), "MM/dd/yyyy")}
           </div>
           <div className="flex justify-end">
             {dueInfo.showBadge ? (

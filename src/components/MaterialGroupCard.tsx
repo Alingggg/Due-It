@@ -6,6 +6,7 @@ import {
   getMaterialsByGroupId,
 } from "@/data/mockData";
 import { FaFolder, FaPaperclip } from "react-icons/fa";
+import { format } from "date-fns";
 
 interface MaterialGroupCardProps {
   materialGroup: MaterialGroup;
@@ -24,16 +25,6 @@ function MaterialGroupCard({
 
   const handleCardClick = () => {
     router.push(`/workspace/${workspaceId}/materials/${materialGroup.id}`);
-  };
-
-  // Format date
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString(undefined, {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
   };
 
   return (
@@ -78,7 +69,7 @@ function MaterialGroupCard({
         {/* Date Section */}
         <div className="flex flex-col justify-center items-end min-w-[100px]">
           <div className="text-xs sm:text-sm text-slate-500 sm:mb-0 sm:text-right">
-            {formatDate(materialGroup.createdDate)}
+            {format(new Date(materialGroup.createdDate), "MMM d, yyyy")}
           </div>
         </div>
       </div>
