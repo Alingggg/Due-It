@@ -5,6 +5,7 @@ import {
   ConfirmMemberActionModal,
   DeleteTaskModal,
   RequestResetPasswordModal,
+  UpsertMaterialModal,
   UpsertTaskModal,
 } from "@/components";
 
@@ -21,6 +22,9 @@ export default function ModalContainer() {
     DELETE_TASK: <DeleteTaskModal {...modalProps} onClose={closeModal} />,
     CONFIRM_MEMBER_ACTION: (
       <ConfirmMemberActionModal {...modalProps} onClose={closeModal} />
+    ),
+    UPSERT_MATERIAL: (
+      <UpsertMaterialModal {...modalProps} onClose={closeModal} />
     ),
   };
 

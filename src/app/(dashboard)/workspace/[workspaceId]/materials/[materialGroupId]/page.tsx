@@ -18,6 +18,7 @@ import {
   FaExternalLinkAlt,
 } from "react-icons/fa";
 import { format } from "date-fns";
+import { useModalContext } from "@/hooks";
 
 interface MaterialGroupDetailsPageProps {
   params: Promise<{
@@ -32,6 +33,7 @@ function MaterialGroupDetailsPage({ params }: MaterialGroupDetailsPageProps) {
   const materialGroup = getMaterialGroupById(materialGroupId);
   const materials = getMaterialsByGroupId(materialGroupId);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const { openModal } = useModalContext();
 
   if (!materialGroup) {
     notFound();
@@ -50,11 +52,6 @@ function MaterialGroupDetailsPage({ params }: MaterialGroupDetailsPageProps) {
     console.log("Deleting material group:", materialGroup.id);
     setShowDeleteConfirm(false);
     router.push(`/workspace/${workspaceId}/materials`);
-  };
-
-  const handleEdit = () => {
-    // Navigate to edit page (to be implemented)
-    console.log("Edit material group:", materialGroup.id);
   };
 
   return (
@@ -78,7 +75,7 @@ function MaterialGroupDetailsPage({ params }: MaterialGroupDetailsPageProps) {
         {canManage && (
           <div className="flex items-center space-x-2">
             <Button
-              onClick={handleEdit}
+              onClick={() => openModal("UPSERT_MATERIAL")}
               variant="outline"
               className="space-x-2"
             >

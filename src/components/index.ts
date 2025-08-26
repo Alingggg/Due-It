@@ -12,3 +12,4 @@ export { default as RequestResetPasswordModal } from "./modals/RequestResetPassw
 export { default as UpsertTaskModal } from "./modals/UpsertTaskModal";
 export { default as DeleteTaskModal } from "./modals/DeleteTaskModal";
 export { default as ConfirmMemberActionModal } from "./modals/ConfirmMemberActionModal";
+export { default as UpsertMaterialModal } from "./modals/UpsertMaterialModal";

@@ -9,12 +9,14 @@ import {
   getCurrentUserRole,
 } from "@/data/mockData";
 import { FaFolderOpen, FaFilter, FaPlus } from "react-icons/fa";
+import { useModalContext } from "@/hooks";
 
 function MaterialsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { workspaceId } = useParams<{ workspaceId: string }>();
   const materialGroups = getMaterialGroupsByWorkspaceId(workspaceId);
+  const { openModal } = useModalContext();
 
   // Get current user's role in this workspace
   const currentUserRole = getCurrentUserRole(workspaceId);
@@ -150,7 +152,10 @@ function MaterialsPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-slate-800">Materials</h1>
         {(currentUserRole === "admin" || currentUserRole === "co") && (
-          <Button className="flex items-center space-x-2">
+          <Button
+            onClick={() => openModal("UPSERT_MATERIAL")}
+            className="flex items-center space-x-2"
+          >
             <FaPlus className="w-4 h-4" />
             <span>Create</span>
           </Button>

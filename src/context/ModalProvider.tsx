@@ -6,6 +6,7 @@ type ModalType =
   | "UPSERT_TASK"
   | "DELETE_TASK"
   | "CONFIRM_MEMBER_ACTION"
+  | "UPSERT_MATERIAL"
   | null;
 
 interface ModalContextType {

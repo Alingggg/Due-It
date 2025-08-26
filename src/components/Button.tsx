@@ -4,6 +4,7 @@ interface ButtonProps {
   className?: string;
   disabled?: boolean;
   onClick?: () => void;
+  type?: "button" | "submit";
 }
 
 const baseStyles =
@@ -21,6 +22,7 @@ function Button({
   className = "",
   disabled = false,
   onClick,
+  type = "button",
   ...props
 }: ButtonProps) {
   // Remove hover/active styles if disabled
@@ -35,6 +37,7 @@ function Button({
       onClick={onClick}
       className={`${baseStyles} ${variantClass} ${className}`}
       disabled={disabled}
+      type={type}
       {...props}
     >
       {children}
