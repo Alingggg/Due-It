@@ -12,19 +12,10 @@ import { Button } from "@/components";
 import {
   FaArrowLeft,
   FaDownload,
-  FaFilePdf,
-  FaFileWord,
-  FaFilePowerpoint,
-  FaFileArchive,
-  FaFileCode,
-  FaFile,
   FaFolder,
   FaTrash,
   FaEdit,
-  FaPlus,
   FaExternalLinkAlt,
-  FaYoutube,
-  FaGlobe,
 } from "react-icons/fa";
 import { format } from "date-fns";
 
@@ -48,26 +39,6 @@ function MaterialGroupDetailsPage({ params }: MaterialGroupDetailsPageProps) {
 
   const subject = getSubjectById(materialGroup.subjectId);
   const canManage = canManageWorkspace(workspaceId);
-
-  // Get appropriate file/link icon
-  const getIcon = (fileType: string, isLink: boolean) => {
-    if (isLink) {
-      if (fileType.includes("youtube")) return FaYoutube;
-      if (fileType.includes("website")) return FaGlobe;
-      return FaExternalLinkAlt;
-    }
-
-    // File icons
-    if (fileType.includes("pdf")) return FaFilePdf;
-    if (fileType.includes("word") || fileType.includes("document"))
-      return FaFileWord;
-    if (fileType.includes("presentation") || fileType.includes("powerpoint"))
-      return FaFilePowerpoint;
-    if (fileType.includes("zip") || fileType.includes("compressed"))
-      return FaFileArchive;
-    if (fileType.includes("sql")) return FaFileCode;
-    return FaFile;
-  };
 
   const handleOpenMaterial = (material: any) => {
     // For both files and links, open in new tab
@@ -100,23 +71,25 @@ function MaterialGroupDetailsPage({ params }: MaterialGroupDetailsPageProps) {
       </div>
 
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-slate-800">Material Details</h1>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0">
+        <h1 className="text-xl sm:text-2xl font-bold text-slate-800">
+          Material Details
+        </h1>
         {canManage && (
           <div className="flex items-center space-x-2">
             <Button
               onClick={handleEdit}
               variant="outline"
-              className="flex items-center space-x-2"
+              className="space-x-2"
             >
-              <FaEdit className="w-4 h-4" />
+              <FaEdit className="w-3 h-3 sm:w-4 sm:h-4" />
               <span>Edit</span>
             </Button>
             <Button
               onClick={() => setShowDeleteConfirm(true)}
-              className="bg-red-600 hover:bg-red-700 text-white flex items-center space-x-2"
+              className="bg-red-600 hover:bg-red-700 text-white space-x-2"
             >
-              <FaTrash className="w-4 h-4" />
+              <FaTrash className="w-3 h-3 sm:w-4 sm:h-4" />
               <span>Delete</span>
             </Button>
           </div>
@@ -124,20 +97,22 @@ function MaterialGroupDetailsPage({ params }: MaterialGroupDetailsPageProps) {
       </div>
 
       {/* Material Group Info */}
-      <div className="bg-white rounded-lg border border-slate-200 p-6">
-        <div className="flex items-start space-x-4">
-          <div className="p-4 bg-blue-50 rounded-xl">
-            <FaFolder className="w-8 h-8 text-blue-600" />
+      <div className="bg-white rounded-lg border border-slate-200 p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row sm:items-start space-y-3 sm:space-y-0 sm:space-x-4">
+          <div className="p-3 sm:p-4 bg-blue-50 rounded-xl w-fit">
+            <FaFolder className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600" />
           </div>
           <div className="flex-1">
-            <h2 className="text-2xl font-bold text-slate-800 mb-2">
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-800 mb-2">
               {materialGroup.title}
             </h2>
-            <div className="text-sm text-blue-600 mb-4">{subject?.name}</div>
-            <p className="text-slate-600 leading-relaxed mb-4">
+            <div className="text-sm text-blue-600 mb-3 sm:mb-4">
+              {subject?.name}
+            </div>
+            <p className="text-sm sm:text-base text-slate-600 leading-relaxed mb-3 sm:mb-4">
               {materialGroup.description}
             </p>
-            <div className="flex items-center text-sm text-slate-500">
+            <div className="flex items-center text-xs sm:text-sm text-slate-500">
               {format(new Date(materialGroup.createdDate), "MMMM d, yyyy")}
             </div>
           </div>
@@ -146,113 +121,83 @@ function MaterialGroupDetailsPage({ params }: MaterialGroupDetailsPageProps) {
 
       {/* Materials Section */}
       <div className="bg-white rounded-lg border border-slate-200">
-        <div className="p-6 border-b border-slate-200">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-slate-800">
-              Materials ({materials.length})
-            </h3>
-            {canManage && (
-              <Button className="flex items-center space-x-2">
-                <FaPlus className="w-4 h-4" />
-                <span>Add Material</span>
-              </Button>
-            )}
-          </div>
+        <div className="p-4 sm:p-6 border-b border-slate-200">
+          <h3 className="text-base sm:text-lg font-semibold text-slate-800">
+            Materials ({materials.length})
+          </h3>
         </div>
 
         {/* Materials List */}
         <div className="divide-y divide-slate-100">
-          {materials.map((material) => {
-            const Icon = getIcon(material.fileType, material.isLink);
+          {materials.map((material) => (
+            <div
+              key={material.id}
+              className="p-4 sm:p-6 hover:bg-slate-50 transition-colors"
+            >
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+                <div className="flex-1 min-w-0">
+                  <h4 className="text-sm sm:text-base font-medium text-slate-800 mb-2">
+                    {material.fileName}
+                  </h4>
 
-            return (
-              <div
-                key={material.id}
-                className="p-6 hover:bg-slate-50 transition-colors"
-              >
-                <div className="flex items-center space-x-4">
-                  <div
-                    className={`p-3 rounded-lg ${
-                      material.isLink ? "bg-green-50" : "bg-blue-50"
-                    }`}
-                  >
-                    <Icon
-                      className={`w-5 h-5 ${
-                        material.isLink ? "text-green-600" : "text-blue-600"
-                      }`}
-                    />
-                  </div>
-
-                  <div className="flex-1 min-w-0">
-                    <h4 className="text-base font-medium text-slate-800 mb-2">
-                      {material.fileName}
-                    </h4>
-
-                    <div className="flex items-center space-x-4 text-xs text-slate-500">
-                      {material.isLink ? (
-                        <>
-                          <span className="capitalize">
-                            {material.fileType.replace("link/", "")}
-                          </span>
-                          <span>External Link</span>
-                        </>
-                      ) : (
-                        <>
-                          <span>{formatFileSize(material.fileSize || 0)}</span>
-                          <span className="capitalize">
-                            {material.fileType
-                              .split("/")[1]
-                              ?.replace(
-                                "vnd.openxmlformats-officedocument.",
-                                ""
-                              ) || "File"}
-                          </span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-
-                  <Button
-                    onClick={() => handleOpenMaterial(material)}
-                    variant="outline"
-                    className="flex items-center space-x-2"
-                  >
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs text-slate-500">
                     {material.isLink ? (
                       <>
-                        <FaExternalLinkAlt className="w-4 h-4" />
-                        <span>Open</span>
+                        <span className="capitalize">
+                          {material.fileType.replace("link/", "")}
+                        </span>
+                        <span>External Link</span>
                       </>
                     ) : (
                       <>
-                        <FaDownload className="w-4 h-4" />
-                        <span>Download</span>
+                        <span>{formatFileSize(material.fileSize || 0)}</span>
+                        <span className="capitalize">
+                          {material.fileType
+                            .split("/")[1]
+                            ?.replace(
+                              "vnd.openxmlformats-officedocument.",
+                              ""
+                            ) || "File"}
+                        </span>
                       </>
                     )}
-                  </Button>
+                  </div>
                 </div>
+
+                <Button
+                  onClick={() => handleOpenMaterial(material)}
+                  variant="outline"
+                  className="flex items-center justify-center space-x-2 text-xs sm:text-sm px-3 py-2 w-full sm:w-auto"
+                >
+                  {material.isLink ? (
+                    <>
+                      <FaExternalLinkAlt className="w-3 h-3 sm:w-4 sm:h-4" />
+                      <span>Open</span>
+                    </>
+                  ) : (
+                    <>
+                      <FaDownload className="w-3 h-3 sm:w-4 sm:h-4" />
+                      <span>Download</span>
+                    </>
+                  )}
+                </Button>
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
 
         {/* Empty Materials State */}
         {materials.length === 0 && (
-          <div className="p-12 text-center">
+          <div className="p-8 sm:p-12 text-center">
             <div className="text-slate-400 mb-4">
-              <FaFolder className="w-12 h-12 mx-auto" />
+              <FaFolder className="w-10 h-10 sm:w-12 sm:h-12 mx-auto" />
             </div>
-            <h4 className="text-lg font-medium text-slate-800 mb-2">
+            <h4 className="text-base sm:text-lg font-medium text-slate-800 mb-2">
               No materials yet
             </h4>
-            <p className="text-slate-600 mb-4">
+            <p className="text-sm sm:text-base text-slate-600 max-w-sm mx-auto">
               This material group doesn't have any files or links uploaded yet.
             </p>
-            {canManage && (
-              <Button className="flex items-center space-x-2 mx-auto">
-                <FaPlus className="w-4 h-4" />
-                <span>Add First Material</span>
-              </Button>
-            )}
           </div>
         )}
       </div>
@@ -260,28 +205,29 @@ function MaterialGroupDetailsPage({ params }: MaterialGroupDetailsPageProps) {
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-md w-full p-6">
-            <h3 className="text-lg font-semibold text-slate-800 mb-2">
+          <div className="bg-white rounded-lg max-w-md w-full p-4 sm:p-6 mx-4">
+            <h3 className="text-base sm:text-lg font-semibold text-slate-800 mb-2">
               Delete Material Group?
             </h3>
-            <p className="text-sm text-slate-600 mb-6">
+            <p className="text-sm text-slate-600 mb-4 sm:mb-6">
               Are you sure you want to delete "{materialGroup.title}"? This will
               also delete all {materials.length} materials in this group. This
               action cannot be undone.
             </p>
 
-            <div className="flex justify-end space-x-3">
+            <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3">
               <Button
                 onClick={() => setShowDeleteConfirm(false)}
                 variant="outline"
+                className="text-sm px-4 py-2"
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleDelete}
-                className="bg-red-600 hover:bg-red-700 text-white flex items-center space-x-2"
+                className="bg-red-600 hover:bg-red-700 text-white flex items-center justify-center space-x-2 text-sm px-4 py-2"
               >
-                <FaTrash className="w-4 h-4" />
+                <FaTrash className="w-3 h-3 sm:w-4 sm:h-4" />
                 <span>Delete Group</span>
               </Button>
             </div>

@@ -75,18 +75,18 @@ function TaskDetailPage({ params }: TaskDetailPageProps) {
             <Button
               onClick={() => openModal("UPSERT_TASK", task)}
               variant="outline"
-              className="flex items-center space-x-2 text-sm"
+              className="space-x-2"
             >
-              <FaEdit className="w-3 h-3" />
+              <FaEdit className="w-3 h-3 sm:w-4 sm:h-4" />
               <span>Edit</span>
             </Button>
             <Button
               onClick={() =>
                 openModal("DELETE_TASK", { taskTitle: task.title })
               }
-              className="bg-red-600 hover:bg-red-700 text-white flex items-center space-x-2 text-sm"
+              className="bg-red-600 hover:bg-red-700 text-white space-x-2"
             >
-              <FaTrash className="w-3 h-3" />
+              <FaTrash className="w-3 h-3 sm:w-4 sm:h-4" />
               <span>Delete</span>
             </Button>
           </div>
