@@ -133,6 +133,13 @@ function WorkspaceSettingsPage() {
               </div>
             </div>
 
+            {/* Last Changed */}
+            {inviteCode.updatedAt && (
+              <div className="text-xs text-slate-500">
+                Last changed: {new Date(inviteCode.updatedAt).toLocaleString()}
+              </div>
+            )}
+
             {/* Status and Controls */}
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start space-y-1 sm:space-y-0">
               <div className="space-y-1">

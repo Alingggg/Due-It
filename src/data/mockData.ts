@@ -55,6 +55,7 @@ export interface InviteCode {
   workspaceId: string;
   code: string;
   enabled: boolean;
+  updatedAt?: string; // ISO date string, optional for new workspaces
 }
 
 export const mockWorkspaces: Workspace[] = [
@@ -487,12 +488,14 @@ export const mockInviteCodes: InviteCode[] = [
     workspaceId: "1",
     code: "CS2025-ABC123",
     enabled: true,
+    updatedAt: "2025-08-20T12:00:00Z",
   },
   {
     id: "2",
     workspaceId: "2",
     code: "MATH2025-XYZ789",
     enabled: false,
+    updatedAt: "",
   },
 ];
 
