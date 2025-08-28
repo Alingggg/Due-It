@@ -1,4 +1,4 @@
-import { Sidebar } from "@/components";
+import Sidebar from "@/components/Sidebar";
 import { mockWorkspaces } from "@/data/mockData";
 
 type WorkspaceLayoutProps = {

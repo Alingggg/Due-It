@@ -2,7 +2,7 @@
 import { use } from "react";
 import { notFound, useRouter } from "next/navigation";
 import { mockTasks, getSubjectById, getCurrentUserRole } from "@/data/mockData";
-import { Button } from "@/components";
+import Button from "@/components/Button";
 import {
   FaClock,
   FaUser,
@@ -14,7 +14,7 @@ import {
   FaTrash,
 } from "react-icons/fa";
 import { format } from "date-fns";
-import { useModalContext } from "@/hooks";
+import useModalContext from "@/hooks/Modal";
 
 interface TaskDetailPageProps {
   params: Promise<{ workspaceId: string; taskId: string }>;

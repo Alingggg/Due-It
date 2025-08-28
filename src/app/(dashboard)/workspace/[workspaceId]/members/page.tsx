@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { getWorkspaceMembersByWorkspaceId } from "@/data/mockData";
 import { FaUsers } from "react-icons/fa";
-import { MemberCard } from "@/components";
+import MemberCard from "@/components/MemberCard";
 
 function MembersPage({ params }: { params: Promise<{ workspaceId: string }> }) {
   const [workspaceId, setWorkspaceId] = useState<string>("");

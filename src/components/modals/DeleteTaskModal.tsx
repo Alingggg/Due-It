@@ -1,4 +1,4 @@
-import { Button } from "@/components";
+import Button from "@/components/Button";
 import { FaTrash } from "react-icons/fa";
 import { FiX } from "react-icons/fi";
 

@@ -1,4 +1,4 @@
-import { ModalContainer } from "@/components";
+import ModalContainer from "@/components/ModalContainer";
 import { createContext, useState } from "react";
 
 type ModalType =

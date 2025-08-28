@@ -1,8 +1,9 @@
 "use client";
 import { useState } from "react";
-import { Input, Button } from "@/components";
+import Input from "@/components/Input";
+import Button from "@/components/Button";
 import Link from "next/link";
-import { useModalContext } from "@/hooks";
+import useModalContext from "@/hooks/Modal";
 
 function SignIn() {
   const [isLoading, setIsLoading] = useState(false);

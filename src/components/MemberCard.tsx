@@ -10,7 +10,7 @@ import {
   FaUserMinus,
 } from "react-icons/fa";
 import { IconType } from "react-icons";
-import { useModalContext } from "@/hooks";
+import useModalContext from "@/hooks/Modal";
 
 interface MemberCardProps {
   member: any;

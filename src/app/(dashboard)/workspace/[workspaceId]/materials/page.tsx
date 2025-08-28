@@ -1,7 +1,9 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { MaterialGroupCard, Dropdown, Button } from "@/components";
+import MaterialGroupCard from "@/components/MaterialGroupCard";
+import Dropdown from "@/components/Dropdown";
+import Button from "@/components/Button";
 import {
   getMaterialGroupsByWorkspaceId,
   mockSubjects,
@@ -9,7 +11,7 @@ import {
   getCurrentUserRole,
 } from "@/data/mockData";
 import { FaFolderOpen, FaFilter, FaPlus } from "react-icons/fa";
-import { useModalContext } from "@/hooks";
+import useModalContext from "@/hooks/Modal";
 
 function MaterialsPage() {
   const router = useRouter();

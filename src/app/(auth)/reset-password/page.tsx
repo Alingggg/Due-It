@@ -1,7 +1,8 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Input, Button } from "@/components";
+import Input from "@/components/Input";
+import Button from "@/components/Button";
 
 function ResetPasswordPage() {
   const [isLoading, setIsLoading] = useState(false);

@@ -11,7 +11,7 @@ import {
 } from "@/data/mockData";
 import { FaUserTimes, FaCheck } from "react-icons/fa";
 import { FiCopy, FiRefreshCw } from "react-icons/fi";
-import { Button } from "@/components";
+import Button from "@/components/Button";
 import { useParams } from "next/navigation";
 
 function WorkspaceSettingsPage() {

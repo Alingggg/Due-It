@@ -1,4 +1,4 @@
-import { Button } from "@/components";
+import Button from "@/components/Button";
 import { FaCrown, FaUserTie, FaUserMinus, FaUserPlus } from "react-icons/fa";
 import { FiX } from "react-icons/fi";
 

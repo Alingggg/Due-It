@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useMemo } from "react";
-import { Button } from "@/components";
+import Button from "@/components/Button";
 import { FaUpload, FaLink, FaFile, FaTrash } from "react-icons/fa";
 import { FiX } from "react-icons/fi";
 

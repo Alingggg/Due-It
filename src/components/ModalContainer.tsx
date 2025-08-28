@@ -1,13 +1,11 @@
 "use client";
 import { createPortal } from "react-dom";
-import { useModalContext } from "@/hooks";
-import {
-  ConfirmMemberActionModal,
-  DeleteTaskModal,
-  RequestResetPasswordModal,
-  UpsertMaterialModal,
-  UpsertTaskModal,
-} from "@/components";
+import useModalContext from "@/hooks/Modal";
+import ConfirmMemberActionModal from "@/components/modals/ConfirmMemberActionModal";
+import DeleteTaskModal from "@/components/modals/DeleteTaskModal";
+import RequestResetPasswordModal from "@/components/modals/RequestResetPasswordModal";
+import UpsertMaterialModal from "@/components/modals/UpsertMaterialModal";
+import UpsertTaskModal from "@/components/modals/UpsertTaskModal";
 
 export default function ModalContainer() {
   const { modalType, modalProps, closeModal } = useModalContext();

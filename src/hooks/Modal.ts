@@ -1,5 +1,5 @@
 "use client";
-import { ModalContext } from "@/context";
+import { ModalContext } from "@/context/ModalProvider";
 import { useContext } from "react";
 
 function useModalContext() {

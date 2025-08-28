@@ -1,7 +1,9 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { TaskCard, Dropdown, Button } from "@/components";
+import TaskCard from "@/components/TaskCard";
+import Dropdown from "@/components/Dropdown";
+import Button from "@/components/Button";
 import {
   getTasksByWorkspaceId,
   mockSubjects,
@@ -9,7 +11,7 @@ import {
   getCurrentUserRole,
 } from "@/data/mockData";
 import { FaClipboardList, FaFilter, FaPlus } from "react-icons/fa";
-import { useModalContext } from "@/hooks";
+import useModalContext from "@/hooks/Modal";
 
 function TasksPage() {
   const router = useRouter();

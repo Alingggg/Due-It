@@ -8,7 +8,7 @@ import {
   formatFileSize,
   canManageWorkspace,
 } from "@/data/mockData";
-import { Button } from "@/components";
+import Button from "@/components/Button";
 import {
   FaArrowLeft,
   FaDownload,
@@ -18,7 +18,7 @@ import {
   FaExternalLinkAlt,
 } from "react-icons/fa";
 import { format } from "date-fns";
-import { useModalContext } from "@/hooks";
+import useModalContext from "@/hooks/Modal";
 
 interface MaterialGroupDetailsPageProps {
   params: Promise<{

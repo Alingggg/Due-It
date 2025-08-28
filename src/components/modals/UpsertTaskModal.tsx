@@ -1,6 +1,8 @@
 "use client";
 import { useState } from "react";
-import { Input, Button, Dropdown } from "@/components";
+import Input from "@/components/Input";
+import Button from "@/components/Button";
+import Dropdown from "@/components/Dropdown";
 import {
   FaQuestionCircle,
   FaClipboardList,
