@@ -58,6 +58,76 @@ export interface InviteCode {
   updatedAt?: string; // ISO date string, optional for new workspaces
 }
 
+export interface Schedule {
+  id: string;
+  subjectId: string;
+  dayOfWeek: number; // 0 = Sunday, 6 = Saturday
+  timeOfDay: string; // "HH:MM" 24-hour format
+}
+
+// Example schedules for mockSubjects
+export const mockSchedules: Schedule[] = [
+  // Data Structures and Algorithms (subjectId: "1")
+  {
+    id: "1",
+    subjectId: "1",
+    dayOfWeek: 1, // Monday
+    timeOfDay: "09:00",
+  },
+  {
+    id: "2",
+    subjectId: "1",
+    dayOfWeek: 3, // Wednesday
+    timeOfDay: "09:00",
+  },
+  // Database Management Systems (subjectId: "2")
+  {
+    id: "3",
+    subjectId: "2",
+    dayOfWeek: 2, // Tuesday
+    timeOfDay: "13:00",
+  },
+  {
+    id: "4",
+    subjectId: "2",
+    dayOfWeek: 4, // Thursday
+    timeOfDay: "13:00",
+  },
+  // Web Development (subjectId: "3")
+  {
+    id: "5",
+    subjectId: "3",
+    dayOfWeek: 5, // Friday
+    timeOfDay: "10:30",
+  },
+  // Calculus I (subjectId: "4")
+  {
+    id: "6",
+    subjectId: "4",
+    dayOfWeek: 1, // Monday
+    timeOfDay: "15:00",
+  },
+  {
+    id: "7",
+    subjectId: "4",
+    dayOfWeek: 3, // Wednesday
+    timeOfDay: "15:00",
+  },
+  // Linear Algebra (subjectId: "5")
+  {
+    id: "8",
+    subjectId: "5",
+    dayOfWeek: 2, // Tuesday
+    timeOfDay: "08:00",
+  },
+  {
+    id: "9",
+    subjectId: "5",
+    dayOfWeek: 4, // Thursday
+    timeOfDay: "08:00",
+  },
+];
+
 export const mockWorkspaces: Workspace[] = [
   {
     id: "1",

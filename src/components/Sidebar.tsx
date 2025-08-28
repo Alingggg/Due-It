@@ -10,6 +10,7 @@ import {
   FaBars,
   FaTimes,
   FaCog,
+  FaCalendarAlt,
 } from "react-icons/fa";
 
 function Sidebar({ workspaceId }: { workspaceId: string }) {
@@ -26,6 +27,11 @@ function Sidebar({ workspaceId }: { workspaceId: string }) {
       name: "Materials",
       href: `/workspace/${workspaceId}/materials`,
       icon: FaBook,
+    },
+    {
+      name: "Schedule",
+      href: `/workspace/${workspaceId}/schedule`,
+      icon: FaCalendarAlt,
     },
     {
       name: "Members",
