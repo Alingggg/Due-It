@@ -3,6 +3,7 @@ import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { FaUpload, FaLink, FaFile, FaTrash } from "react-icons/fa";
 import { FiX } from "react-icons/fi";
+import { Input } from "@/components/ui/input";
 
 export interface MaterialGroup {
   id: string;
@@ -239,13 +240,9 @@ function UpsertMaterialModal({
           >
             Title *
           </label>
-          <input
+          <Input
             id="title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-              errors.title ? "border-red-500" : "border-slate-300"
-            }`}
+            className={`${errors.title ? "border-red-500" : ""}`}
             placeholder="Enter material group title"
             disabled={isSubmitting}
           />
@@ -323,7 +320,7 @@ function UpsertMaterialModal({
           {showFileUpload && (
             <div className="mb-3 p-4 border border-slate-200 rounded-lg bg-slate-50">
               <div className="text-center">
-                <input
+                <Input
                   type="file"
                   onChange={(e) => {
                     const file = e.target.files?.[0];
@@ -358,7 +355,7 @@ function UpsertMaterialModal({
                   <label className="block text-sm font-medium text-slate-600 mb-1">
                     Link Name *
                   </label>
-                  <input
+                  <Input
                     value={tempLinkName}
                     onChange={(e) => setTempLinkName(e.target.value)}
                     className="w-full px-3 py-2 border border-slate-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
@@ -370,7 +367,7 @@ function UpsertMaterialModal({
                   <label className="block text-sm font-medium text-slate-600 mb-1">
                     URL *
                   </label>
-                  <input
+                  <Input
                     value={tempLinkUrl}
                     onChange={(e) => setTempLinkUrl(e.target.value)}
                     className="w-full px-3 py-2 border border-slate-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
@@ -448,42 +445,13 @@ function UpsertMaterialModal({
                     )}
                   </div>
 
-                  {/* Edit Material Name */}
-                  {!material.isLink ? null : (
-                    <div>
-                      <label className="block text-xs font-medium text-slate-600 mb-1">
-                        Name *
-                      </label>
-                      <input
-                        value={material.fileName}
-                        onChange={(e) =>
-                          updateMaterial(material.id, {
-                            fileName: e.target.value,
-                          })
-                        }
-                        className={`w-full px-2 py-1.5 border rounded text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 ${
-                          errors[`material-${material.id}-fileName`]
-                            ? "border-red-500"
-                            : "border-slate-300"
-                        }`}
-                        placeholder="Link name"
-                        disabled={isSubmitting}
-                      />
-                      {errors[`material-${material.id}-fileName`] && (
-                        <p className="mt-1 text-xs text-red-600">
-                          {errors[`material-${material.id}-fileName`]}
-                        </p>
-                      )}
-                    </div>
-                  )}
-
                   {/* Edit URL for links */}
                   {material.isLink && (
                     <div>
                       <label className="block text-xs font-medium text-slate-600 mb-1">
                         URL *
                       </label>
-                      <input
+                      <Input
                         value={material.url || ""}
                         onChange={(e) =>
                           updateMaterial(material.id, { url: e.target.value })

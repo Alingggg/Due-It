@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import Input from "@/components/Input";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 function GetStarted() {
@@ -57,7 +57,7 @@ function GetStarted() {
                 placeholder="Enter workspace code"
               />
             </div>
-            <Button disabled={isLoading} className="w-full">
+            <Button type="submit" disabled={isLoading} className="w-full">
               {isLoading ? "Joining..." : "Join Workspace"}
             </Button>
           </form>

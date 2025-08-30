@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Input from "@/components/Input";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 function ResetPasswordPage() {
@@ -70,7 +70,6 @@ function ResetPasswordPage() {
                 id="password"
                 type="password"
                 placeholder="Enter new password"
-                className="h-12 sm:h-12"
               />
             </div>
             <div>
@@ -84,10 +83,9 @@ function ResetPasswordPage() {
                 id="confirmPassword"
                 type="password"
                 placeholder="Confirm new password"
-                className="h-12 sm:h-12"
               />
             </div>
-            <Button disabled={isLoading} className="w-full">
+            <Button type="submit" disabled={isLoading} className="w-full">
               {isLoading ? "Resetting..." : "Reset Password"}
             </Button>
           </form>
