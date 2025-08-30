@@ -19,7 +19,7 @@ function RequestResetPasswordDialog() {
         {submitted ? "Check Your Email" : "Request Password Reset"}
       </DialogTitle>
       {submitted ? (
-        <div className="mb-4">
+        <div>
           <div className="flex items-center justify-center w-12 h-12 mx-auto mb-3 bg-green-100 rounded-full">
             <Check className="w-6 h-6 text-green-600" />
           </div>
