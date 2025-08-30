@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/dialog";
 import { Crown, UserCog, UserMinus, UserPlus } from "lucide-react";
 
-interface ConfirmMemberActionModalProps {
+interface MemberActionDialogProps {
   onClose: () => void;
   action: "promote" | "demote" | "kick";
   to?: "admin" | "co" | "member";
@@ -16,13 +16,13 @@ interface ConfirmMemberActionModalProps {
   isLoading?: boolean;
 }
 
-function ConfirmMemberActionModal({
+function MemberActionDialog({
   onClose,
   action,
   to,
   memberName,
   isLoading = false,
-}: ConfirmMemberActionModalProps) {
+}: MemberActionDialogProps) {
   const getActionDetails = () => {
     switch (action) {
       case "promote":
@@ -125,4 +125,4 @@ function ConfirmMemberActionModal({
   );
 }
 
-export default ConfirmMemberActionModal;
+export default MemberActionDialog;

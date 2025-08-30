@@ -6,17 +6,17 @@ import {
 } from "@/components/ui/dialog";
 import { Trash2 } from "lucide-react";
 
-interface DeleteMaterialModalProps {
+interface DeleteMaterialDialogProps {
   onClose: () => void;
   title: string;
   materialCount: number;
 }
 
-function DeleteMaterialModal({
+function DeleteMaterialDialog({
   onClose,
   title,
   materialCount,
-}: DeleteMaterialModalProps) {
+}: DeleteMaterialDialogProps) {
   return (
     <DialogContent>
       <DialogTitle className="text-slate-800">
@@ -40,4 +40,4 @@ function DeleteMaterialModal({
   );
 }
 
-export default DeleteMaterialModal;
+export default DeleteMaterialDialog;

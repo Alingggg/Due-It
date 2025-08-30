@@ -1,8 +1,8 @@
 "use client";
-import { ModalProvider } from "@/context/ModalProvider";
+import { DialogProvider } from "@/context/DialogProvider";
 
 function ClientLayout({ children }: { children: React.ReactNode }) {
-  return <ModalProvider>{children}</ModalProvider>;
+  return <DialogProvider>{children}</DialogProvider>;
 }
 
 export default ClientLayout;

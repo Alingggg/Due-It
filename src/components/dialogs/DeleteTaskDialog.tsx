@@ -6,12 +6,12 @@ import {
 } from "@/components/ui/dialog";
 import { Trash2 } from "lucide-react";
 
-interface DeleteTaskModalProps {
+interface DeleteTaskDialogProps {
   onClose: () => void;
   taskTitle: string;
 }
 
-function DeleteTaskModal({ onClose, taskTitle }: DeleteTaskModalProps) {
+function DeleteTaskDialog({ onClose, taskTitle }: DeleteTaskDialogProps) {
   return (
     <DialogContent>
       <DialogTitle className="text-slate-800">Delete Task?</DialogTitle>
@@ -33,4 +33,4 @@ function DeleteTaskModal({ onClose, taskTitle }: DeleteTaskModalProps) {
   );
 }
 
-export default DeleteTaskModal;
+export default DeleteTaskDialog;

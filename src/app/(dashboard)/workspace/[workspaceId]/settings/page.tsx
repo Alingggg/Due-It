@@ -10,7 +10,7 @@ import {
 import { Check, Copy, RefreshCcw, UserMinus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useParams } from "next/navigation";
-import useModalContext from "@/hooks/Modal";
+import useDialogContext from "@/hooks/Dialog";
 
 function WorkspaceSettingsPage() {
   const { workspaceId } = useParams<{ workspaceId: string }>();
@@ -18,7 +18,7 @@ function WorkspaceSettingsPage() {
     getInviteCodeByWorkspaceId(workspaceId)
   );
   const [copied, setCopied] = useState(false);
-  const { openModal } = useModalContext();
+  const { openDialog } = useDialogContext();
 
   // Get current values each render to handle temporary role changes
   const userRole = getCurrentUserRole(workspaceId);
@@ -190,7 +190,7 @@ function WorkspaceSettingsPage() {
             </div>
 
             <Button
-              onClick={() => openModal("LEAVE_WORKSPACE")}
+              onClick={() => openDialog("LEAVE_WORKSPACE")}
               variant="destructive"
             >
               <UserMinus className="w-4 h-4" />

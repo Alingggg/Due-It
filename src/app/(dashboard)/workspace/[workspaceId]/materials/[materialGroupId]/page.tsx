@@ -18,7 +18,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { format } from "date-fns";
-import useModalContext from "@/hooks/Modal";
+import useDialogContext from "@/hooks/Dialog";
 
 interface MaterialGroupDetailsPageProps {
   params: Promise<{
@@ -32,7 +32,7 @@ function MaterialGroupDetailsPage({ params }: MaterialGroupDetailsPageProps) {
   const router = useRouter();
   const materialGroup = getMaterialGroupById(materialGroupId);
   const materials = getMaterialsByGroupId(materialGroupId);
-  const { openModal } = useModalContext();
+  const { openDialog } = useDialogContext();
 
   if (!materialGroup) {
     notFound();
@@ -68,7 +68,7 @@ function MaterialGroupDetailsPage({ params }: MaterialGroupDetailsPageProps) {
         {canManage && (
           <div className="flex items-center space-x-2">
             <Button
-              onClick={() => openModal("UPSERT_MATERIAL")}
+              onClick={() => openDialog("UPSERT_MATERIAL")}
               variant="outline"
             >
               <Pencil className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -76,7 +76,7 @@ function MaterialGroupDetailsPage({ params }: MaterialGroupDetailsPageProps) {
             </Button>
             <Button
               onClick={() =>
-                openModal("DELETE_MATERIAL", {
+                openDialog("DELETE_MATERIAL", {
                   title: materialGroup.title,
                   materialCount: materials.length,
                 })

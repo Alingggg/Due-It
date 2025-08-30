@@ -3,11 +3,11 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import useModalContext from "@/hooks/Modal";
+import useDialogContext from "@/hooks/Dialog";
 
 function SignIn() {
   const [isLoading, setIsLoading] = useState(false);
-  const { openModal } = useModalContext();
+  const { openDialog } = useDialogContext();
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -54,7 +54,7 @@ function SignIn() {
 
           <div className="text-right">
             <Button
-              onClick={() => openModal("REQUEST_RESET_PASSWORD")}
+              onClick={() => openDialog("REQUEST_RESET_PASSWORD")}
               variant="link"
               className="pr-0 underline-offset-0 hover:no-underline focus:no-underline"
             >

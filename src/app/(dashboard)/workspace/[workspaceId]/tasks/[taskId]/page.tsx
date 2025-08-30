@@ -14,7 +14,7 @@ import {
   HelpCircle,
 } from "lucide-react";
 import { format } from "date-fns";
-import useModalContext from "@/hooks/Modal";
+import useDialogContext from "@/hooks/Dialog";
 
 interface TaskDetailPageProps {
   params: Promise<{ workspaceId: string; taskId: string }>;
@@ -24,7 +24,7 @@ function TaskDetailPage({ params }: TaskDetailPageProps) {
   const { workspaceId, taskId } = use(params);
   const router = useRouter();
   const task = mockTasks.find((t) => t.id === taskId);
-  const { openModal } = useModalContext();
+  const { openDialog } = useDialogContext();
 
   // Get current user's role in this workspace
   const currentUserRole = getCurrentUserRole(workspaceId);
@@ -74,7 +74,7 @@ function TaskDetailPage({ params }: TaskDetailPageProps) {
         {canManageTask && (
           <div className="flex items-center space-x-2">
             <Button
-              onClick={() => openModal("UPSERT_TASK", task)}
+              onClick={() => openDialog("UPSERT_TASK", task)}
               variant="outline"
             >
               <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -82,7 +82,7 @@ function TaskDetailPage({ params }: TaskDetailPageProps) {
             </Button>
             <Button
               onClick={() =>
-                openModal("DELETE_TASK", { taskTitle: task.title })
+                openDialog("DELETE_TASK", { taskTitle: task.title })
               }
               variant="destructive"
             >

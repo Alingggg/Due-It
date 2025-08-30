@@ -30,7 +30,7 @@ export interface Material {
   isLink: boolean;
 }
 
-interface UpsertMaterialModalProps {
+interface UpsertMaterialDialogProps {
   onClose: () => void;
   materialGroup?: MaterialGroup;
   materials?: Material[];
@@ -48,11 +48,11 @@ interface MaterialItem {
 
 const EMPTY_MATERIALS: Material[] = [];
 
-function UpsertMaterialModal({
+function UpsertMaterialDialog({
   onClose,
   materialGroup,
   materials: initialMaterials = EMPTY_MATERIALS,
-}: UpsertMaterialModalProps) {
+}: UpsertMaterialDialogProps) {
   const memoizedInitialMaterials = useMemo(
     () => initialMaterials,
     [initialMaterials]
@@ -498,4 +498,4 @@ function UpsertMaterialModal({
   );
 }
 
-export default UpsertMaterialModal;
+export default UpsertMaterialDialog;

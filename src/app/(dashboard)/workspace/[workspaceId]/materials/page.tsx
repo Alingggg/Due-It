@@ -10,7 +10,7 @@ import {
   getCurrentUserRole,
 } from "@/data/mockData";
 import { FolderOpen, Filter, Plus } from "lucide-react";
-import useModalContext from "@/hooks/Modal";
+import useDialogContext from "@/hooks/Dialog";
 import {
   Select,
   SelectContent,
@@ -24,7 +24,7 @@ function MaterialsPage() {
   const searchParams = useSearchParams();
   const { workspaceId } = useParams<{ workspaceId: string }>();
   const materialGroups = getMaterialGroupsByWorkspaceId(workspaceId);
-  const { openModal } = useModalContext();
+  const { openDialog } = useDialogContext();
 
   // Get current user's role in this workspace
   const currentUserRole = getCurrentUserRole(workspaceId);
@@ -160,7 +160,7 @@ function MaterialsPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-slate-800">Materials</h1>
         {(currentUserRole === "admin" || currentUserRole === "co") && (
-          <Button onClick={() => openModal("UPSERT_MATERIAL")}>
+          <Button onClick={() => openDialog("UPSERT_MATERIAL")}>
             <Plus className="w-4 h-4" />
             Create
           </Button>

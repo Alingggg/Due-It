@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/dialog";
 import { UserMinus } from "lucide-react";
 
-function LeaveWorkspaceModal({ onClose }: { onClose: () => void }) {
+function LeaveWorkspaceDialog({ onClose }: { onClose: () => void }) {
   return (
     <DialogContent>
       <DialogTitle className="text-slate-800">Leave Workspace?</DialogTitle>
@@ -29,4 +29,4 @@ function LeaveWorkspaceModal({ onClose }: { onClose: () => void }) {
   );
 }
 
-export default LeaveWorkspaceModal;
+export default LeaveWorkspaceDialog;

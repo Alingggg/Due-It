@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
 import { DialogContent, DialogTitle } from "@/components/ui/dialog";
 
-function RequestResetPasswordModal() {
+function RequestResetPasswordDialog() {
   const [submitted, setSubmitted] = useState(false);
 
   function handleSubmit(e: React.FormEvent) {
@@ -50,4 +50,4 @@ function RequestResetPasswordModal() {
   );
 }
 
-export default RequestResetPasswordModal;
+export default RequestResetPasswordDialog;

@@ -9,7 +9,7 @@ import {
   UserPlus,
   UserMinus,
 } from "lucide-react";
-import useModalContext from "@/hooks/Modal";
+import useDialogContext from "@/hooks/Dialog";
 
 interface MemberCardProps {
   member: any;
@@ -19,7 +19,7 @@ interface MemberCardProps {
 function MemberCard({ member, workspaceId }: MemberCardProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const currentUser = getCurrentUser();
-  const { openModal } = useModalContext();
+  const { openDialog } = useDialogContext();
 
   const getRoleInfo = (role: string) => {
     switch (role) {
@@ -64,7 +64,7 @@ function MemberCard({ member, workspaceId }: MemberCardProps) {
 
   const handleRoleChange = (newRole: string) => {
     const action = newRole === "member" ? "demote" : "promote";
-    openModal("CONFIRM_MEMBER_ACTION", {
+    openDialog("CONFIRM_MEMBER_ACTION", {
       action,
       to: newRole,
       memberId: member.userId,
@@ -74,7 +74,7 @@ function MemberCard({ member, workspaceId }: MemberCardProps) {
   };
 
   const handleKickMember = () => {
-    openModal("CONFIRM_MEMBER_ACTION", {
+    openDialog("CONFIRM_MEMBER_ACTION", {
       action: "kick",
       memberId: member.userId,
       memberName: `${member.profile.firstName} ${member.profile.lastName}`,

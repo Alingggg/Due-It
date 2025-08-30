@@ -10,7 +10,7 @@ import {
   getCurrentUserRole,
 } from "@/data/mockData";
 import { ClipboardList, Filter, Plus } from "lucide-react";
-import useModalContext from "@/hooks/Modal";
+import useDialogContext from "@/hooks/Dialog";
 import {
   Select,
   SelectContent,
@@ -24,7 +24,7 @@ function TasksPage() {
   const searchParams = useSearchParams();
   const { workspaceId } = useParams<{ workspaceId: string }>();
   const tasks = getTasksByWorkspaceId(workspaceId);
-  const { openModal } = useModalContext();
+  const { openDialog } = useDialogContext();
 
   // Get current user's role in this workspace
   const currentUserRole = getCurrentUserRole(workspaceId);
@@ -162,7 +162,7 @@ function TasksPage() {
             {sortedTasks.length} of {tasks.length} tasks
           </div>
           {(currentUserRole === "admin" || currentUserRole === "co") && (
-            <Button onClick={() => openModal("UPSERT_TASK")}>
+            <Button onClick={() => openDialog("UPSERT_TASK")}>
               <Plus className="w-4 h-4" />
               <span>Create</span>
             </Button>

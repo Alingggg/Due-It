@@ -13,7 +13,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { DialogContent, DialogTitle } from "@/components/ui/dialog";
 
-interface UpsertTaskModalProps {
+interface UpsertTaskDialogProps {
   initialData?: {
     title?: string;
     description?: string;
@@ -39,13 +39,13 @@ const doneByOptions = [
   { value: "group", label: "Group", icon: Users },
 ];
 
-function UpsertTaskModal({
+function UpsertTaskDialog({
   initialData = {},
   subjects = [],
   onClose,
   onSubmit,
   isLoading = false,
-}: UpsertTaskModalProps) {
+}: UpsertTaskDialogProps) {
   const [title, setTitle] = useState(initialData.title || "");
   const [description, setDescription] = useState(initialData.description || "");
   const [type, setType] = useState<"quiz" | "assignment">(
@@ -216,4 +216,4 @@ function UpsertTaskModal({
   );
 }
 
-export default UpsertTaskModal;
+export default UpsertTaskDialog;
