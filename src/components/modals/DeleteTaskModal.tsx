@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { FaTrash } from "react-icons/fa";
-import { FiX } from "react-icons/fi";
+import { Trash2, X as LucideX } from "lucide-react";
 
 interface DeleteTaskModalProps {
   onClose: () => void;
@@ -17,7 +16,7 @@ function DeleteTaskModal({ onClose, taskTitle }: DeleteTaskModalProps) {
         variant="ghost"
         size="icon"
       >
-        <FiX className="w-6 h-6" />
+        <LucideX className="w-6 h-6" />
       </Button>
       <h3 className="text-lg font-semibold text-slate-800 mb-2">
         Delete Task?
@@ -29,7 +28,7 @@ function DeleteTaskModal({ onClose, taskTitle }: DeleteTaskModalProps) {
 
       <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3">
         <Button onClick={onClose} variant="destructive">
-          <FaTrash className="w-4 h-4" />
+          <Trash2 className="w-4 h-4" />
           Delete Task
         </Button>
       </div>

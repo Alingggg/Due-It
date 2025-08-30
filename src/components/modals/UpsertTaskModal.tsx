@@ -3,12 +3,12 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
-  FaQuestionCircle,
-  FaClipboardList,
-  FaUser,
-  FaUsers,
-} from "react-icons/fa";
-import { FiX } from "react-icons/fi";
+  HelpCircle,
+  ClipboardList,
+  User,
+  Users,
+  X as LucideX,
+} from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -34,14 +34,14 @@ interface UpsertTaskModalProps {
 }
 
 const typeOptions = [
-  { value: "quiz", label: "Quiz", icon: FaQuestionCircle },
-  { value: "assignment", label: "Assignment", icon: FaClipboardList },
+  { value: "quiz", label: "Quiz", icon: HelpCircle },
+  { value: "assignment", label: "Assignment", icon: ClipboardList },
 ];
 
 const doneByOptions = [
-  { value: "individual", label: "Individual", icon: FaUser },
-  { value: "pair", label: "Pair", icon: FaUsers },
-  { value: "group", label: "Group", icon: FaUsers },
+  { value: "individual", label: "Individual", icon: User },
+  { value: "pair", label: "Pair", icon: Users },
+  { value: "group", label: "Group", icon: Users },
 ];
 
 function UpsertTaskModal({
@@ -90,7 +90,7 @@ function UpsertTaskModal({
           aria-label="Close"
           size="icon"
         >
-          <FiX className="w-6 h-6" />
+          <LucideX className="w-6 h-6" />
         </Button>
       </div>
 
@@ -101,7 +101,13 @@ function UpsertTaskModal({
           <label className="block text-sm font-semibold text-gray-700">
             Task Title *
           </label>
-          <Input type="text" placeholder="Enter task title..." />
+          <Input
+            type="text"
+            placeholder="Enter task title..."
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            disabled={isLoading}
+          />
         </div>
 
         {/* Description */}
@@ -109,7 +115,12 @@ function UpsertTaskModal({
           <label className="block text-sm font-semibold text-gray-700">
             Description
           </label>
-          <Textarea placeholder="Add task description (optional)..." />
+          <Textarea
+            placeholder="Add task description (optional)..."
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            disabled={isLoading}
+          />
         </div>
 
         {/* Type and Done By - Stacked on mobile */}
@@ -128,6 +139,7 @@ function UpsertTaskModal({
                   className={`transition-all duration-200 ${
                     type === opt.value ? "" : "border-gray-200 text-gray-600"
                   }`}
+                  disabled={isLoading}
                 >
                   <opt.icon className="w-4 h-4" />
                   <span className="text-xs">{opt.label}</span>
@@ -152,6 +164,7 @@ function UpsertTaskModal({
                   className={`flex flex-col gap-0.5 transition-all duration-200 h-12 ${
                     doneBy === opt.value ? "" : "border-gray-200 text-gray-600"
                   }`}
+                  disabled={isLoading}
                 >
                   <opt.icon className="w-4 h-4" />
                   <span className="text-xs">{opt.label}</span>
@@ -168,7 +181,12 @@ function UpsertTaskModal({
             <label className="block text-sm font-semibold text-gray-700">
               Due Date & Time
             </label>
-            <Input type="datetime-local" />
+            <Input
+              type="datetime-local"
+              value={dueDate}
+              onChange={(e) => setDueDate(e.target.value)}
+              disabled={isLoading}
+            />
           </div>
 
           {/* Subject */}
@@ -176,12 +194,20 @@ function UpsertTaskModal({
             <label className="block text-sm font-semibold text-gray-700">
               Subject *
             </label>
-            <Select>
+            <Select
+              value={subjectId}
+              onValueChange={setSubjectId}
+              disabled={isLoading}
+            >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select an option" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Subject">Subject</SelectItem>
+                {subjects.map((subject) => (
+                  <SelectItem key={subject.id} value={subject.id}>
+                    {subject.name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

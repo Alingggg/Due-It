@@ -1,7 +1,7 @@
 "use client";
 import * as React from "react";
 import { useState } from "react";
-import { FiEye, FiEyeOff } from "react-icons/fi";
+import { Eye, EyeOff } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -29,10 +29,10 @@ function Input({ className, type, ...props }: React.ComponentProps<"input">) {
           type="button"
           tabIndex={-1}
           onClick={() => setShowPassword((v) => !v)}
-          className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none focus:text-slate-600 transition-colors duration-200 p-1"
+          className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none focus:text-slate-600 transition-colors duration-200 p-1 hover:cursor-pointer"
           aria-label={showPassword ? "Hide password" : "Show password"}
         >
-          {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+          {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
         </button>
       )}
     </div>

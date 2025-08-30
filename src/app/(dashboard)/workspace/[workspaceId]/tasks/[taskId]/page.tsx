@@ -4,15 +4,15 @@ import { notFound, useRouter } from "next/navigation";
 import { mockTasks, getSubjectById, getCurrentUserRole } from "@/data/mockData";
 import { Button } from "@/components/ui/button";
 import {
-  FaClock,
-  FaUser,
-  FaUsers,
-  FaQuestionCircle,
-  FaClipboardList,
-  FaArrowLeft,
-  FaEdit,
-  FaTrash,
-} from "react-icons/fa";
+  Clock,
+  User,
+  Users,
+  ClipboardList,
+  ArrowLeft,
+  Edit,
+  Trash2,
+  HelpCircle,
+} from "lucide-react";
 import { format } from "date-fns";
 import useModalContext from "@/hooks/Modal";
 
@@ -40,18 +40,18 @@ function TaskDetailPage({ params }: TaskDetailPageProps) {
   const getDoneByInfo = (doneBy: string) => {
     switch (doneBy) {
       case "individual":
-        return { icon: FaUser, text: "Individual" };
+        return { icon: User, text: "Individual" };
       case "pair":
-        return { icon: FaUsers, text: "Pair" };
+        return { icon: Users, text: "Pair" };
       case "group":
-        return { icon: FaUsers, text: "Group" };
+        return { icon: Users, text: "Group" };
       default:
-        return { icon: FaUser, text: "Individual" };
+        return { icon: User, text: "Individual" };
     }
   };
 
   const doneByInfo = getDoneByInfo(task.doneBy);
-  const TypeIcon = task.type === "quiz" ? FaQuestionCircle : FaClipboardList;
+  const TypeIcon = task.type === "quiz" ? HelpCircle : ClipboardList;
   const DoneByIcon = doneByInfo.icon;
 
   return (
@@ -63,7 +63,7 @@ function TaskDetailPage({ params }: TaskDetailPageProps) {
           variant="ghost"
           className="text-blue-600"
         >
-          <FaArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="w-4 h-4" />
           Back
         </Button>
       </div>
@@ -77,7 +77,7 @@ function TaskDetailPage({ params }: TaskDetailPageProps) {
               onClick={() => openModal("UPSERT_TASK", task)}
               variant="outline"
             >
-              <FaEdit className="w-3 h-3 sm:w-4 sm:h-4" />
+              <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
               Edit
             </Button>
             <Button
@@ -86,7 +86,7 @@ function TaskDetailPage({ params }: TaskDetailPageProps) {
               }
               variant="destructive"
             >
-              <FaTrash className="w-3 h-3 sm:w-4 sm:h-4" />
+              <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
               Delete
             </Button>
           </div>
@@ -119,7 +119,7 @@ function TaskDetailPage({ params }: TaskDetailPageProps) {
                 <span>{doneByInfo.text}</span>
               </div>
               <div className="flex items-center">
-                <FaClock className="w-4 h-4 mr-2 flex-shrink-0" />
+                <Clock className="w-4 h-4 mr-2 flex-shrink-0" />
                 <span className="break-all">
                   {format(new Date(task.dueDate), "MMM d, yyyy, hh:mm a")}
                 </span>

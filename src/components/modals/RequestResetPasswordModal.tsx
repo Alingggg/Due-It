@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { FiX } from "react-icons/fi";
+import { X as LucideX, Check } from "lucide-react";
 
 interface Props {
   onClose: () => void;
@@ -25,7 +25,7 @@ function RequestResetPasswordModal({ onClose }: Props) {
         variant="ghost"
         size="icon"
       >
-        <FiX className="w-6 h-6" />
+        <LucideX className="w-6 h-6" />
       </Button>
       <h2 className="text-lg font-semibold text-slate-800 mb-2">
         {submitted ? "Check Your Email" : "Request Password Reset"}
@@ -33,19 +33,7 @@ function RequestResetPasswordModal({ onClose }: Props) {
       {submitted ? (
         <div className="mb-4">
           <div className="flex items-center justify-center w-12 h-12 mx-auto mb-3 bg-green-100 rounded-full">
-            <svg
-              className="w-6 h-6 text-green-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
+            <Check className="w-6 h-6 text-green-600" />
           </div>
           <p className="text-sm text-slate-700 text-center mb-2">
             We've sent a password reset link to your email address.

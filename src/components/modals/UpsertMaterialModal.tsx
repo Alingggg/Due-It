@@ -1,8 +1,13 @@
 "use client";
 import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { FaUpload, FaLink, FaFile, FaTrash } from "react-icons/fa";
-import { FiX } from "react-icons/fi";
+import {
+  Upload,
+  Link as LucideLink,
+  File as LucideFile,
+  Trash2,
+  X as LucideX,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -228,7 +233,7 @@ function UpsertMaterialModal({
           variant="ghost"
           size="icon"
         >
-          <FiX className="w-6 h-6" />
+          <LucideX className="w-6 h-6" />
         </Button>
       </div>
 
@@ -246,6 +251,8 @@ function UpsertMaterialModal({
             className={`${errors.title ? "border-red-500" : ""}`}
             placeholder="Enter material group title"
             disabled={isSubmitting}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
           />
           {errors.title && (
             <p className="mt-1 text-xs text-red-600">{errors.title}</p>
@@ -264,6 +271,8 @@ function UpsertMaterialModal({
             id="description"
             placeholder="Enter material group description"
             disabled={isSubmitting}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
           />
           {errors.description && (
             <p className="mt-1 text-xs text-red-600">{errors.description}</p>
@@ -297,16 +306,18 @@ function UpsertMaterialModal({
               onClick={handleShowFileUpload}
               variant="outline"
               disabled={isSubmitting}
+              type="button"
             >
-              <FaFile className="w-4 h-4" />
+              <LucideFile className="w-4 h-4" />
               Upload File
             </Button>
             <Button
               onClick={handleShowLinkInput}
               variant="outline"
               disabled={isSubmitting}
+              type="button"
             >
-              <FaLink className="w-4 h-4" />
+              <LucideLink className="w-4 h-4" />
               Add Link
             </Button>
           </div>
@@ -332,7 +343,7 @@ function UpsertMaterialModal({
                   htmlFor="file-upload"
                   className="flex flex-col items-center justify-center w-full px-6 py-8 border-2 border-dashed border-slate-300 rounded-lg cursor-pointer transition-colors hover:border-slate-400 hover:bg-slate-100"
                 >
-                  <FaUpload className="w-8 h-8 text-slate-400 mb-2" />
+                  <Upload className="w-8 h-8 text-slate-400 mb-2" />
                   <p className="text-sm text-slate-600 mb-1">
                     Click to select file
                   </p>
@@ -374,7 +385,9 @@ function UpsertMaterialModal({
                   <p className="text-xs text-red-600">{errors.tempLink}</p>
                 )}
                 <div className="flex gap-2 justify-end">
-                  <Button onClick={handleAddLink}>Add Link</Button>
+                  <Button onClick={handleAddLink} type="button">
+                    Add Link
+                  </Button>
                 </div>
               </div>
             </div>
@@ -397,12 +410,12 @@ function UpsertMaterialModal({
                     <h4 className="text-sm font-medium text-slate-700">
                       {material.isLink ? (
                         <>
-                          <FaLink className="inline w-4 h-4 mr-2" />
+                          <LucideLink className="inline w-4 h-4 mr-2" />
                           {material.fileName}
                         </>
                       ) : (
                         <>
-                          <FaFile className="inline w-4 h-4 mr-2" />
+                          <LucideFile className="inline w-4 h-4 mr-2" />
                           {material.fileName}
                         </>
                       )}
@@ -412,8 +425,9 @@ function UpsertMaterialModal({
                       disabled={isSubmitting}
                       className="text-red-500 hover:text-red-700 transition-colors disabled:opacity-50"
                       variant="ghost"
+                      type="button"
                     >
-                      <FaTrash className="w-4 h-4" />
+                      <Trash2 className="w-4 h-4" />
                     </Button>
                   </div>
 
@@ -489,7 +503,7 @@ function UpsertMaterialModal({
               </>
             ) : (
               <>
-                <FaUpload className="w-4 h-4" />
+                <Upload className="w-4 h-4" />
                 <span>{isEditing ? "Update" : "Create"}</span>
               </>
             )}

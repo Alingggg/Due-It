@@ -9,8 +9,7 @@ import {
   mockWorkspaceMembers,
   mockInviteCodes,
 } from "@/data/mockData";
-import { FaUserTimes, FaCheck } from "react-icons/fa";
-import { FiCopy, FiRefreshCw } from "react-icons/fi";
+import { Check, Copy, RefreshCcw, UserMinus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useParams } from "next/navigation";
 
@@ -121,9 +120,9 @@ function WorkspaceSettingsPage() {
                   title={copied ? "Copied!" : "Copy"}
                 >
                   {copied ? (
-                    <FaCheck className="w-4 h-4 text-green-600" />
+                    <Check className="w-4 h-4 text-green-600" />
                   ) : (
-                    <FiCopy className="w-4 h-4" />
+                    <Copy className="w-4 h-4" />
                   )}
                 </Button>
                 {/* Tooltip */}
@@ -174,15 +173,15 @@ function WorkspaceSettingsPage() {
                     variant="outline"
                     className={`${
                       inviteCode.enabled
-                        ? "border-red-600 text-red-700 bg-red-50 hover:bg-red-100"
-                        : "border-green-600 text-green-700 bg-green-50 hover:bg-green-100"
+                        ? "border-red-600 text-red-700 bg-red-50 hover:bg-red-100 hover:text-red-900"
+                        : "border-green-600 text-green-700 bg-green-50 hover:bg-green-100 hover:text-green-900"
                     }`}
                   >
                     {inviteCode.enabled ? "Disable" : "Enable"}
                   </Button>
 
                   <Button onClick={handleRenewCode} variant="outline">
-                    <FiRefreshCw className="w-3.5 h-3.5" />
+                    <RefreshCcw className="w-3.5 h-3.5" />
                     Renew
                   </Button>
                 </div>
@@ -211,7 +210,7 @@ function WorkspaceSettingsPage() {
               onClick={() => setShowLeaveConfirm(true)}
               variant="destructive"
             >
-              <FaUserTimes className="w-4 h-4" />
+              <UserMinus className="w-4 h-4" />
               Leave
             </Button>
           </div>
@@ -239,7 +238,7 @@ function WorkspaceSettingsPage() {
                 Cancel
               </Button>
               <Button onClick={handleLeaveWorkspace} variant="destructive">
-                <FaUserTimes className="w-4 h-4" />
+                <UserMinus className="w-4 h-4" />
                 Leave Workspace
               </Button>
             </div>

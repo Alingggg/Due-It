@@ -1,6 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { FaQuestionCircle, FaClipboardList } from "react-icons/fa";
+import { ClipboardList, HelpCircle } from "lucide-react";
 import { Task, getSubjectById } from "@/data/mockData";
 import {
   format,
@@ -66,7 +66,7 @@ function TaskCard({ task, workspaceId, hideSubject = false }: TaskCardProps) {
 
   // Get type icon
   const getTypeIcon = (type: string) => {
-    return type === "quiz" ? FaQuestionCircle : FaClipboardList;
+    return type === "quiz" ? HelpCircle : ClipboardList;
   };
 
   const dueInfo = formatDueDate(task.dueDate);

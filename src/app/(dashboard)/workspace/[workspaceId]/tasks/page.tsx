@@ -9,7 +9,7 @@ import {
   getSubjectById,
   getCurrentUserRole,
 } from "@/data/mockData";
-import { FaClipboardList, FaFilter, FaPlus } from "react-icons/fa";
+import { ClipboardList, Filter, Plus } from "lucide-react";
 import useModalContext from "@/hooks/Modal";
 import {
   Select,
@@ -163,7 +163,7 @@ function TasksPage() {
           </div>
           {(currentUserRole === "admin" || currentUserRole === "co") && (
             <Button onClick={() => openModal("UPSERT_TASK")}>
-              <FaPlus className="w-4 h-4" />
+              <Plus className="w-4 h-4" />
               <span>Create</span>
             </Button>
           )}
@@ -173,7 +173,7 @@ function TasksPage() {
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-4">
         <div className="flex items-center text-sm text-slate-600">
-          <FaFilter className="w-4 h-4 mr-2" />
+          <Filter className="w-4 h-4 mr-2" />
           <span>Filters:</span>
         </div>
 
@@ -236,7 +236,7 @@ function TasksPage() {
       {sortedTasks.length === 0 && (
         <div className="text-center py-12">
           <div className="text-slate-400 mb-2">
-            <FaClipboardList className="w-12 h-12 mx-auto" />
+            <ClipboardList className="w-12 h-12 mx-auto" />
           </div>
           <h3 className="text-lg font-medium text-slate-800 mb-1">
             {tasks.length === 0

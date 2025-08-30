@@ -5,7 +5,7 @@ import {
   getSubjectById,
   getMaterialsByGroupId,
 } from "@/data/mockData";
-import { FaFolder, FaPaperclip } from "react-icons/fa";
+import { Folder, Paperclip } from "lucide-react";
 import { format } from "date-fns";
 
 interface MaterialGroupCardProps {
@@ -36,7 +36,7 @@ function MaterialGroupCard({
         {/* Main Content */}
         <div className="flex items-start sm:items-center flex-1">
           <div className="p-2 sm:p-3 bg-blue-50 rounded-lg mr-2 sm:mr-4 shrink-0 flex items-center justify-center">
-            <FaFolder className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+            <Folder className="w-4 h-4 sm:w-5 sm:h-5 fill-blue-600 text-blue-600" />
           </div>
           <div className="flex-1 min-w-0">
             <h3 className="text-sm sm:text-lg font-semibold text-slate-800 mb-0.5 sm:mb-1 leading-tight">
@@ -53,7 +53,7 @@ function MaterialGroupCard({
                 </>
               )}
               <div className="flex items-center space-x-2">
-                <FaPaperclip className="w-3 h-3" />
+                <Paperclip className="w-3 h-3" />
                 <span>
                   {materials.length} file{materials.length !== 1 ? "s" : ""}
                 </span>

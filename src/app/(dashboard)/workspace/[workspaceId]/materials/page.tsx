@@ -9,7 +9,7 @@ import {
   getSubjectById,
   getCurrentUserRole,
 } from "@/data/mockData";
-import { FaFolderOpen, FaFilter, FaPlus } from "react-icons/fa";
+import { FolderOpen, Filter, Plus } from "lucide-react";
 import useModalContext from "@/hooks/Modal";
 import {
   Select,
@@ -161,7 +161,7 @@ function MaterialsPage() {
         <h1 className="text-2xl font-bold text-slate-800">Materials</h1>
         {(currentUserRole === "admin" || currentUserRole === "co") && (
           <Button onClick={() => openModal("UPSERT_MATERIAL")}>
-            <FaPlus className="w-4 h-4" />
+            <Plus className="w-4 h-4" />
             Create
           </Button>
         )}
@@ -170,7 +170,7 @@ function MaterialsPage() {
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-4">
         <div className="flex items-center text-sm text-slate-600">
-          <FaFilter className="w-4 h-4 mr-2" />
+          <Filter className="w-4 h-4 mr-2" />
           <span>Filters:</span>
         </div>
 
@@ -216,7 +216,7 @@ function MaterialsPage() {
       {sortedMaterialGroups.length === 0 && (
         <div className="text-center py-12">
           <div className="text-slate-400 mb-2">
-            <FaFolderOpen className="w-12 h-12 mx-auto" />
+            <FolderOpen className="w-12 h-12 mx-auto" />
           </div>
           <h3 className="text-lg font-medium text-slate-800 mb-1">
             No materials found
@@ -228,7 +228,7 @@ function MaterialsPage() {
           </p>
           {(currentUserRole === "admin" || currentUserRole === "co") && (
             <Button>
-              <FaPlus className="w-4 h-4" />
+              <Plus className="w-4 h-4" />
               <span>Create First Material</span>
             </Button>
           )}

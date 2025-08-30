@@ -2,14 +2,13 @@
 import { useState } from "react";
 import { getCurrentUser, getCurrentUserRole } from "@/data/mockData";
 import {
-  FaUser,
-  FaCrown,
-  FaUserTie,
-  FaEllipsisV,
-  FaUserPlus,
-  FaUserMinus,
-} from "react-icons/fa";
-import { IconType } from "react-icons";
+  Crown,
+  User,
+  UserCog,
+  MoreVertical,
+  UserPlus,
+  UserMinus,
+} from "lucide-react";
 import useModalContext from "@/hooks/Modal";
 
 interface MemberCardProps {
@@ -26,25 +25,25 @@ function MemberCard({ member, workspaceId }: MemberCardProps) {
     switch (role) {
       case "admin":
         return {
-          icon: FaCrown,
+          icon: Crown,
           text: "Admin",
           color: "text-red-600 bg-red-50",
         };
       case "co":
         return {
-          icon: FaUserTie,
+          icon: UserCog,
           text: "Co-Admin",
           color: "text-blue-600 bg-blue-50",
         };
       case "member":
         return {
-          icon: FaUser,
+          icon: User,
           text: "Member",
           color: "text-slate-600 bg-slate-50",
         };
       default:
         return {
-          icon: FaUser,
+          icon: User,
           text: "Member",
           color: "text-slate-600 bg-slate-50",
         };
@@ -100,7 +99,7 @@ function MemberCard({ member, workspaceId }: MemberCardProps) {
     let actions: {
       label: string;
       action: () => void;
-      icon: IconType;
+      icon: React.ElementType;
       danger?: boolean;
     }[] = [];
 
@@ -118,12 +117,12 @@ function MemberCard({ member, workspaceId }: MemberCardProps) {
           {
             label: "Promote to Admin",
             action: () => handleRoleChange("admin"),
-            icon: FaCrown,
+            icon: Crown,
           },
           {
             label: "Promote to Co-Admin",
             action: () => handleRoleChange("co"),
-            icon: FaUserPlus,
+            icon: UserPlus,
           },
         ];
       } else if (member.role === "co") {
@@ -131,19 +130,19 @@ function MemberCard({ member, workspaceId }: MemberCardProps) {
           {
             label: "Promote to Admin",
             action: () => handleRoleChange("admin"),
-            icon: FaCrown,
+            icon: Crown,
           },
           {
             label: "Demote to Member",
             action: () => handleRoleChange("member"),
-            icon: FaUserMinus,
+            icon: UserMinus,
           },
         ];
       }
       actions.push({
         label: "Kick Member",
         action: handleKickMember,
-        icon: FaUserMinus,
+        icon: UserMinus,
         danger: true,
       });
     } else if (currentUserRole === "co") {
@@ -153,7 +152,7 @@ function MemberCard({ member, workspaceId }: MemberCardProps) {
           {
             label: "Kick Member",
             action: handleKickMember,
-            icon: FaUserMinus,
+            icon: UserMinus,
             danger: true,
           },
         ];
@@ -218,7 +217,7 @@ function MemberCard({ member, workspaceId }: MemberCardProps) {
                 onClick={toggleMenu}
                 className="p-1.5 sm:p-2 rounded-lg hover:bg-slate-100 text-slate-600"
               >
-                <FaEllipsisV className="w-4 h-4" />
+                <MoreVertical className="w-4 h-4" />
               </button>
 
               {/* Dropdown Menu */}

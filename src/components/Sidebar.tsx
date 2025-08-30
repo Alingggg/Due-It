@@ -3,15 +3,15 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import {
-  FaCheckSquare,
-  FaBook,
-  FaUsers,
-  FaSignOutAlt,
-  FaBars,
-  FaTimes,
-  FaCog,
-  FaCalendarAlt,
-} from "react-icons/fa";
+  CheckSquare,
+  Book,
+  Users,
+  LogOut,
+  Menu,
+  X,
+  Settings,
+  Calendar,
+} from "lucide-react";
 
 function Sidebar({ workspaceId }: { workspaceId: string }) {
   const pathname = usePathname();
@@ -21,27 +21,27 @@ function Sidebar({ workspaceId }: { workspaceId: string }) {
     {
       name: "Tasks",
       href: `/workspace/${workspaceId}/tasks`,
-      icon: FaCheckSquare,
+      icon: CheckSquare,
     },
     {
       name: "Materials",
       href: `/workspace/${workspaceId}/materials`,
-      icon: FaBook,
+      icon: Book,
     },
     {
       name: "Schedule",
       href: `/workspace/${workspaceId}/schedule`,
-      icon: FaCalendarAlt,
+      icon: Calendar,
     },
     {
       name: "Members",
       href: `/workspace/${workspaceId}/members`,
-      icon: FaUsers,
+      icon: Users,
     },
     {
       name: "Settings",
       href: `/workspace/${workspaceId}/settings`,
-      icon: FaCog,
+      icon: Settings,
     },
   ];
 
@@ -63,9 +63,9 @@ function Sidebar({ workspaceId }: { workspaceId: string }) {
             className="p-2 rounded-lg hover:bg-slate-100"
           >
             {isMobileMenuOpen ? (
-              <FaTimes className="w-5 h-5 text-slate-700" />
+              <X className="w-5 h-5 text-slate-700" />
             ) : (
-              <FaBars className="w-5 h-5 text-slate-700" />
+              <Menu className="w-5 h-5 text-slate-700" />
             )}
           </button>
           <h1 className="text-lg font-bold text-blue-600 ml-3">Due It</h1>
@@ -137,7 +137,7 @@ function Sidebar({ workspaceId }: { workspaceId: string }) {
             onClick={handleLogout}
             className="flex items-center w-full px-4 py-3 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
           >
-            <FaSignOutAlt className="w-5 h-5 mr-3" />
+            <LogOut className="w-5 h-5 mr-3" />
             <span className="font-medium">Logout</span>
           </button>
         </div>

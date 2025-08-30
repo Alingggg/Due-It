@@ -1,6 +1,11 @@
 import { Button } from "@/components/ui/button";
-import { FaCrown, FaUserTie, FaUserMinus, FaUserPlus } from "react-icons/fa";
-import { FiX } from "react-icons/fi";
+import {
+  Crown,
+  UserCog,
+  UserMinus,
+  UserPlus,
+  X as LucideX,
+} from "lucide-react";
 
 interface ConfirmMemberActionModalProps {
   onClose: () => void;
@@ -27,7 +32,7 @@ function ConfirmMemberActionModal({
           return {
             title: "Promote to Admin",
             description: `Are you sure you want to promote ${memberName} to Admin? They will have full access to manage this workspace.`,
-            icon: FaCrown,
+            icon: Crown,
             iconColor: "text-red-600",
             buttonText: "Promote to Admin",
           };
@@ -35,7 +40,7 @@ function ConfirmMemberActionModal({
           return {
             title: "Promote to Co-Admin",
             description: `Are you sure you want to promote ${memberName} to Co-Admin? They will be able to manage members and tasks.`,
-            icon: FaUserTie,
+            icon: UserCog,
             iconColor: "text-blue-600",
             buttonText: "Promote to Co-Admin",
           };
@@ -45,7 +50,7 @@ function ConfirmMemberActionModal({
         return {
           title: "Demote to Member",
           description: `Are you sure you want to demote ${memberName} to Member? They will lose their administrative privileges.`,
-          icon: FaUserMinus,
+          icon: UserMinus,
           iconColor: "text-blue-600",
           buttonText: "Demote to Member",
         };
@@ -53,7 +58,7 @@ function ConfirmMemberActionModal({
         return {
           title: "Kick Member",
           description: `Are you sure you want to kick ${memberName} from this workspace? They will lose access immediately and will need to be re-invited to rejoin.`,
-          icon: FaUserMinus,
+          icon: UserMinus,
           iconColor: "text-red-600",
           buttonText: "Kick Member",
         };
@@ -61,7 +66,7 @@ function ConfirmMemberActionModal({
         return {
           title: "Confirm Action",
           description: "Are you sure you want to perform this action?",
-          icon: FaUserPlus,
+          icon: UserPlus,
           iconColor: "text-gray-600",
           buttonText: "Confirm",
         };
@@ -71,7 +76,7 @@ function ConfirmMemberActionModal({
   const actionDetails = getActionDetails() ?? {
     title: "Confirm Action",
     description: "Are you sure you want to perform this action?",
-    icon: FaUserPlus,
+    icon: UserPlus,
     iconColor: "text-gray-600",
     buttonText: "Confirm",
     buttonStyle: "bg-blue-600 hover:bg-blue-700 text-white",
@@ -88,7 +93,7 @@ function ConfirmMemberActionModal({
         variant="ghost"
         size="icon"
       >
-        <FiX className="w-5 h-5 sm:w-6 sm:h-6" />
+        <LucideX className="w-5 h-5 sm:w-6 sm:h-6" />
       </Button>
 
       <div className="flex items-start space-x-3 sm:space-x-4 mb-4 sm:mb-6">

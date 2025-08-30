@@ -10,13 +10,13 @@ import {
 } from "@/data/mockData";
 import { Button } from "@/components/ui/button";
 import {
-  FaArrowLeft,
-  FaDownload,
-  FaFolder,
-  FaTrash,
-  FaEdit,
-  FaExternalLinkAlt,
-} from "react-icons/fa";
+  ArrowLeft,
+  Download,
+  Folder,
+  Trash2,
+  Pencil,
+  ExternalLink,
+} from "lucide-react";
 import { format } from "date-fns";
 import useModalContext from "@/hooks/Modal";
 
@@ -63,7 +63,7 @@ function MaterialGroupDetailsPage({ params }: MaterialGroupDetailsPageProps) {
           className="text-blue-600"
           variant="ghost"
         >
-          <FaArrowLeft className="w-4 h-4 mr-2" />
+          <ArrowLeft className="w-4 h-4 mr-2" />
           Back
         </Button>
       </div>
@@ -79,14 +79,14 @@ function MaterialGroupDetailsPage({ params }: MaterialGroupDetailsPageProps) {
               onClick={() => openModal("UPSERT_MATERIAL")}
               variant="outline"
             >
-              <FaEdit className="w-3 h-3 sm:w-4 sm:h-4" />
+              <Pencil className="w-3 h-3 sm:w-4 sm:h-4" />
               Edit
             </Button>
             <Button
               onClick={() => setShowDeleteConfirm(true)}
               variant="destructive"
             >
-              <FaTrash className="w-3 h-3 sm:w-4 sm:h-4" />
+              <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
               Delete
             </Button>
           </div>
@@ -97,7 +97,7 @@ function MaterialGroupDetailsPage({ params }: MaterialGroupDetailsPageProps) {
       <div className="bg-white rounded-lg border border-slate-200 p-4 sm:p-6">
         <div className="flex flex-col sm:flex-row sm:items-start space-y-3 sm:space-y-0 sm:space-x-4">
           <div className="p-3 sm:p-4 bg-blue-50 rounded-xl w-fit">
-            <FaFolder className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600" />
+            <Folder className="w-6 h-6 sm:w-8 sm:h-8 fill-blue-600 text-blue-600" />
           </div>
           <div className="flex-1">
             <h2 className="text-xl sm:text-2xl font-bold text-slate-800 mb-2">
@@ -167,12 +167,12 @@ function MaterialGroupDetailsPage({ params }: MaterialGroupDetailsPageProps) {
                 >
                   {material.isLink ? (
                     <>
-                      <FaExternalLinkAlt className="w-3 h-3 sm:w-4 sm:h-4" />
+                      <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4" />
                       Open
                     </>
                   ) : (
                     <>
-                      <FaDownload className="w-3 h-3 sm:w-4 sm:h-4" />
+                      <Download className="w-3 h-3 sm:w-4 sm:h-4" />
                       Download
                     </>
                   )}
@@ -186,7 +186,7 @@ function MaterialGroupDetailsPage({ params }: MaterialGroupDetailsPageProps) {
         {materials.length === 0 && (
           <div className="p-8 sm:p-12 text-center">
             <div className="text-slate-400 mb-4">
-              <FaFolder className="w-10 h-10 sm:w-12 sm:h-12 mx-auto" />
+              <Folder className="w-10 h-10 sm:w-12 sm:h-12 mx-auto" />
             </div>
             <h4 className="text-base sm:text-lg font-medium text-slate-800 mb-2">
               No materials yet
@@ -219,7 +219,7 @@ function MaterialGroupDetailsPage({ params }: MaterialGroupDetailsPageProps) {
                 Cancel
               </Button>
               <Button onClick={handleDelete} variant="destructive">
-                <FaTrash className="w-3 h-3 sm:w-4 sm:h-4" />
+                <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
                 Delete Group
               </Button>
             </div>
