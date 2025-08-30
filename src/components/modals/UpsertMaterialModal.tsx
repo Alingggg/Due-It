@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { FaUpload, FaLink, FaFile, FaTrash } from "react-icons/fa";
 import { FiX } from "react-icons/fi";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 export interface MaterialGroup {
   id: string;
@@ -259,14 +260,8 @@ function UpsertMaterialModal({
           >
             Description *
           </label>
-          <textarea
+          <Textarea
             id="description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            rows={3}
-            className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none ${
-              errors.description ? "border-red-500" : "border-slate-300"
-            }`}
             placeholder="Enter material group description"
             disabled={isSubmitting}
           />

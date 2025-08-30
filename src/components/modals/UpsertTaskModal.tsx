@@ -16,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 
 interface UpsertTaskModalProps {
   initialData?: {
@@ -108,13 +109,7 @@ function UpsertTaskModal({
           <label className="block text-sm font-semibold text-gray-700">
             Description
           </label>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Add task description (optional)..."
-            rows={4}
-            className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none"
-          />
+          <Textarea placeholder="Add task description (optional)..." />
         </div>
 
         {/* Type and Done By - Stacked on mobile */}
