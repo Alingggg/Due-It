@@ -2,13 +2,7 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-  HelpCircle,
-  ClipboardList,
-  User,
-  Users,
-  X as LucideX,
-} from "lucide-react";
+import { HelpCircle, ClipboardList, User, Users } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -17,6 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { DialogContent, DialogTitle } from "@/components/ui/dialog";
 
 interface UpsertTaskModalProps {
   initialData?: {
@@ -77,25 +72,13 @@ function UpsertTaskModal({
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-      {/* Header */}
-      <div className="sticky top-0 bg-white rounded-t-xl border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-        <h2 className="text-xl font-bold text-gray-900">
-          {initialData.title ? "Edit Task" : "Add New Task"}
-        </h2>
-        <Button
-          onClick={onClose}
-          variant="ghost"
-          className="absolute top-3 right-3 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
-          aria-label="Close"
-          size="icon"
-        >
-          <LucideX className="w-6 h-6" />
-        </Button>
-      </div>
+    <DialogContent className="max-h-[90vh] overflow-y-auto">
+      <DialogTitle className="text-slate-800">
+        {initialData.title ? "Edit Task" : "Add New Task"}
+      </DialogTitle>
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="p-6 space-y-2">
+      <form onSubmit={handleSubmit} className="space-y-2">
         {/* Title */}
         <div className="space-y-2">
           <label className="block text-sm font-semibold text-gray-700">
@@ -214,10 +197,7 @@ function UpsertTaskModal({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-col-reverse sm:flex-row gap-3 pt-4 border-t border-gray-200 mt-4">
-          <Button variant="outline" onClick={onClose} disabled={isLoading}>
-            Cancel
-          </Button>
+        <div className="pt-4 border-t border-gray-200">
           <Button disabled={isLoading || !title.trim()} type="submit">
             {isLoading ? (
               <div className="flex items-center justify-center gap-2">
@@ -232,7 +212,7 @@ function UpsertTaskModal({
           </Button>
         </div>
       </form>
-    </div>
+    </DialogContent>
   );
 }
 

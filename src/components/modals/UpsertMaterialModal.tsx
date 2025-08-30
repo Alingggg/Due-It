@@ -6,10 +6,10 @@ import {
   Link as LucideLink,
   File as LucideFile,
   Trash2,
-  X as LucideX,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { DialogContent, DialogTitle } from "@/components/ui/dialog";
 
 export interface MaterialGroup {
   id: string;
@@ -215,27 +215,11 @@ function UpsertMaterialModal({
     }
   };
 
-  const handleClose = () => {
-    if (!isSubmitting) onClose();
-  };
-
   return (
-    <div className="bg-white rounded-lg max-w-4xl w-full p-4 sm:p-5 mx-4 max-h-[90vh] overflow-y-auto relative">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-3 sm:mb-4">
-        <h3 className="text-lg sm:text-xl font-semibold text-slate-800">
-          {isEditing ? "Edit Material Group" : "Create Material Group"}
-        </h3>
-        <Button
-          onClick={onClose}
-          className="absolute top-3 right-3 p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
-          aria-label="Close"
-          variant="ghost"
-          size="icon"
-        >
-          <LucideX className="w-6 h-6" />
-        </Button>
-      </div>
+    <DialogContent className="max-h-[90vh] overflow-y-auto">
+      <DialogTitle className="text-slate-800">
+        {isEditing ? "Edit Material Group" : "Create Material Group"}
+      </DialogTitle>
 
       <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
         {/* Title */}
@@ -510,7 +494,7 @@ function UpsertMaterialModal({
           </Button>
         </div>
       </form>
-    </div>
+    </DialogContent>
   );
 }
 

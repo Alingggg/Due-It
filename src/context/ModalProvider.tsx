@@ -7,6 +7,8 @@ type ModalType =
   | "DELETE_TASK"
   | "CONFIRM_MEMBER_ACTION"
   | "UPSERT_MATERIAL"
+  | "DELETE_MATERIAL"
+  | "LEAVE_WORKSPACE"
   | null;
 
 interface ModalContextType {

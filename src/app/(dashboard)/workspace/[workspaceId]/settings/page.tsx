@@ -4,14 +4,13 @@ import {
   getInviteCodeByWorkspaceId,
   getCurrentUserRole,
   canManageWorkspace,
-  currentUser,
   generateNewInviteCode,
-  mockWorkspaceMembers,
   mockInviteCodes,
 } from "@/data/mockData";
 import { Check, Copy, RefreshCcw, UserMinus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useParams } from "next/navigation";
+import useModalContext from "@/hooks/Modal";
 
 function WorkspaceSettingsPage() {
   const { workspaceId } = useParams<{ workspaceId: string }>();
@@ -19,7 +18,7 @@ function WorkspaceSettingsPage() {
     getInviteCodeByWorkspaceId(workspaceId)
   );
   const [copied, setCopied] = useState(false);
-  const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
+  const { openModal } = useModalContext();
 
   // Get current values each render to handle temporary role changes
   const userRole = getCurrentUserRole(workspaceId);
@@ -73,22 +72,6 @@ function WorkspaceSettingsPage() {
         mockInviteCodes[index] = updatedCode;
       }
     }
-  };
-
-  // Handle leaving workspace
-  const handleLeaveWorkspace = () => {
-    // Remove current user from workspace members
-    const index = mockWorkspaceMembers.findIndex(
-      (member) =>
-        member.workspaceId === workspaceId && member.userId === currentUser.id
-    );
-    if (index !== -1) {
-      mockWorkspaceMembers.splice(index, 1);
-    }
-
-    // In a real app, you would redirect to workspace selection or dashboard
-    console.log("Left workspace");
-    setShowLeaveConfirm(false);
   };
 
   return (
@@ -207,41 +190,12 @@ function WorkspaceSettingsPage() {
             </div>
 
             <Button
-              onClick={() => setShowLeaveConfirm(true)}
+              onClick={() => openModal("LEAVE_WORKSPACE")}
               variant="destructive"
             >
               <UserMinus className="w-4 h-4" />
               Leave
             </Button>
-          </div>
-        </div>
-      )}
-
-      {/* Leave Confirmation Modal */}
-      {showLeaveConfirm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-md w-full p-4 sm:p-6">
-            <h3 className="text-base sm:text-lg font-semibold text-slate-800 mb-2">
-              Leave Workspace?
-            </h3>
-            <p className="text-xs sm:text-sm text-slate-600 mb-6">
-              Are you sure you want to leave this workspace? You will lose
-              access to all its content. You can rejoin later using a valid
-              invite code if joining is enabled.
-            </p>
-
-            <div className="flex justify-end space-x-2 sm:space-x-3">
-              <Button
-                onClick={() => setShowLeaveConfirm(false)}
-                variant="outline"
-              >
-                Cancel
-              </Button>
-              <Button onClick={handleLeaveWorkspace} variant="destructive">
-                <UserMinus className="w-4 h-4" />
-                Leave Workspace
-              </Button>
-            </div>
           </div>
         </div>
       )}

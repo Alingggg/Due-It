@@ -1,11 +1,13 @@
 "use client";
-import { createPortal } from "react-dom";
+import { Dialog } from "@/components/ui/dialog";
 import useModalContext from "@/hooks/Modal";
 import ConfirmMemberActionModal from "@/components/modals/ConfirmMemberActionModal";
 import DeleteTaskModal from "@/components/modals/DeleteTaskModal";
 import RequestResetPasswordModal from "@/components/modals/RequestResetPasswordModal";
 import UpsertMaterialModal from "@/components/modals/UpsertMaterialModal";
 import UpsertTaskModal from "@/components/modals/UpsertTaskModal";
+import DeleteMaterialModal from "@/components/modals/DeleteMaterialModal";
+import LeaveWorkspaceModal from "@/components/modals/LeaveWorkspaceModal";
 
 export default function ModalContainer() {
   const { modalType, modalProps, closeModal } = useModalContext();
@@ -13,27 +15,22 @@ export default function ModalContainer() {
   if (!modalType) return null;
 
   const modalMap = {
-    REQUEST_RESET_PASSWORD: (
-      <RequestResetPasswordModal {...modalProps} onClose={closeModal} />
-    ),
-    UPSERT_TASK: <UpsertTaskModal {...modalProps} onClose={closeModal} />,
-    DELETE_TASK: <DeleteTaskModal {...modalProps} onClose={closeModal} />,
-    CONFIRM_MEMBER_ACTION: (
-      <ConfirmMemberActionModal {...modalProps} onClose={closeModal} />
-    ),
-    UPSERT_MATERIAL: (
-      <UpsertMaterialModal {...modalProps} onClose={closeModal} />
-    ),
+    REQUEST_RESET_PASSWORD: RequestResetPasswordModal,
+    UPSERT_TASK: UpsertTaskModal,
+    DELETE_TASK: DeleteTaskModal,
+    CONFIRM_MEMBER_ACTION: ConfirmMemberActionModal,
+    UPSERT_MATERIAL: UpsertMaterialModal,
+    DELETE_MATERIAL: DeleteMaterialModal,
+    LEAVE_WORKSPACE: LeaveWorkspaceModal,
   };
 
-  const modalRoot = document.getElementById("modal-root");
+  const ModalComponent = modalMap[modalType];
 
-  if (!modalRoot) return null;
-
-  return createPortal(
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-      {modalMap[modalType] || null}
-    </div>,
-    modalRoot
+  return (
+    <Dialog open={!!modalType} onOpenChange={closeModal}>
+      {ModalComponent && (
+        <ModalComponent {...modalProps} onClose={closeModal} />
+      )}
+    </Dialog>
   );
 }

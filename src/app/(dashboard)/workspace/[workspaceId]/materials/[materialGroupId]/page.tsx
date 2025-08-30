@@ -1,5 +1,5 @@
 "use client";
-import { use, useState } from "react";
+import { use } from "react";
 import { notFound, useRouter } from "next/navigation";
 import {
   getMaterialGroupById,
@@ -32,7 +32,6 @@ function MaterialGroupDetailsPage({ params }: MaterialGroupDetailsPageProps) {
   const router = useRouter();
   const materialGroup = getMaterialGroupById(materialGroupId);
   const materials = getMaterialsByGroupId(materialGroupId);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const { openModal } = useModalContext();
 
   if (!materialGroup) {
@@ -45,13 +44,6 @@ function MaterialGroupDetailsPage({ params }: MaterialGroupDetailsPageProps) {
   const handleOpenMaterial = (material: any) => {
     // For both files and links, open in new tab
     window.open(material.downloadUrl, "_blank");
-  };
-
-  const handleDelete = () => {
-    // In a real app, this would delete from Supabase and update state
-    console.log("Deleting material group:", materialGroup.id);
-    setShowDeleteConfirm(false);
-    router.push(`/workspace/${workspaceId}/materials`);
   };
 
   return (
@@ -83,7 +75,12 @@ function MaterialGroupDetailsPage({ params }: MaterialGroupDetailsPageProps) {
               Edit
             </Button>
             <Button
-              onClick={() => setShowDeleteConfirm(true)}
+              onClick={() =>
+                openModal("DELETE_MATERIAL", {
+                  title: materialGroup.title,
+                  materialCount: materials.length,
+                })
+              }
               variant="destructive"
             >
               <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -197,35 +194,6 @@ function MaterialGroupDetailsPage({ params }: MaterialGroupDetailsPageProps) {
           </div>
         )}
       </div>
-
-      {/* Delete Confirmation Modal */}
-      {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-md w-full p-4 sm:p-6 mx-4">
-            <h3 className="text-base sm:text-lg font-semibold text-slate-800 mb-2">
-              Delete Material Group?
-            </h3>
-            <p className="text-sm text-slate-600 mb-4 sm:mb-6">
-              Are you sure you want to delete "{materialGroup.title}"? This will
-              also delete all {materials.length} materials in this group. This
-              action cannot be undone.
-            </p>
-
-            <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3">
-              <Button
-                onClick={() => setShowDeleteConfirm(false)}
-                variant="outline"
-              >
-                Cancel
-              </Button>
-              <Button onClick={handleDelete} variant="destructive">
-                <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
-                Delete Group
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

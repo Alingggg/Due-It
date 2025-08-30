@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
 import { getWorkspaceMembersByWorkspaceId } from "@/data/mockData";
-import { Users } from "lucide-react";
 import MemberCard from "@/components/MemberCard";
 
 function MembersPage({ params }: { params: Promise<{ workspaceId: string }> }) {
@@ -33,21 +32,6 @@ function MembersPage({ params }: { params: Promise<{ workspaceId: string }> }) {
           />
         ))}
       </div>
-
-      {/* Empty State */}
-      {members.length === 0 && (
-        <div className="text-center py-12">
-          <div className="text-slate-400 mb-2">
-            <Users className="w-12 h-12 mx-auto" />
-          </div>
-          <h3 className="text-lg font-medium text-slate-800 mb-1">
-            No members yet
-          </h3>
-          <p className="text-slate-600">
-            Members will appear here when they join the workspace.
-          </p>
-        </div>
-      )}
     </div>
   );
 }

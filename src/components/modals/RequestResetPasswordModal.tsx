@@ -2,13 +2,10 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { X as LucideX, Check } from "lucide-react";
+import { Check } from "lucide-react";
+import { DialogContent, DialogTitle } from "@/components/ui/dialog";
 
-interface Props {
-  onClose: () => void;
-}
-
-function RequestResetPasswordModal({ onClose }: Props) {
+function RequestResetPasswordModal() {
   const [submitted, setSubmitted] = useState(false);
 
   function handleSubmit(e: React.FormEvent) {
@@ -17,19 +14,10 @@ function RequestResetPasswordModal({ onClose }: Props) {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6 sm:p-6 w-full max-w-xs sm:max-w-sm mx-auto relative">
-      <Button
-        onClick={onClose}
-        className="absolute top-3 right-3 p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
-        aria-label="Close"
-        variant="ghost"
-        size="icon"
-      >
-        <LucideX className="w-6 h-6" />
-      </Button>
-      <h2 className="text-lg font-semibold text-slate-800 mb-2">
+    <DialogContent>
+      <DialogTitle className="text-slate-800">
         {submitted ? "Check Your Email" : "Request Password Reset"}
-      </h2>
+      </DialogTitle>
       {submitted ? (
         <div className="mb-4">
           <div className="flex items-center justify-center w-12 h-12 mx-auto mb-3 bg-green-100 rounded-full">
@@ -46,17 +34,19 @@ function RequestResetPasswordModal({ onClose }: Props) {
         </div>
       ) : (
         <>
-          <p className="text-sm text-slate-600 mb-4">
+          <p className="text-sm text-slate-600">
             Enter your email address and we'll send you a link to renew your
             password.
           </p>
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input placeholder="Your email" />
-            <Button className="w-full">Send Reset Link</Button>
+            <Button type="submit" className="w-full">
+              Send Reset Link
+            </Button>
           </form>
         </>
       )}
-    </div>
+    </DialogContent>
   );
 }
 

@@ -1,11 +1,10 @@
 import { Button } from "@/components/ui/button";
 import {
-  Crown,
-  UserCog,
-  UserMinus,
-  UserPlus,
-  X as LucideX,
-} from "lucide-react";
+  DialogContent,
+  DialogFooter,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Crown, UserCog, UserMinus, UserPlus } from "lucide-react";
 
 interface ConfirmMemberActionModalProps {
   onClose: () => void;
@@ -22,7 +21,6 @@ function ConfirmMemberActionModal({
   action,
   to,
   memberName,
-  onConfirm,
   isLoading = false,
 }: ConfirmMemberActionModalProps) {
   const getActionDetails = () => {
@@ -84,37 +82,31 @@ function ConfirmMemberActionModal({
   const ActionIcon = actionDetails.icon;
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 w-full max-w-xs sm:max-w-md mx-auto relative">
-      <Button
-        onClick={onClose}
-        className="absolute top-3 right-3 p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
-        aria-label="Close"
-        disabled={isLoading}
-        variant="ghost"
-        size="icon"
-      >
-        <LucideX className="w-5 h-5 sm:w-6 sm:h-6" />
-      </Button>
-
-      <div className="flex items-start space-x-3 sm:space-x-4 mb-4 sm:mb-6">
-        <div
-          className={`p-2 sm:p-3 rounded-full bg-gray-100 ${actionDetails.iconColor}`}
-        >
+    <DialogContent>
+      <DialogTitle className="flex items-center space-x-3 sm:space-x-4">
+        <div className={`rounded-full bg-gray-100 ${actionDetails.iconColor}`}>
           <ActionIcon className="w-5 h-5 sm:w-6 sm:h-6" />
         </div>
-        <div className="flex-1 pt-1">
-          <h3 className="text-lg sm:text-xl font-semibold text-slate-800 mb-2">
-            {actionDetails.title}
-          </h3>
-          <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-            {actionDetails.description}
-          </p>
-        </div>
+        <span className="text-lg sm:text-xl font-semibold text-slate-800">
+          {actionDetails.title}
+        </span>
+      </DialogTitle>
+
+      <div className="pl-8 sm:pl-10">
+        <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
+          {actionDetails.description}
+        </p>
       </div>
 
-      <div className="flex justify-end">
+      <DialogFooter>
+        {action === "kick" ||
+          (action === "promote" && to === "admin" && (
+            <Button onClick={onClose} variant="outline">
+              Cancel
+            </Button>
+          ))}
         <Button
-          onClick={onConfirm}
+          onClick={onClose}
           disabled={isLoading}
           className="w-full sm:w-auto"
           variant={action === "kick" ? "destructive" : "default"}
@@ -128,8 +120,8 @@ function ConfirmMemberActionModal({
             actionDetails.buttonText
           )}
         </Button>
-      </div>
-    </div>
+      </DialogFooter>
+    </DialogContent>
   );
 }
 
