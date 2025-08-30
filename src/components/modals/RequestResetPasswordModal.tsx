@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import Input from "@/components/Input";
-import Button from "@/components/Button";
+import { Button } from "@/components/ui/button";
 import { FiX } from "react-icons/fi";
 
 interface Props {
@@ -18,14 +18,15 @@ function RequestResetPasswordModal({ onClose }: Props) {
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-6 sm:p-6 w-full max-w-xs sm:max-w-sm mx-auto relative">
-      <button
-        type="button"
+      <Button
         onClick={onClose}
         className="absolute top-3 right-3 p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
         aria-label="Close"
+        variant="ghost"
+        size="icon"
       >
         <FiX className="w-6 h-6" />
-      </button>
+      </Button>
       <h2 className="text-lg font-semibold text-slate-800 mb-2">
         {submitted ? "Check Your Email" : "Request Password Reset"}
       </h2>
@@ -63,9 +64,7 @@ function RequestResetPasswordModal({ onClose }: Props) {
           </p>
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input placeholder="Your email" />
-            <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
-              Send Reset Link
-            </Button>
+            <Button className="w-full">Send Reset Link</Button>
           </form>
         </>
       )}

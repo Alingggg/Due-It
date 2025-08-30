@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import TaskCard from "@/components/TaskCard";
 import Dropdown from "@/components/Dropdown";
-import Button from "@/components/Button";
+import { Button } from "@/components/ui/button";
 import {
   getTasksByWorkspaceId,
   mockSubjects,
@@ -156,10 +156,7 @@ function TasksPage() {
             {sortedTasks.length} of {tasks.length} tasks
           </div>
           {(currentUserRole === "admin" || currentUserRole === "co") && (
-            <Button
-              onClick={() => openModal("UPSERT_TASK")}
-              className="flex items-center space-x-2"
-            >
+            <Button onClick={() => openModal("UPSERT_TASK")}>
               <FaPlus className="w-4 h-4" />
               <span>Create</span>
             </Button>

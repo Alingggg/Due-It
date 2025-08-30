@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import Input from "@/components/Input";
-import Button from "@/components/Button";
+import { Button } from "@/components/ui/button";
 
 function GetStarted() {
   const [isLoading, setIsLoading] = useState(false);

@@ -8,7 +8,7 @@ import {
   formatFileSize,
   canManageWorkspace,
 } from "@/data/mockData";
-import Button from "@/components/Button";
+import { Button } from "@/components/ui/button";
 import {
   FaArrowLeft,
   FaDownload,
@@ -58,13 +58,14 @@ function MaterialGroupDetailsPage({ params }: MaterialGroupDetailsPageProps) {
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Back Button Row */}
       <div>
-        <button
+        <Button
           onClick={() => router.back()}
-          className="inline-flex items-center text-blue-600 hover:text-blue-700 transition-colors hover:cursor-pointer"
+          className="text-blue-600"
+          variant="ghost"
         >
           <FaArrowLeft className="w-4 h-4 mr-2" />
           Back
-        </button>
+        </Button>
       </div>
 
       {/* Header */}
@@ -77,17 +78,16 @@ function MaterialGroupDetailsPage({ params }: MaterialGroupDetailsPageProps) {
             <Button
               onClick={() => openModal("UPSERT_MATERIAL")}
               variant="outline"
-              className="space-x-2"
             >
               <FaEdit className="w-3 h-3 sm:w-4 sm:h-4" />
-              <span>Edit</span>
+              Edit
             </Button>
             <Button
               onClick={() => setShowDeleteConfirm(true)}
-              className="bg-red-600 hover:bg-red-700 text-white space-x-2"
+              variant="destructive"
             >
               <FaTrash className="w-3 h-3 sm:w-4 sm:h-4" />
-              <span>Delete</span>
+              Delete
             </Button>
           </div>
         )}
@@ -164,17 +164,16 @@ function MaterialGroupDetailsPage({ params }: MaterialGroupDetailsPageProps) {
                 <Button
                   onClick={() => handleOpenMaterial(material)}
                   variant="outline"
-                  className="flex items-center justify-center space-x-2 text-xs sm:text-sm px-3 py-2 w-full sm:w-auto"
                 >
                   {material.isLink ? (
                     <>
                       <FaExternalLinkAlt className="w-3 h-3 sm:w-4 sm:h-4" />
-                      <span>Open</span>
+                      Open
                     </>
                   ) : (
                     <>
                       <FaDownload className="w-3 h-3 sm:w-4 sm:h-4" />
-                      <span>Download</span>
+                      Download
                     </>
                   )}
                 </Button>
@@ -216,16 +215,12 @@ function MaterialGroupDetailsPage({ params }: MaterialGroupDetailsPageProps) {
               <Button
                 onClick={() => setShowDeleteConfirm(false)}
                 variant="outline"
-                className="text-sm px-4 py-2"
               >
                 Cancel
               </Button>
-              <Button
-                onClick={handleDelete}
-                className="bg-red-600 hover:bg-red-700 text-white flex items-center justify-center space-x-2 text-sm px-4 py-2"
-              >
+              <Button onClick={handleDelete} variant="destructive">
                 <FaTrash className="w-3 h-3 sm:w-4 sm:h-4" />
-                <span>Delete Group</span>
+                Delete Group
               </Button>
             </div>
           </div>

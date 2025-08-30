@@ -1,4 +1,4 @@
-import Button from "@/components/Button";
+import { Button } from "@/components/ui/button";
 import { FaCrown, FaUserTie, FaUserMinus, FaUserPlus } from "react-icons/fa";
 import { FiX } from "react-icons/fi";
 
@@ -16,7 +16,6 @@ function ConfirmMemberActionModal({
   onClose,
   action,
   to,
-  memberId,
   memberName,
   onConfirm,
   isLoading = false,
@@ -31,7 +30,6 @@ function ConfirmMemberActionModal({
             icon: FaCrown,
             iconColor: "text-red-600",
             buttonText: "Promote to Admin",
-            buttonStyle: "bg-blue-600 hover:bg-blue-700 text-white",
           };
         } else if (to === "co") {
           return {
@@ -40,7 +38,6 @@ function ConfirmMemberActionModal({
             icon: FaUserTie,
             iconColor: "text-blue-600",
             buttonText: "Promote to Co-Admin",
-            buttonStyle: "bg-blue-600 hover:bg-blue-700 text-white",
           };
         }
         break;
@@ -51,7 +48,6 @@ function ConfirmMemberActionModal({
           icon: FaUserMinus,
           iconColor: "text-blue-600",
           buttonText: "Demote to Member",
-          buttonStyle: "bg-blue-600 hover:bg-blue-700 text-white",
         };
       case "kick":
         return {
@@ -60,7 +56,6 @@ function ConfirmMemberActionModal({
           icon: FaUserMinus,
           iconColor: "text-red-600",
           buttonText: "Kick Member",
-          buttonStyle: "bg-red-600 hover:bg-red-700 text-white",
         };
       default:
         return {
@@ -69,7 +64,6 @@ function ConfirmMemberActionModal({
           icon: FaUserPlus,
           iconColor: "text-gray-600",
           buttonText: "Confirm",
-          buttonStyle: "bg-blue-600 hover:bg-blue-700 text-white",
         };
     }
   };
@@ -86,15 +80,16 @@ function ConfirmMemberActionModal({
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 w-full max-w-xs sm:max-w-md mx-auto relative">
-      <button
-        type="button"
+      <Button
         onClick={onClose}
         className="absolute top-3 right-3 p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
         aria-label="Close"
         disabled={isLoading}
+        variant="ghost"
+        size="icon"
       >
         <FiX className="w-5 h-5 sm:w-6 sm:h-6" />
-      </button>
+      </Button>
 
       <div className="flex items-start space-x-3 sm:space-x-4 mb-4 sm:mb-6">
         <div
@@ -116,7 +111,8 @@ function ConfirmMemberActionModal({
         <Button
           onClick={onConfirm}
           disabled={isLoading}
-          className={`w-full sm:w-auto ${actionDetails.buttonStyle}`}
+          className="w-full sm:w-auto"
+          variant={action === "kick" ? "destructive" : "default"}
         >
           {isLoading ? (
             <div className="flex items-center justify-center space-x-2">

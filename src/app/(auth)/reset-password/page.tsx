@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Input from "@/components/Input";
-import Button from "@/components/Button";
+import { Button } from "@/components/ui/button";
 
 function ResetPasswordPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -53,10 +53,7 @@ function ResetPasswordPage() {
               Your password has been reset successfully. You can now sign in
               with your new password.
             </p>
-            <Button
-              onClick={() => router.push("/sign-in")}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3"
-            >
+            <Button onClick={() => router.push("/sign-in")} className="w-full">
               Go to Sign In
             </Button>
           </div>
@@ -90,10 +87,7 @@ function ResetPasswordPage() {
                 className="h-12 sm:h-12"
               />
             </div>
-            <Button
-              disabled={isLoading}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 h-12 sm:h-12"
-            >
+            <Button disabled={isLoading} className="w-full">
               {isLoading ? "Resetting..." : "Reset Password"}
             </Button>
           </form>

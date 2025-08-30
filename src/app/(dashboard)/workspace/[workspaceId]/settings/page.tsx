@@ -11,7 +11,7 @@ import {
 } from "@/data/mockData";
 import { FaUserTimes, FaCheck } from "react-icons/fa";
 import { FiCopy, FiRefreshCw } from "react-icons/fi";
-import Button from "@/components/Button";
+import { Button } from "@/components/ui/button";
 import { useParams } from "next/navigation";
 
 function WorkspaceSettingsPage() {
@@ -115,9 +115,9 @@ function WorkspaceSettingsPage() {
               </div>
 
               <div className="relative">
-                <button
+                <Button
                   onClick={handleCopyCode}
-                  className="p-1.5 sm:p-2 text-slate-500 hover:text-slate-700 transition-colors group"
+                  variant="ghost"
                   title={copied ? "Copied!" : "Copy"}
                 >
                   {copied ? (
@@ -125,7 +125,7 @@ function WorkspaceSettingsPage() {
                   ) : (
                     <FiCopy className="w-4 h-4" />
                   )}
-                </button>
+                </Button>
                 {/* Tooltip */}
                 <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
                   {copied ? "Copied!" : "Copy"}
@@ -172,7 +172,7 @@ function WorkspaceSettingsPage() {
                   <Button
                     onClick={handleToggleInviteCode}
                     variant="outline"
-                    className={`text-xs sm:text-sm border px-2 py-1 sm:px-3 sm:py-1.5 ${
+                    className={`${
                       inviteCode.enabled
                         ? "border-red-600 text-red-700 bg-red-50 hover:bg-red-100"
                         : "border-green-600 text-green-700 bg-green-50 hover:bg-green-100"
@@ -181,13 +181,9 @@ function WorkspaceSettingsPage() {
                     {inviteCode.enabled ? "Disable" : "Enable"}
                   </Button>
 
-                  <Button
-                    onClick={handleRenewCode}
-                    variant="outline"
-                    className="text-xs sm:text-sm flex items-center space-x-1.5 px-2 py-1 sm:px-3 sm:py-1.5"
-                  >
+                  <Button onClick={handleRenewCode} variant="outline">
                     <FiRefreshCw className="w-3.5 h-3.5" />
-                    <span>Renew</span>
+                    Renew
                   </Button>
                 </div>
               )}
@@ -213,10 +209,10 @@ function WorkspaceSettingsPage() {
 
             <Button
               onClick={() => setShowLeaveConfirm(true)}
-              className="bg-red-600 hover:bg-red-700 text-white flex items-center space-x-2 flex-shrink-0 text-xs sm:text-sm px-3 py-1.5 sm:px-4 sm:py-2"
+              variant="destructive"
             >
               <FaUserTimes className="w-4 h-4" />
-              <span>Leave</span>
+              Leave
             </Button>
           </div>
         </div>
@@ -239,16 +235,12 @@ function WorkspaceSettingsPage() {
               <Button
                 onClick={() => setShowLeaveConfirm(false)}
                 variant="outline"
-                className="text-xs sm:text-sm px-3 py-1.5 sm:px-4 sm:py-2"
               >
                 Cancel
               </Button>
-              <Button
-                onClick={handleLeaveWorkspace}
-                className="bg-red-600 hover:bg-red-700 text-white flex items-center space-x-2 text-xs sm:text-sm px-3 py-1.5 sm:px-4 sm:py-2"
-              >
+              <Button onClick={handleLeaveWorkspace} variant="destructive">
                 <FaUserTimes className="w-4 h-4" />
-                <span>Leave Workspace</span>
+                Leave Workspace
               </Button>
             </div>
           </div>

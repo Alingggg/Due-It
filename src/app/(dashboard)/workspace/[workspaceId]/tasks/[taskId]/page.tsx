@@ -2,7 +2,7 @@
 import { use } from "react";
 import { notFound, useRouter } from "next/navigation";
 import { mockTasks, getSubjectById, getCurrentUserRole } from "@/data/mockData";
-import Button from "@/components/Button";
+import { Button } from "@/components/ui/button";
 import {
   FaClock,
   FaUser,
@@ -58,13 +58,14 @@ function TaskDetailPage({ params }: TaskDetailPageProps) {
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Back Button Row */}
       <div>
-        <button
+        <Button
           onClick={() => router.back()}
-          className="inline-flex items-center text-blue-600 hover:text-blue-700 transition-colors hover:cursor-pointer"
+          variant="ghost"
+          className="text-blue-600"
         >
-          <FaArrowLeft className="w-4 h-4 mr-2" />
+          <FaArrowLeft className="w-4 h-4" />
           Back
-        </button>
+        </Button>
       </div>
 
       {/* Header */}
@@ -75,19 +76,18 @@ function TaskDetailPage({ params }: TaskDetailPageProps) {
             <Button
               onClick={() => openModal("UPSERT_TASK", task)}
               variant="outline"
-              className="space-x-2"
             >
               <FaEdit className="w-3 h-3 sm:w-4 sm:h-4" />
-              <span>Edit</span>
+              Edit
             </Button>
             <Button
               onClick={() =>
                 openModal("DELETE_TASK", { taskTitle: task.title })
               }
-              className="bg-red-600 hover:bg-red-700 text-white space-x-2"
+              variant="destructive"
             >
               <FaTrash className="w-3 h-3 sm:w-4 sm:h-4" />
-              <span>Delete</span>
+              Delete
             </Button>
           </div>
         )}
@@ -138,9 +138,7 @@ function TaskDetailPage({ params }: TaskDetailPageProps) {
 
             {/* Action Button */}
             <div className="pt-4 border-t border-slate-100">
-              <Button className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white hover:bg-blue-700">
-                Mark as Done
-              </Button>
+              <Button>Mark as Done</Button>
             </div>
           </div>
         </div>

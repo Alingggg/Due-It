@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import Input from "@/components/Input";
-import Button from "@/components/Button";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 function SignUp() {
@@ -85,10 +85,7 @@ function SignUp() {
             />
           </div>
 
-          <Button
-            disabled={isLoading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 sm:py-3"
-          >
+          <Button disabled={isLoading} className="w-full">
             {isLoading ? "Creating account..." : "Create account"}
           </Button>
         </form>
@@ -96,12 +93,9 @@ function SignUp() {
         <div className="text-center mt-5 sm:mt-6">
           <p className="text-slate-600 text-sm sm:text-base">
             Already have an account?{" "}
-            <Link
-              href="/sign-in"
-              className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
-            >
-              Sign in
-            </Link>
+            <Button variant="link" className="pl-0" asChild>
+              <Link href="/sign-in">Sign in</Link>
+            </Button>
           </p>
         </div>
       </div>

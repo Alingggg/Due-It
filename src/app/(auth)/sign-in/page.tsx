@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import Input from "@/components/Input";
-import Button from "@/components/Button";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import useModalContext from "@/hooks/Modal";
 
@@ -53,19 +53,16 @@ function SignIn() {
           </div>
 
           <div className="text-right">
-            <button
-              type="button"
+            <Button
               onClick={() => openModal("REQUEST_RESET_PASSWORD")}
-              className="text-xs sm:text-sm text-blue-600 hover:text-blue-700 transition-colors hover:cursor-pointer"
+              variant="link"
+              className="pr-0 underline-offset-0 hover:no-underline focus:no-underline"
             >
               Forgot Password?
-            </button>
+            </Button>
           </div>
 
-          <Button
-            disabled={isLoading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 sm:py-3"
-          >
+          <Button disabled={isLoading} className="w-full">
             {isLoading ? "Signing in..." : "Sign in"}
           </Button>
         </form>
@@ -73,12 +70,9 @@ function SignIn() {
         <div className="text-center mt-5 sm:mt-6">
           <p className="text-slate-600 text-sm sm:text-base">
             Don't have an account?{" "}
-            <Link
-              href="/sign-up"
-              className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
-            >
-              Sign up
-            </Link>
+            <Button variant="link" className="pl-0" asChild>
+              <Link href="/sign-up">Sign up</Link>
+            </Button>
           </p>
         </div>
       </div>

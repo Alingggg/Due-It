@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import MaterialGroupCard from "@/components/MaterialGroupCard";
 import Dropdown from "@/components/Dropdown";
-import Button from "@/components/Button";
+import { Button } from "@/components/ui/button";
 import {
   getMaterialGroupsByWorkspaceId,
   mockSubjects,
@@ -154,12 +154,9 @@ function MaterialsPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-slate-800">Materials</h1>
         {(currentUserRole === "admin" || currentUserRole === "co") && (
-          <Button
-            onClick={() => openModal("UPSERT_MATERIAL")}
-            className="flex items-center space-x-2"
-          >
+          <Button onClick={() => openModal("UPSERT_MATERIAL")}>
             <FaPlus className="w-4 h-4" />
-            <span>Create</span>
+            Create
           </Button>
         )}
       </div>
@@ -206,7 +203,7 @@ function MaterialsPage() {
               : "No materials have been created yet."}
           </p>
           {(currentUserRole === "admin" || currentUserRole === "co") && (
-            <Button className="flex items-center space-x-2 mx-auto">
+            <Button>
               <FaPlus className="w-4 h-4" />
               <span>Create First Material</span>
             </Button>

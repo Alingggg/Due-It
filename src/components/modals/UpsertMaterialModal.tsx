@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useMemo } from "react";
-import Button from "@/components/Button";
+import { Button } from "@/components/ui/button";
 import { FaUpload, FaLink, FaFile, FaTrash } from "react-icons/fa";
 import { FiX } from "react-icons/fi";
 
@@ -219,14 +219,15 @@ function UpsertMaterialModal({
         <h3 className="text-lg sm:text-xl font-semibold text-slate-800">
           {isEditing ? "Edit Material Group" : "Create Material Group"}
         </h3>
-        <button
-          type="button"
+        <Button
           onClick={onClose}
           className="absolute top-3 right-3 p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
           aria-label="Close"
+          variant="ghost"
+          size="icon"
         >
           <FiX className="w-6 h-6" />
-        </button>
+        </Button>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
@@ -303,21 +304,17 @@ function UpsertMaterialModal({
             <Button
               onClick={handleShowFileUpload}
               variant="outline"
-              className="text-sm px-4 py-2"
               disabled={isSubmitting}
-              type="button"
             >
-              <FaFile className="w-4 h-4 mr-2" />
+              <FaFile className="w-4 h-4" />
               Upload File
             </Button>
             <Button
               onClick={handleShowLinkInput}
               variant="outline"
-              className="text-sm px-4 py-2"
               disabled={isSubmitting}
-              type="button"
             >
-              <FaLink className="w-4 h-4 mr-2" />
+              <FaLink className="w-4 h-4" />
               Add Link
             </Button>
           </div>
@@ -385,13 +382,7 @@ function UpsertMaterialModal({
                   <p className="text-xs text-red-600">{errors.tempLink}</p>
                 )}
                 <div className="flex gap-2 justify-end">
-                  <Button
-                    onClick={handleAddLink}
-                    className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-1"
-                    type="button"
-                  >
-                    Add Link
-                  </Button>
+                  <Button onClick={handleAddLink}>Add Link</Button>
                 </div>
               </div>
             </div>
@@ -405,7 +396,7 @@ function UpsertMaterialModal({
               Materials ({materials.length})
             </label>
             <div className="space-y-3">
-              {materials.map((material, index) => (
+              {materials.map((material) => (
                 <div
                   key={material.id}
                   className="p-3 border border-slate-200 rounded-lg space-y-2"
@@ -424,14 +415,14 @@ function UpsertMaterialModal({
                         </>
                       )}
                     </h4>
-                    <button
+                    <Button
                       onClick={() => removeMaterial(material.id)}
                       disabled={isSubmitting}
                       className="text-red-500 hover:text-red-700 transition-colors disabled:opacity-50"
-                      type="button"
+                      variant="ghost"
                     >
                       <FaTrash className="w-4 h-4" />
-                    </button>
+                    </Button>
                   </div>
 
                   {/* Material Details */}
@@ -527,12 +518,7 @@ function UpsertMaterialModal({
 
         {/* Actions */}
         <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pt-3 border-t border-slate-200">
-          <Button
-            onClick={handleSubmit}
-            className="bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center space-x-2 text-sm px-4 py-2"
-            disabled={isSubmitting}
-            type="button"
-          >
+          <Button onClick={handleSubmit} disabled={isSubmitting}>
             {isSubmitting ? (
               <>
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
