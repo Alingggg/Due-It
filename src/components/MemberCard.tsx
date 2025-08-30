@@ -10,6 +10,14 @@ import {
   UserMinus,
 } from "lucide-react";
 import useDialogContext from "@/hooks/Dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 
 interface MemberCardProps {
   member: any;
@@ -54,14 +62,6 @@ function MemberCard({ member, workspaceId }: MemberCardProps) {
     return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
   };
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
-
-  const closeMenu = () => {
-    setIsMenuOpen(false);
-  };
-
   const handleRoleChange = (newRole: string) => {
     const action = newRole === "member" ? "demote" : "promote";
     openDialog("CONFIRM_MEMBER_ACTION", {
@@ -70,7 +70,6 @@ function MemberCard({ member, workspaceId }: MemberCardProps) {
       memberId: member.userId,
       memberName: `${member.profile.firstName} ${member.profile.lastName}`,
     });
-    closeMenu();
   };
 
   const handleKickMember = () => {
@@ -79,7 +78,6 @@ function MemberCard({ member, workspaceId }: MemberCardProps) {
       memberId: member.userId,
       memberName: `${member.profile.firstName} ${member.profile.lastName}`,
     });
-    closeMenu();
   };
 
   const canManageMember = (
@@ -212,45 +210,44 @@ function MemberCard({ member, workspaceId }: MemberCardProps) {
 
           {/* Actions Menu */}
           {availableActions.length > 0 && (
-            <div className="relative">
-              <button
-                onClick={toggleMenu}
-                className="p-1.5 sm:p-2 rounded-lg hover:bg-slate-100 text-slate-600"
-              >
-                <MoreVertical className="w-4 h-4" />
-              </button>
-
-              {/* Dropdown Menu */}
-              {isMenuOpen && (
-                <>
-                  {/* Overlay */}
-                  <div className="fixed inset-0 z-10" onClick={closeMenu} />
-
-                  {/* Menu - appears to the left of the button */}
-                  <div className="absolute right-full top-1/2 -translate-y-1/2 mr-2 w-40 sm:w-48 bg-white rounded-lg shadow-lg border border-slate-200 z-20">
-                    <div className="py-1">
-                      {availableActions.map((action, index) => {
-                        const ActionIcon = action.icon;
-                        return (
-                          <button
-                            key={index}
-                            onClick={action.action}
-                            className={`w-full text-left px-3 py-2 text-xs sm:text-sm hover:bg-slate-50 flex items-center ${
-                              action.danger
-                                ? "text-red-600 hover:bg-red-50"
-                                : "text-slate-700"
-                            }`}
-                          >
-                            <ActionIcon className="w-4 h-4 mr-2 sm:mr-3" />
-                            {action.label}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
+            <DropdownMenu
+              open={isMenuOpen}
+              onOpenChange={() => setIsMenuOpen(false)}
+            >
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" onClick={() => setIsMenuOpen(true)}>
+                  <MoreVertical className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuGroup>
+                  {availableActions.map((action, index) => (
+                    <DropdownMenuItem
+                      key={index}
+                      className={`w-full text-xs sm:text-sm ${
+                        action.danger
+                          ? "text-red-600 hover:bg-red-50"
+                          : "text-slate-700"
+                      }`}
+                      onSelect={action.action}
+                    >
+                      <action.icon
+                        className={`${
+                          action.danger ? "text-red-600" : ""
+                        } w-4 h-4 mr-2`}
+                      />
+                      <span
+                        className={`${
+                          action.danger ? "hover:text-red-600" : ""
+                        }`}
+                      >
+                        {action.label}
+                      </span>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
         </div>
       </div>
