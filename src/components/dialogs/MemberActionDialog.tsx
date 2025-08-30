@@ -99,12 +99,11 @@ function MemberActionDialog({
       </div>
 
       <DialogFooter>
-        {action === "kick" ||
-          (action === "promote" && to === "admin" && (
-            <Button onClick={onClose} variant="outline">
-              Cancel
-            </Button>
-          ))}
+        {action === "kick" || (action === "promote" && to === "admin") ? (
+          <Button onClick={onClose} variant="outline">
+            Cancel
+          </Button>
+        ) : null}
         <Button
           onClick={onClose}
           disabled={isLoading}
