@@ -85,7 +85,7 @@ function SignUp() {
             />
           </div>
 
-          <Button disabled={isLoading} className="w-full">
+          <Button disabled={isLoading} className="w-full" type="submit">
             {isLoading ? "Creating account..." : "Create account"}
           </Button>
         </form>
