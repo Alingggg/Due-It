@@ -2,7 +2,6 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import Dropdown from "@/components/Dropdown";
 import {
   FaQuestionCircle,
   FaClipboardList,
@@ -10,6 +9,13 @@ import {
   FaUsers,
 } from "react-icons/fa";
 import { FiX } from "react-icons/fi";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface UpsertTaskModalProps {
   initialData?: {
@@ -175,18 +181,14 @@ function UpsertTaskModal({
             <label className="block text-sm font-semibold text-gray-700">
               Subject *
             </label>
-            <Dropdown
-              value={subjectId}
-              onChange={setSubjectId}
-              options={[
-                { value: "", label: "Select a subject..." },
-                ...subjects.map((sub) => ({
-                  value: sub.id,
-                  label: sub.name,
-                })),
-              ]}
-              className="w-full"
-            />
+            <Select>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select an option" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Subject">Subject</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 

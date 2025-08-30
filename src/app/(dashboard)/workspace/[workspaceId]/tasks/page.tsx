@@ -2,7 +2,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import TaskCard from "@/components/TaskCard";
-import Dropdown from "@/components/Dropdown";
 import { Button } from "@/components/ui/button";
 import {
   getTasksByWorkspaceId,
@@ -12,6 +11,13 @@ import {
 } from "@/data/mockData";
 import { FaClipboardList, FaFilter, FaPlus } from "react-icons/fa";
 import useModalContext from "@/hooks/Modal";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 function TasksPage() {
   const router = useRouter();
@@ -174,27 +180,52 @@ function TasksPage() {
         {/* Sort By */}
         <div className="flex items-center space-x-2">
           <label className="text-sm text-slate-600">Sort by:</label>
-          <Dropdown value={sortBy} onChange={setSortBy} options={sortOptions} />
+          <Select value={sortBy} onValueChange={setSortBy}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select an option" />
+            </SelectTrigger>
+            <SelectContent>
+              {sortOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Filter by Type */}
         <div className="flex items-center space-x-2">
           <label className="text-sm text-slate-600">Type:</label>
-          <Dropdown
-            value={filterType}
-            onChange={setFilterType}
-            options={typeOptions}
-          />
+          <Select value={filterType} onValueChange={setFilterType}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select an option" />
+            </SelectTrigger>
+            <SelectContent>
+              {typeOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Filter by Done By */}
         <div className="flex items-center space-x-2">
           <label className="text-sm text-slate-600">Done by:</label>
-          <Dropdown
-            value={filterDoneBy}
-            onChange={setFilterDoneBy}
-            options={doneByOptions}
-          />
+          <Select value={filterDoneBy} onValueChange={setFilterDoneBy}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select an option" />
+            </SelectTrigger>
+            <SelectContent>
+              {doneByOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
