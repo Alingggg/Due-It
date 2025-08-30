@@ -18,6 +18,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 function MaterialsPage() {
   const router = useRouter();
@@ -107,27 +113,35 @@ function MaterialsPage() {
 
   const renderMaterialGroups = () => {
     if (sortBy === "subject" && groupedMaterialGroups) {
-      return Object.entries(groupedMaterialGroups).map(
-        ([subjectName, subjectMaterialGroups]) => (
-          <div key={subjectName} className="space-y-4">
-            <div className="flex items-center">
-              <h2 className="text-xl font-semibold text-slate-800 pr-4 whitespace-nowrap">
-                {subjectName}
-              </h2>
-              <div className="flex-1 h-px bg-slate-200"></div>
-            </div>
-            <div className="space-y-4">
-              {subjectMaterialGroups.map((materialGroup) => (
-                <MaterialGroupCard
-                  key={materialGroup.id}
-                  materialGroup={materialGroup}
-                  workspaceId={workspaceId}
-                  hideSubject={true}
-                />
-              ))}
-            </div>
-          </div>
-        )
+      return (
+        <Accordion
+          type="multiple"
+          defaultValue={Object.entries(groupedMaterialGroups).map(
+            ([subjectName]) => subjectName
+          )}
+        >
+          {Object.entries(groupedMaterialGroups).map(
+            ([subjectName, subjectMaterialGroups], index) => (
+              <AccordionItem key={index} value={subjectName}>
+                <AccordionTrigger className="text-xl font-semibold text-slate-800 pr-4 whitespace-nowrap">
+                  {subjectName}
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div className="space-y-4">
+                    {subjectMaterialGroups.map((materialGroup) => (
+                      <MaterialGroupCard
+                        key={materialGroup.id}
+                        materialGroup={materialGroup}
+                        workspaceId={workspaceId}
+                        hideSubject={true}
+                      />
+                    ))}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            )
+          )}
+        </Accordion>
       );
     } else {
       return sortedMaterialGroups.map((materialGroup) => (
