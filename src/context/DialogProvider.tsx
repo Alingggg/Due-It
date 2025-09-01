@@ -9,6 +9,7 @@ type DialogType =
   | "UPSERT_MATERIAL"
   | "DELETE_MATERIAL"
   | "LEAVE_WORKSPACE"
+  | "UPSERT_SUBJECT"
   | null;
 
 interface DialogContextType {

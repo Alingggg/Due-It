@@ -8,6 +8,7 @@ import UpsertMaterialDialog from "@/components/dialogs/UpsertMaterialDialog";
 import UpsertTaskDialog from "@/components/dialogs/UpsertTaskDialog";
 import DeleteMaterialDialog from "@/components/dialogs/DeleteMaterialDialog";
 import LeaveWorkspaceDialog from "@/components/dialogs/LeaveWorkspaceDialog";
+import UpsertSubjectDialog from "@/components/dialogs/UpsertSubjectDialog";
 
 export default function DialogContainer() {
   const { dialogType, dialogProps, closeDialog } = useDialogContext();
@@ -22,6 +23,7 @@ export default function DialogContainer() {
     UPSERT_MATERIAL: UpsertMaterialDialog,
     DELETE_MATERIAL: DeleteMaterialDialog,
     LEAVE_WORKSPACE: LeaveWorkspaceDialog,
+    UPSERT_SUBJECT: UpsertSubjectDialog,
   };
 
   const DialogComponent = dialogMap[dialogType];

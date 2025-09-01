@@ -29,8 +29,8 @@ function Sidebar({ workspaceId }: { workspaceId: string }) {
       icon: Book,
     },
     {
-      name: "Schedule",
-      href: `/workspace/${workspaceId}/schedule`,
+      name: "Subjects",
+      href: `/workspace/${workspaceId}/subjects`,
       icon: Calendar,
     },
     {
