@@ -18,7 +18,7 @@ function WorkspaceSettingsPage() {
     getInviteCodeByWorkspaceId(workspaceId)
   );
   const [copied, setCopied] = useState(false);
-  const { openDialog } = useDialogContext();
+  const { openDialog, closeDialog } = useDialogContext();
 
   // Get current values each render to handle temporary role changes
   const userRole = getCurrentUserRole(workspaceId);
@@ -190,7 +190,16 @@ function WorkspaceSettingsPage() {
             </div>
 
             <Button
-              onClick={() => openDialog("LEAVE_WORKSPACE")}
+              onClick={() =>
+                openDialog("CONFIRM_ACTION", {
+                  title: "Leave Workspace?",
+                  description:
+                    "Are you sure you want to leave this workspace? You will lose access to all its content. You can rejoin at any time using a valid invite code.",
+                  actionButtonVariant: "destructive",
+                  actionButtonText: "Leave",
+                  handleAction: closeDialog,
+                })
+              }
               variant="destructive"
             >
               <UserMinus className="w-4 h-4" />

@@ -32,7 +32,7 @@ function MaterialGroupDetailsPage({ params }: MaterialGroupDetailsPageProps) {
   const router = useRouter();
   const materialGroup = getMaterialGroupById(materialGroupId);
   const materials = getMaterialsByGroupId(materialGroupId);
-  const { openDialog } = useDialogContext();
+  const { openDialog, closeDialog } = useDialogContext();
 
   if (!materialGroup) {
     notFound();
@@ -76,9 +76,12 @@ function MaterialGroupDetailsPage({ params }: MaterialGroupDetailsPageProps) {
             </Button>
             <Button
               onClick={() =>
-                openDialog("DELETE_MATERIAL", {
-                  title: materialGroup.title,
-                  materialCount: materials.length,
+                openDialog("CONFIRM_ACTION", {
+                  title: `Delete "${materialGroup.title}"?`,
+                  description: `Are you sure you want to delete "${materialGroup.title}"? This will also delete all ${materials.length} materials in this group. This action cannot be undone.`,
+                  actionButtonVariant: "destructive",
+                  actionButtonText: "Delete",
+                  handleAction: closeDialog,
                 })
               }
               variant="destructive"

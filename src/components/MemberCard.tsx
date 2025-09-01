@@ -1,14 +1,7 @@
 "use client";
 import { useState } from "react";
 import { getCurrentUser, getCurrentUserRole } from "@/data/mockData";
-import {
-  Crown,
-  User,
-  UserCog,
-  MoreVertical,
-  UserPlus,
-  UserMinus,
-} from "lucide-react";
+import { Crown, User, UserCog, MoreVertical } from "lucide-react";
 import useDialogContext from "@/hooks/Dialog";
 import {
   DropdownMenu,
@@ -27,7 +20,7 @@ interface MemberCardProps {
 function MemberCard({ member, workspaceId }: MemberCardProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const currentUser = getCurrentUser();
-  const { openDialog } = useDialogContext();
+  const { openDialog, closeDialog } = useDialogContext();
 
   const getRoleInfo = (role: string) => {
     switch (role) {
@@ -64,19 +57,79 @@ function MemberCard({ member, workspaceId }: MemberCardProps) {
 
   const handleRoleChange = (newRole: string) => {
     const action = newRole === "member" ? "demote" : "promote";
-    openDialog("CONFIRM_MEMBER_ACTION", {
-      action,
-      to: newRole,
-      memberId: member.userId,
-      memberName: `${member.profile.firstName} ${member.profile.lastName}`,
+    const memberName = `${member.profile.firstName} ${member.profile.lastName}`;
+
+    const getActionDetails = () => {
+      switch (action) {
+        case "promote":
+          if (newRole === "admin") {
+            return {
+              title: "Promote to Admin",
+              description: `Are you sure you want to promote ${memberName} to Admin? They will have full access to manage this workspace.`,
+              buttonText: "Promote to Admin",
+              buttonVariant: "destructive",
+            };
+          } else if (newRole === "co") {
+            return {
+              title: "Promote to Co-Admin",
+              description: `Are you sure you want to promote ${memberName} to Co-Admin? They will be able to manage members and tasks.`,
+              buttonText: "Promote to Co-Admin",
+              buttonVariant: "default",
+            };
+          }
+          break;
+        case "demote":
+          return {
+            title: "Demote to Member",
+            description: `Are you sure you want to demote ${memberName} to Member? They will lose their administrative privileges.`,
+            buttonText: "Demote to Member",
+            buttonVariant: "default",
+          };
+        default:
+          return {
+            title: "Confirm Action",
+            description: "Are you sure you want to perform this action?",
+            buttonText: "Confirm",
+            buttonVariant: "default",
+          };
+      }
+    };
+
+    const actionDetails = getActionDetails() ?? {
+      title: "Confirm Action",
+      description: "Are you sure you want to perform this action?",
+      buttonText: "Confirm",
+      buttonVariant: "default",
+    };
+
+    const handleAction = () => {
+      console.log(`Changing role of ${memberName} to ${newRole}`);
+      closeDialog();
+    };
+
+    openDialog("CONFIRM_ACTION", {
+      title: actionDetails.title,
+      description: actionDetails.description,
+      actionButtonVariant: actionDetails.buttonVariant,
+      actionButtonText: actionDetails.buttonText,
+      handleAction,
     });
   };
 
   const handleKickMember = () => {
-    openDialog("CONFIRM_MEMBER_ACTION", {
-      action: "kick",
-      memberId: member.userId,
-      memberName: `${member.profile.firstName} ${member.profile.lastName}`,
+    const memberName = `${member.profile.firstName} ${member.profile.lastName}`;
+
+    const handleAction = () => {
+      console.log(`Kicking member ${memberName}`);
+      closeDialog();
+    };
+
+    openDialog("CONFIRM_ACTION", {
+      title: "Kick Member",
+      description: `Are you sure you want to kick ${memberName} from this workspace? They will lose access immediately and will need to be re-invited to rejoin.`,
+      actionButtonVariant: "destructive",
+      actionButtonText: "Kick Member",
+      handleAction,
     });
   };
 
@@ -97,7 +150,6 @@ function MemberCard({ member, workspaceId }: MemberCardProps) {
     let actions: {
       label: string;
       action: () => void;
-      icon: React.ElementType;
       danger?: boolean;
     }[] = [];
 
@@ -115,12 +167,10 @@ function MemberCard({ member, workspaceId }: MemberCardProps) {
           {
             label: "Promote to Admin",
             action: () => handleRoleChange("admin"),
-            icon: Crown,
           },
           {
             label: "Promote to Co-Admin",
             action: () => handleRoleChange("co"),
-            icon: UserPlus,
           },
         ];
       } else if (member.role === "co") {
@@ -128,19 +178,16 @@ function MemberCard({ member, workspaceId }: MemberCardProps) {
           {
             label: "Promote to Admin",
             action: () => handleRoleChange("admin"),
-            icon: Crown,
           },
           {
             label: "Demote to Member",
             action: () => handleRoleChange("member"),
-            icon: UserMinus,
           },
         ];
       }
       actions.push({
         label: "Kick Member",
         action: handleKickMember,
-        icon: UserMinus,
         danger: true,
       });
     } else if (currentUserRole === "co") {
@@ -150,7 +197,6 @@ function MemberCard({ member, workspaceId }: MemberCardProps) {
           {
             label: "Kick Member",
             action: handleKickMember,
-            icon: UserMinus,
             danger: true,
           },
         ];
@@ -231,11 +277,6 @@ function MemberCard({ member, workspaceId }: MemberCardProps) {
                       }`}
                       onSelect={action.action}
                     >
-                      <action.icon
-                        className={`${
-                          action.danger ? "text-red-600" : ""
-                        } w-4 h-4 mr-2`}
-                      />
                       <span
                         className={`${
                           action.danger ? "hover:text-red-600" : ""

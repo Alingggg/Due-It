@@ -64,7 +64,7 @@ function SubjectsPage() {
   const [activeTab, setActiveTab] = useState<"subjects" | "schedule">(
     "subjects"
   );
-  const { openDialog } = useDialogContext();
+  const { openDialog, closeDialog } = useDialogContext();
   const schedulesByDay = useGroupedSchedules();
 
   const handleAddSubject = () => {
@@ -84,13 +84,15 @@ function SubjectsPage() {
     });
   };
 
-  // const handleDeleteSubject = (subject: any) => {
-  //   openDialog("CONFIRM_DELETE", {
-  //     type: "subject",
-  //     id: subject.id,
-  //     name: subject.name,
-  //   });
-  // };
+  const handleDeleteSubject = (subject: any) => {
+    openDialog("CONFIRM_ACTION", {
+      title: "Delete Subject?",
+      description: `Are you sure you want to delete the subject "${subject.name}"?`,
+      actionButtonVariant: "destructive",
+      actionButtonText: "Delete",
+      handleAction: closeDialog(),
+    });
+  };
 
   const renderSubjectsTab = () => (
     <div className="space-y-4">
@@ -129,7 +131,10 @@ function SubjectsPage() {
                     <Edit2 className="w-4 h-4 mr-2" />
                     Edit Subject
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="text-red-600 hover:bg-red-50">
+                  <DropdownMenuItem
+                    onSelect={() => handleDeleteSubject(subject)}
+                    className="text-red-600 hover:bg-red-50"
+                  >
                     <Trash2 className="w-4 h-4 mr-2 text-red-600" />
                     <span className="hover:text-red-600">Delete Subject</span>
                   </DropdownMenuItem>

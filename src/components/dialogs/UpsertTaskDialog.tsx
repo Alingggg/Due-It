@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
 interface UpsertTaskDialogProps {
   initialData?: {
@@ -72,147 +72,151 @@ function UpsertTaskDialog({
   }
 
   return (
-    <DialogContent className="max-h-[90vh] overflow-y-auto">
-      <DialogTitle className="text-slate-800">
-        {initialData.title ? "Edit Task" : "Add New Task"}
-      </DialogTitle>
+    <Dialog>
+      <DialogContent className="max-h-[90vh] overflow-y-auto">
+        <DialogTitle className="text-slate-800">
+          {initialData.title ? "Edit Task" : "Add New Task"}
+        </DialogTitle>
 
-      {/* Form */}
-      <form onSubmit={handleSubmit} className="space-y-2">
-        {/* Title */}
-        <div className="space-y-2">
-          <label className="block text-sm font-semibold text-gray-700">
-            Task Title *
-          </label>
-          <Input
-            type="text"
-            placeholder="Enter task title..."
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            disabled={isLoading}
-          />
-        </div>
-
-        {/* Description */}
-        <div className="space-y-2">
-          <label className="block text-sm font-semibold text-gray-700">
-            Description
-          </label>
-          <Textarea
-            placeholder="Add task description (optional)..."
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            disabled={isLoading}
-          />
-        </div>
-
-        {/* Type and Done By - Stacked on mobile */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Type */}
-          <div className="space-y-3">
-            <label className="block text-sm font-semibold text-gray-700">
-              Task Type
-            </label>
-            <div className="grid grid-cols-2 gap-2">
-              {typeOptions.map((opt) => (
-                <Button
-                  key={opt.value}
-                  onClick={() => setType(opt.value as "quiz" | "assignment")}
-                  variant="outline"
-                  className={`transition-all duration-200 ${
-                    type === opt.value ? "" : "border-gray-200 text-gray-600"
-                  }`}
-                  disabled={isLoading}
-                >
-                  <opt.icon className="w-4 h-4" />
-                  <span className="text-xs">{opt.label}</span>
-                </Button>
-              ))}
-            </div>
-          </div>
-
-          {/* Done By */}
-          <div className="space-y-3">
-            <label className="block text-sm font-semibold text-gray-700">
-              Completion Type
-            </label>
-            <div className="grid grid-cols-3 gap-1">
-              {doneByOptions.map((opt) => (
-                <Button
-                  key={opt.value}
-                  onClick={() =>
-                    setDoneBy(opt.value as "individual" | "pair" | "group")
-                  }
-                  variant="outline"
-                  className={`flex flex-col gap-0.5 transition-all duration-200 h-12 ${
-                    doneBy === opt.value ? "" : "border-gray-200 text-gray-600"
-                  }`}
-                  disabled={isLoading}
-                >
-                  <opt.icon className="w-4 h-4" />
-                  <span className="text-xs">{opt.label}</span>
-                </Button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Due Date and Subject - Stacked on mobile */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Due Date */}
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-2">
+          {/* Title */}
           <div className="space-y-2">
             <label className="block text-sm font-semibold text-gray-700">
-              Due Date & Time
+              Task Title *
             </label>
             <Input
-              type="datetime-local"
-              value={dueDate}
-              onChange={(e) => setDueDate(e.target.value)}
+              type="text"
+              placeholder="Enter task title..."
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
               disabled={isLoading}
             />
           </div>
 
-          {/* Subject */}
+          {/* Description */}
           <div className="space-y-2">
             <label className="block text-sm font-semibold text-gray-700">
-              Subject *
+              Description
             </label>
-            <Select
-              value={subjectId}
-              onValueChange={setSubjectId}
+            <Textarea
+              placeholder="Add task description (optional)..."
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
               disabled={isLoading}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select an option" />
-              </SelectTrigger>
-              <SelectContent>
-                {subjects.map((subject) => (
-                  <SelectItem key={subject.id} value={subject.id}>
-                    {subject.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            />
           </div>
-        </div>
 
-        {/* Action Buttons */}
-        <div className="pt-4 border-t border-gray-200">
-          <Button disabled={isLoading || !title.trim()} type="submit">
-            {isLoading ? (
-              <div className="flex items-center justify-center gap-2">
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                Saving...
+          {/* Type and Done By - Stacked on mobile */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Type */}
+            <div className="space-y-3">
+              <label className="block text-sm font-semibold text-gray-700">
+                Task Type
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                {typeOptions.map((opt) => (
+                  <Button
+                    key={opt.value}
+                    onClick={() => setType(opt.value as "quiz" | "assignment")}
+                    variant="outline"
+                    className={`transition-all duration-200 ${
+                      type === opt.value ? "" : "border-gray-200 text-gray-600"
+                    }`}
+                    disabled={isLoading}
+                  >
+                    <opt.icon className="w-4 h-4" />
+                    <span className="text-xs">{opt.label}</span>
+                  </Button>
+                ))}
               </div>
-            ) : initialData.title ? (
-              "Save Changes"
-            ) : (
-              "Create Task"
-            )}
-          </Button>
-        </div>
-      </form>
-    </DialogContent>
+            </div>
+
+            {/* Done By */}
+            <div className="space-y-3">
+              <label className="block text-sm font-semibold text-gray-700">
+                Completion Type
+              </label>
+              <div className="grid grid-cols-3 gap-1">
+                {doneByOptions.map((opt) => (
+                  <Button
+                    key={opt.value}
+                    onClick={() =>
+                      setDoneBy(opt.value as "individual" | "pair" | "group")
+                    }
+                    variant="outline"
+                    className={`flex flex-col gap-0.5 transition-all duration-200 h-12 ${
+                      doneBy === opt.value
+                        ? ""
+                        : "border-gray-200 text-gray-600"
+                    }`}
+                    disabled={isLoading}
+                  >
+                    <opt.icon className="w-4 h-4" />
+                    <span className="text-xs">{opt.label}</span>
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Due Date and Subject - Stacked on mobile */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Due Date */}
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-gray-700">
+                Due Date & Time
+              </label>
+              <Input
+                type="datetime-local"
+                value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
+                disabled={isLoading}
+              />
+            </div>
+
+            {/* Subject */}
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-gray-700">
+                Subject *
+              </label>
+              <Select
+                value={subjectId}
+                onValueChange={setSubjectId}
+                disabled={isLoading}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select an option" />
+                </SelectTrigger>
+                <SelectContent>
+                  {subjects.map((subject) => (
+                    <SelectItem key={subject.id} value={subject.id}>
+                      {subject.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="pt-4 border-t border-gray-200">
+            <Button disabled={isLoading || !title.trim()} type="submit">
+              {isLoading ? (
+                <div className="flex items-center justify-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Saving...
+                </div>
+              ) : initialData.title ? (
+                "Save Changes"
+              ) : (
+                "Create Task"
+              )}
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }
 

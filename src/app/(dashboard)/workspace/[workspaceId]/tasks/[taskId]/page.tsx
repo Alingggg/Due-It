@@ -24,7 +24,7 @@ function TaskDetailPage({ params }: TaskDetailPageProps) {
   const { workspaceId, taskId } = use(params);
   const router = useRouter();
   const task = mockTasks.find((t) => t.id === taskId);
-  const { openDialog } = useDialogContext();
+  const { openDialog, closeDialog } = useDialogContext();
 
   // Get current user's role in this workspace
   const currentUserRole = getCurrentUserRole(workspaceId);
@@ -82,7 +82,13 @@ function TaskDetailPage({ params }: TaskDetailPageProps) {
             </Button>
             <Button
               onClick={() =>
-                openDialog("DELETE_TASK", { taskTitle: task.title })
+                openDialog("CONFIRM_ACTION", {
+                  title: `Delete "${task.title}"?`,
+                  description: `Are you sure you want to delete "${task.title}"? This action cannot be undone.`,
+                  actionButtonVariant: "destructive",
+                  actionButtonText: "Delete",
+                  handleAction: closeDialog,
+                })
               }
               variant="destructive"
             >

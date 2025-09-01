@@ -4,12 +4,9 @@ import { createContext, useState } from "react";
 type DialogType =
   | "REQUEST_RESET_PASSWORD"
   | "UPSERT_TASK"
-  | "DELETE_TASK"
-  | "CONFIRM_MEMBER_ACTION"
   | "UPSERT_MATERIAL"
-  | "DELETE_MATERIAL"
-  | "LEAVE_WORKSPACE"
   | "UPSERT_SUBJECT"
+  | "CONFIRM_ACTION"
   | null;
 
 interface DialogContextType {

@@ -1,14 +1,10 @@
 "use client";
-import { Dialog } from "@/components/ui/dialog";
 import useDialogContext from "@/hooks/Dialog";
-import ConfirmMemberActionDialog from "@/components/dialogs/MemberActionDialog";
-import DeleteTaskDialog from "@/components/dialogs/DeleteTaskDialog";
 import RequestResetPasswordDialog from "@/components/dialogs/RequestResetPasswordDialog";
 import UpsertMaterialDialog from "@/components/dialogs/UpsertMaterialDialog";
 import UpsertTaskDialog from "@/components/dialogs/UpsertTaskDialog";
-import DeleteMaterialDialog from "@/components/dialogs/DeleteMaterialDialog";
-import LeaveWorkspaceDialog from "@/components/dialogs/LeaveWorkspaceDialog";
 import UpsertSubjectDialog from "@/components/dialogs/UpsertSubjectDialog";
+import ConfirmActionDialog from "@/components/dialogs/ConfirmActionDialog";
 
 export default function DialogContainer() {
   const { dialogType, dialogProps, closeDialog } = useDialogContext();
@@ -18,21 +14,14 @@ export default function DialogContainer() {
   const dialogMap = {
     REQUEST_RESET_PASSWORD: RequestResetPasswordDialog,
     UPSERT_TASK: UpsertTaskDialog,
-    DELETE_TASK: DeleteTaskDialog,
-    CONFIRM_MEMBER_ACTION: ConfirmMemberActionDialog,
     UPSERT_MATERIAL: UpsertMaterialDialog,
-    DELETE_MATERIAL: DeleteMaterialDialog,
-    LEAVE_WORKSPACE: LeaveWorkspaceDialog,
     UPSERT_SUBJECT: UpsertSubjectDialog,
+    CONFIRM_ACTION: ConfirmActionDialog,
   };
 
   const DialogComponent = dialogMap[dialogType];
 
-  return (
-    <Dialog open={!!dialogType} onOpenChange={closeDialog}>
-      {DialogComponent && (
-        <DialogComponent {...dialogProps} onClose={closeDialog} />
-      )}
-    </Dialog>
-  );
+  return DialogComponent ? (
+    <DialogComponent {...dialogProps} onClose={closeDialog} />
+  ) : null;
 }
