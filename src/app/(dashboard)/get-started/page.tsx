@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 
 function GetStarted() {
   const [isLoading, setIsLoading] = useState(false);
@@ -44,13 +45,8 @@ function GetStarted() {
             onSubmit={handleJoinWithCode}
             className="space-y-3 sm:space-y-4"
           >
-            <div>
-              <label
-                htmlFor="joinCode"
-                className="block text-sm font-medium text-slate-700 mb-2"
-              >
-                Workspace Code
-              </label>
+            <div className="space-y-2">
+              <Label htmlFor="joinCode">Workspace Code</Label>
               <Input
                 id="joinCode"
                 type="text"

@@ -24,6 +24,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Label } from "@/components/ui/label";
 
 function TasksPage() {
   const router = useRouter();
@@ -234,9 +235,9 @@ function TasksPage() {
 
         {/* Sort By */}
         <div className="flex items-center space-x-2">
-          <label className="text-sm text-slate-600">Sort by:</label>
+          <Label htmlFor="sortBy">Sort by:</Label>
           <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger>
+            <SelectTrigger id="sortBy">
               <SelectValue placeholder="Select an option" />
             </SelectTrigger>
             <SelectContent>
@@ -251,9 +252,9 @@ function TasksPage() {
 
         {/* Filter by Type */}
         <div className="flex items-center space-x-2">
-          <label className="text-sm text-slate-600">Type:</label>
+          <Label htmlFor="filterType">Type:</Label>
           <Select value={filterType} onValueChange={setFilterType}>
-            <SelectTrigger>
+            <SelectTrigger id="filterType">
               <SelectValue placeholder="Select an option" />
             </SelectTrigger>
             <SelectContent>
@@ -268,9 +269,9 @@ function TasksPage() {
 
         {/* Filter by Done By */}
         <div className="flex items-center space-x-2">
-          <label className="text-sm text-slate-600">Done by:</label>
+          <Label htmlFor="filterDoneBy">Done by:</Label>
           <Select value={filterDoneBy} onValueChange={setFilterDoneBy}>
-            <SelectTrigger>
+            <SelectTrigger id="filterDoneBy">
               <SelectValue placeholder="Select an option" />
             </SelectTrigger>
             <SelectContent>

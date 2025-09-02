@@ -24,6 +24,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Label } from "@/components/ui/label";
 
 function MaterialsPage() {
   const router = useRouter();
@@ -190,9 +191,9 @@ function MaterialsPage() {
 
         {/* Sort By */}
         <div className="flex items-center space-x-2">
-          <label className="text-sm text-slate-600">Sort by:</label>
+          <Label htmlFor="sortBy">Sort by:</Label>
           <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger>
+            <SelectTrigger id="sortBy">
               <SelectValue placeholder="Select an option" />
             </SelectTrigger>
             <SelectContent>
@@ -207,9 +208,9 @@ function MaterialsPage() {
 
         {/* Filter by Subject */}
         <div className="flex items-center space-x-2">
-          <label className="text-sm text-slate-600">Subject:</label>
+          <Label htmlFor="filterSubject">Subject:</Label>
           <Select value={filterSubject} onValueChange={setFilterSubject}>
-            <SelectTrigger>
+            <SelectTrigger id="filterSubject">
               <SelectValue placeholder="Select an option" />
             </SelectTrigger>
             <SelectContent>

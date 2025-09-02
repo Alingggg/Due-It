@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 
 function ResetPasswordPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -58,34 +59,24 @@ function ResetPasswordPage() {
             </Button>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-5">
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-base sm:text-base font-medium text-slate-700 mb-2"
-              >
-                New Password
-              </label>
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="space-y-2">
+              <Label htmlFor="password">New Password</Label>
               <Input
                 id="password"
                 type="password"
                 placeholder="Enter new password"
               />
             </div>
-            <div>
-              <label
-                htmlFor="confirmPassword"
-                className="block text-base sm:text-base font-medium text-slate-700 mb-2"
-              >
-                Confirm Password
-              </label>
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirm Password</Label>
               <Input
                 id="confirmPassword"
                 type="password"
                 placeholder="Confirm new password"
               />
             </div>
-            <Button type="submit" disabled={isLoading} className="w-full">
+            <Button type="submit" disabled={isLoading} className="w-full mt-2">
               {isLoading ? "Resetting..." : "Reset Password"}
             </Button>
           </form>

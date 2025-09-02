@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import Link from "next/link";
 
 function SignUp() {
@@ -27,43 +28,23 @@ function SignUp() {
 
         <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label
-                htmlFor="firstName"
-                className="block text-sm font-medium text-slate-700 mb-2"
-              >
-                First Name
-              </label>
+            <div className="space-y-2">
+              <Label htmlFor="firstName">First Name</Label>
               <Input id="firstName" type="text" placeholder="First name" />
             </div>
-            <div>
-              <label
-                htmlFor="lastName"
-                className="block text-sm font-medium text-slate-700 mb-2"
-              >
-                Last Name
-              </label>
+            <div className="space-y-2">
+              <Label htmlFor="lastName">Last Name</Label>
               <Input id="lastName" type="text" placeholder="Last name" />
             </div>
           </div>
 
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-slate-700 mb-2"
-            >
-              Email
-            </label>
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
             <Input id="email" type="email" placeholder="Enter your email" />
           </div>
 
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-slate-700 mb-2"
-            >
-              Password
-            </label>
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
             <Input
               id="password"
               type="password"
@@ -71,13 +52,8 @@ function SignUp() {
             />
           </div>
 
-          <div>
-            <label
-              htmlFor="confirmPassword"
-              className="block text-sm font-medium text-slate-700 mb-2"
-            >
-              Confirm Password
-            </label>
+          <div className="space-y-2">
+            <Label htmlFor="confirmPassword">Confirm Password</Label>
             <Input
               id="confirmPassword"
               type="password"

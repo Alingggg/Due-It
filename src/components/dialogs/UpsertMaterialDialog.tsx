@@ -10,6 +10,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 
 export interface MaterialGroup {
   id: string;
@@ -224,16 +225,13 @@ function UpsertMaterialDialog({
 
         <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
           {/* Title */}
-          <div>
-            <label
-              htmlFor="title"
-              className="block text-sm font-medium text-slate-700 mb-1"
-            >
-              Title *
-            </label>
+          <div className="space-y-2">
+            <Label htmlFor="title">
+              Title <span className="text-red-500">*</span>
+            </Label>
             <Input
               id="title"
-              className={`${errors.title ? "border-red-500" : ""}`}
+              className={errors.title ? "border-red-500" : ""}
               placeholder="Enter material group title"
               disabled={isSubmitting}
               value={title}
@@ -245,13 +243,10 @@ function UpsertMaterialDialog({
           </div>
 
           {/* Description */}
-          <div>
-            <label
-              htmlFor="description"
-              className="block text-sm font-medium text-slate-700 mb-1"
-            >
-              Description *
-            </label>
+          <div className="space-y-2">
+            <Label htmlFor="description">
+              Description <span className="text-red-500">*</span>
+            </Label>
             <Textarea
               id="description"
               placeholder="Enter material group description"
@@ -266,10 +261,8 @@ function UpsertMaterialDialog({
 
           {/* Subject - Just display, not editable for now */}
           {isEditing && (
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                Subject
-              </label>
+            <div className="space-y-2">
+              <Label>Subject</Label>
               <div className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-slate-50 text-slate-600">
                 Subject Name (Not editable for now)
               </div>
@@ -277,10 +270,10 @@ function UpsertMaterialDialog({
           )}
 
           {/* Add Material Section */}
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
-              Add Materials *
-            </label>
+          <div className="space-y-2">
+            <Label>
+              Add Materials <span className="text-red-500">*</span>
+            </Label>
             {errors.materials && (
               <p className="mb-2 text-xs text-red-600">{errors.materials}</p>
             )}
@@ -324,7 +317,7 @@ function UpsertMaterialDialog({
                     disabled={isSubmitting}
                     accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.jpg,.jpeg,.png,.zip,.rar"
                   />
-                  <label
+                  <Label
                     htmlFor="file-upload"
                     className="flex flex-col items-center justify-center w-full px-6 py-8 border-2 border-dashed border-slate-300 rounded-lg cursor-pointer transition-colors hover:border-slate-400 hover:bg-slate-100"
                   >
@@ -333,7 +326,7 @@ function UpsertMaterialDialog({
                       Click to select file
                     </p>
                     <p className="text-xs text-slate-500">or drag and drop</p>
-                  </label>
+                  </Label>
                 </div>
               </div>
             )}
@@ -342,10 +335,10 @@ function UpsertMaterialDialog({
             {showLinkInput && (
               <div className="mb-3 p-4 border border-slate-200 rounded-lg bg-slate-50">
                 <div className="space-y-2">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-600 mb-1">
-                      Link Name *
-                    </label>
+                  <div className="space-y-2">
+                    <Label>
+                      Link Name <span className="text-red-500">*</span>
+                    </Label>
                     <Input
                       value={tempLinkName}
                       onChange={(e) => setTempLinkName(e.target.value)}
@@ -354,10 +347,10 @@ function UpsertMaterialDialog({
                       disabled={isSubmitting}
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-600 mb-1">
-                      URL *
-                    </label>
+                  <div className="space-y-2">
+                    <Label>
+                      URL <span className="text-red-500">*</span>
+                    </Label>
                     <Input
                       value={tempLinkUrl}
                       onChange={(e) => setTempLinkUrl(e.target.value)}
@@ -381,10 +374,10 @@ function UpsertMaterialDialog({
 
           {/* Materials List */}
           {materials.length > 0 && (
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
+            <div className="space-y-2">
+              <Label>
                 Materials ({materials.length})
-              </label>
+              </Label>
               <div className="space-y-3">
                 {materials.map((material) => (
                   <div
@@ -441,10 +434,10 @@ function UpsertMaterialDialog({
 
                     {/* Edit URL for links */}
                     {material.isLink && (
-                      <div>
-                        <label className="block text-xs font-medium text-slate-600 mb-1">
-                          URL *
-                        </label>
+                      <div className="space-y-2">
+                        <Label>
+                          URL <span className="text-red-500">*</span>
+                        </Label>
                         <Input
                           value={material.url || ""}
                           onChange={(e) =>

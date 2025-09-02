@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 
 interface UpsertSubjectDialogProps {
   initialData?: {
@@ -45,10 +46,11 @@ function UpsertSubjectDialog({
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Subject Name */}
           <div className="space-y-2">
-            <label className="block text-sm font-semibold text-gray-700">
-              Subject Name *
-            </label>
+            <Label htmlFor="subject-name">
+              Subject Name <span className="text-red-500">*</span>
+            </Label>
             <Input
+              id="subject-name"
               type="text"
               placeholder="Enter subject name..."
               value={name}
@@ -61,10 +63,11 @@ function UpsertSubjectDialog({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Subject Code */}
             <div className="space-y-2">
-              <label className="block text-sm font-semibold text-gray-700">
-                Subject Code *
-              </label>
+              <Label htmlFor="subject-code">
+                Subject Code <span className="text-red-500">*</span>
+              </Label>
               <Input
+                id="subject-code"
                 type="text"
                 placeholder="e.g., COMP 101"
                 value={code}
@@ -75,10 +78,11 @@ function UpsertSubjectDialog({
 
             {/* Instructor */}
             <div className="space-y-2">
-              <label className="block text-sm font-semibold text-gray-700">
-                Instructor *
-              </label>
+              <Label htmlFor="instructor">
+                Instructor <span className="text-red-500">*</span>
+              </Label>
               <Input
+                id="instructor"
                 type="text"
                 placeholder="Enter instructor name..."
                 value={instructor}

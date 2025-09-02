@@ -10,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 
 interface Subject {
   id: string;
@@ -66,42 +67,40 @@ function UpsertScheduleDialog({
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Subject Selection */}
           <div className="space-y-2">
-            <label className="block text-sm font-semibold text-gray-700">
-              Subject *
-            </label>
-            <div>
-              <Select
-                value={subjectId}
-                onValueChange={setSubjectId}
-                disabled={isLoading}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select a subject..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {subjects.map((subject) => (
-                    <SelectItem key={subject.id} value={subject.id}>
-                      {subject.code} - {subject.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <Label htmlFor="subject-select">
+              Subject <span className="text-red-500">*</span>
+            </Label>
+            <Select
+              value={subjectId}
+              onValueChange={setSubjectId}
+              disabled={isLoading}
+            >
+              <SelectTrigger id="subject-select" className="w-full">
+                <SelectValue placeholder="Select a subject..." />
+              </SelectTrigger>
+              <SelectContent>
+                {subjects.map((subject) => (
+                  <SelectItem key={subject.id} value={subject.id}>
+                    {subject.code} - {subject.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Day of Week and Time - Side by side, both full width */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
             {/* Day of Week */}
             <div className="space-y-2 w-full">
-              <label className="block text-sm font-semibold text-gray-700">
-                Day of Week *
-              </label>
+              <Label htmlFor="day-select">
+                Day of Week <span className="text-red-500">*</span>
+              </Label>
               <Select
                 value={dayOfWeek}
                 onValueChange={setDayOfWeek}
                 disabled={isLoading}
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger id="day-select" className="w-full">
                   <SelectValue placeholder="Select a day..." />
                 </SelectTrigger>
                 <SelectContent>
@@ -116,10 +115,11 @@ function UpsertScheduleDialog({
 
             {/* Time of Day */}
             <div className="space-y-2 w-full">
-              <label className="block text-sm font-semibold text-gray-700">
-                Time of Day *
-              </label>
+              <Label htmlFor="time-input">
+                Time of Day <span className="text-red-500">*</span>
+              </Label>
               <Input
+                id="time-input"
                 type="time"
                 disabled={isLoading}
                 defaultValue="00:00:00"
