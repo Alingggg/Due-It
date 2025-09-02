@@ -2,7 +2,13 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { HelpCircle, ClipboardList, User, Users } from "lucide-react";
+import {
+  HelpCircle,
+  ClipboardList,
+  User,
+  Users,
+  ChevronDownIcon,
+} from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -12,6 +18,13 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 
 interface UpsertTaskDialogProps {
   initialData?: {
@@ -58,6 +71,8 @@ function UpsertTaskDialog({
   const [subjectId, setSubjectId] = useState(
     initialData.subjectId || (subjects[0]?.id ?? "")
   );
+  const [open, setOpen] = useState(false);
+  const [date, setDate] = useState<Date | undefined>(undefined);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -79,13 +94,17 @@ function UpsertTaskDialog({
         </DialogTitle>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-2">
+        <form onSubmit={handleSubmit} className="space-y-4">
           {/* Title */}
           <div className="space-y-2">
-            <label className="block text-sm font-semibold text-gray-700">
-              Task Title *
-            </label>
+            <Label htmlFor="task-title">
+              Task Title{" "}
+              <span className="text-red-500" title="Required">
+                *
+              </span>
+            </Label>
             <Input
+              id="task-title"
               type="text"
               placeholder="Enter task title..."
               value={title}
@@ -96,10 +115,9 @@ function UpsertTaskDialog({
 
           {/* Description */}
           <div className="space-y-2">
-            <label className="block text-sm font-semibold text-gray-700">
-              Description
-            </label>
+            <Label htmlFor="task-description">Description</Label>
             <Textarea
+              id="task-description"
               placeholder="Add task description (optional)..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -110,10 +128,8 @@ function UpsertTaskDialog({
           {/* Type and Done By - Stacked on mobile */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Type */}
-            <div className="space-y-3">
-              <label className="block text-sm font-semibold text-gray-700">
-                Task Type
-              </label>
+            <div className="space-y-2">
+              <Label>Task Type</Label>
               <div className="grid grid-cols-2 gap-2">
                 {typeOptions.map((opt) => (
                   <Button
@@ -133,10 +149,8 @@ function UpsertTaskDialog({
             </div>
 
             {/* Done By */}
-            <div className="space-y-3">
-              <label className="block text-sm font-semibold text-gray-700">
-                Completion Type
-              </label>
+            <div className="space-y-2">
+              <Label>Completion Type</Label>
               <div className="grid grid-cols-3 gap-1">
                 {doneByOptions.map((opt) => (
                   <Button
@@ -160,43 +174,80 @@ function UpsertTaskDialog({
             </div>
           </div>
 
-          {/* Due Date and Subject - Stacked on mobile */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Due Date */}
-            <div className="space-y-2">
-              <label className="block text-sm font-semibold text-gray-700">
-                Due Date & Time
-              </label>
-              <Input
-                type="datetime-local"
-                value={dueDate}
-                onChange={(e) => setDueDate(e.target.value)}
-                disabled={isLoading}
-              />
+          {/* Due Date */}
+          <div className="space-y-2">
+            <Label htmlFor="date-picker">
+              Due Date{" "}
+              <span className="text-red-500" title="Required">
+                *
+              </span>
+            </Label>
+            <div className="flex gap-2">
+              <div className="flex-1">
+                <Popover open={open} onOpenChange={setOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      id="date-picker"
+                      className="w-full justify-between font-normal"
+                    >
+                      {date ? date.toLocaleDateString() : "Select date"}
+                      <ChevronDownIcon />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent
+                    className="w-auto overflow-hidden p-0"
+                    align="start"
+                  >
+                    <Calendar
+                      mode="single"
+                      selected={date}
+                      captionLayout="dropdown"
+                      onSelect={(date) => {
+                        setDate(date);
+                        setOpen(false);
+                      }}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <div className="flex-1">
+                <Input
+                  type="time"
+                  id="time-picker"
+                  step="1"
+                  defaultValue="10:30:00"
+                  className="w-full leading-none bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+                  disabled={isLoading}
+                />
+              </div>
             </div>
+          </div>
 
-            {/* Subject */}
-            <div className="space-y-2">
-              <label className="block text-sm font-semibold text-gray-700">
-                Subject *
-              </label>
-              <Select
-                value={subjectId}
-                onValueChange={setSubjectId}
-                disabled={isLoading}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select an option" />
-                </SelectTrigger>
-                <SelectContent>
-                  {subjects.map((subject) => (
-                    <SelectItem key={subject.id} value={subject.id}>
-                      {subject.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          {/* Subject */}
+          <div className="space-y-2">
+            <Label htmlFor="subject-select">
+              Subject{" "}
+              <span className="text-red-500" title="Required">
+                *
+              </span>
+            </Label>
+            <Select
+              value={subjectId}
+              onValueChange={setSubjectId}
+              disabled={isLoading}
+            >
+              <SelectTrigger id="subject-select" className="w-full">
+                <SelectValue placeholder="Select an option" />
+              </SelectTrigger>
+              <SelectContent>
+                {subjects.map((subject) => (
+                  <SelectItem key={subject.id} value={subject.id}>
+                    {subject.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Action Buttons */}
