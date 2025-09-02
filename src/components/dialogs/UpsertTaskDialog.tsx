@@ -122,6 +122,7 @@ function UpsertTaskDialog({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               disabled={isLoading}
+              className="break-all"
             />
           </div>
 

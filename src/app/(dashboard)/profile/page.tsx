@@ -173,14 +173,7 @@ function ProfilePage() {
                   isSaving || !editedData.firstName || !editedData.lastName
                 }
               >
-                {isSaving ? (
-                  "Saving..."
-                ) : (
-                  <>
-                    <Save className="w-4 h-4 mr-2" />
-                    Save Changes
-                  </>
-                )}
+                {isSaving ? "Saving..." : "Save Changes"}
               </Button>
             </div>
           )}

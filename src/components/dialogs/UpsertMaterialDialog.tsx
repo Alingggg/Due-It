@@ -375,33 +375,35 @@ function UpsertMaterialDialog({
           {/* Materials List */}
           {materials.length > 0 && (
             <div className="space-y-2">
-              <Label>
-                Materials ({materials.length})
-              </Label>
+              <Label>Materials ({materials.length})</Label>
               <div className="space-y-3">
                 {materials.map((material) => (
                   <div
                     key={material.id}
                     className="p-3 border border-slate-200 rounded-lg space-y-2"
                   >
-                    <div className="flex items-center justify-between">
-                      <h4 className="text-sm font-medium text-slate-700">
+                    <div className="flex items-start justify-between gap-3">
+                      <h4 className="text-sm font-medium text-slate-700 break-words min-w-0 flex-1">
                         {material.isLink ? (
                           <>
-                            <LucideLink className="inline w-4 h-4 mr-2" />
-                            {material.fileName}
+                            <LucideLink className="inline w-4 h-4 mr-2 flex-shrink-0" />
+                            <span className="break-all">
+                              {material.fileName}
+                            </span>
                           </>
                         ) : (
                           <>
-                            <LucideFile className="inline w-4 h-4 mr-2" />
-                            {material.fileName}
+                            <LucideFile className="inline w-4 h-4 mr-2 flex-shrink-0" />
+                            <span className="break-all">
+                              {material.fileName}
+                            </span>
                           </>
                         )}
                       </h4>
                       <Button
                         onClick={() => removeMaterial(material.id)}
                         disabled={isSubmitting}
-                        className="text-red-500 hover:text-red-700 transition-colors disabled:opacity-50"
+                        className="text-red-500 hover:text-red-700 transition-colors disabled:opacity-50 flex-shrink-0"
                         variant="ghost"
                         type="button"
                       >
@@ -412,7 +414,7 @@ function UpsertMaterialDialog({
                     {/* Material Details */}
                     <div className="text-sm text-slate-600">
                       {material.isLink ? (
-                        <div>
+                        <div className="break-all">
                           <strong>URL:</strong> {material.url}
                         </div>
                       ) : (
