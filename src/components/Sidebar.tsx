@@ -6,11 +6,11 @@ import {
   CheckSquare,
   Book,
   Users,
-  LogOut,
   Menu,
   X,
   Settings,
   Calendar,
+  User,
 } from "lucide-react";
 
 function Sidebar({ workspaceId }: { workspaceId: string }) {
@@ -44,10 +44,6 @@ function Sidebar({ workspaceId }: { workspaceId: string }) {
       icon: Settings,
     },
   ];
-
-  const handleLogout = () => {
-    console.log("Logging out");
-  };
 
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
@@ -131,15 +127,20 @@ function Sidebar({ workspaceId }: { workspaceId: string }) {
           </ul>
         </nav>
 
-        {/* Logout Button */}
+        {/* Profile Link */}
         <div className="p-4 border-t border-slate-200 mt-auto">
-          <button
-            onClick={handleLogout}
-            className="flex items-center w-full px-4 py-3 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
+          <Link
+            href="/profile"
+            onClick={closeMobileMenu}
+            className={`flex items-center w-full px-4 py-3 rounded-lg transition-colors ${
+              pathname === "/profile"
+                ? "bg-blue-100 text-blue-800 border-l-4 border-blue-600"
+                : "text-slate-700 hover:bg-slate-200 hover:text-slate-900"
+            }`}
           >
-            <LogOut className="w-5 h-5 mr-3" />
-            <span className="font-medium">Logout</span>
-          </button>
+            <User className="w-5 h-5 mr-3" />
+            <span className="font-medium">Profile</span>
+          </Link>
         </div>
       </div>
     </>
