@@ -5,6 +5,7 @@ import UpsertMaterialDialog from "@/components/dialogs/UpsertMaterialDialog";
 import UpsertTaskDialog from "@/components/dialogs/UpsertTaskDialog";
 import UpsertSubjectDialog from "@/components/dialogs/UpsertSubjectDialog";
 import ConfirmActionDialog from "@/components/dialogs/ConfirmActionDialog";
+import UpsertScheduleDialog from "@/components/dialogs/UpsertScheduleDialog";
 
 export default function DialogContainer() {
   const { dialogType, dialogProps, closeDialog } = useDialogContext();
@@ -17,6 +18,7 @@ export default function DialogContainer() {
     UPSERT_MATERIAL: UpsertMaterialDialog,
     UPSERT_SUBJECT: UpsertSubjectDialog,
     CONFIRM_ACTION: ConfirmActionDialog,
+    UPSERT_SCHEDULE: UpsertScheduleDialog,
   };
 
   const DialogComponent = dialogMap[dialogType];

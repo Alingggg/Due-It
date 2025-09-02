@@ -6,6 +6,7 @@ type DialogType =
   | "UPSERT_TASK"
   | "UPSERT_MATERIAL"
   | "UPSERT_SUBJECT"
+  | "UPSERT_SCHEDULE"
   | "CONFIRM_ACTION"
   | null;
 

@@ -37,8 +37,11 @@ const DAYS = [
 // Group and sort schedules by day, then by time
 function useGroupedSchedules() {
   return useMemo(() => {
-    // { [dayIdx]: Array<{ subjectName, time }> }
-    const grouped: Record<number, { subjectName: string; time: string }[]> = {};
+    // { [dayIdx]: Array<{ subjectName, time, schedule }> }
+    const grouped: Record<
+      number,
+      { subjectName: string; time: string; schedule: any }[]
+    > = {};
     for (let i = 0; i < 7; i++) grouped[i] = [];
     mockSchedules.forEach((sched) => {
       const subject = mockSubjects.find((s) => s.id === sched.subjectId);
@@ -46,6 +49,7 @@ function useGroupedSchedules() {
         grouped[sched.dayOfWeek].push({
           subjectName: subject.name,
           time: sched.timeOfDay,
+          schedule: sched,
         });
       }
     });
@@ -80,8 +84,12 @@ function SubjectsPage({
     currentUserRole === "admin" || currentUserRole === "co";
 
   const handleAddSubject = () => {
-    openDialog("UPSERT_SUBJECT", {
-      // Add any data you need to pass to the dialog
+    openDialog("UPSERT_SUBJECT");
+  };
+
+  const handleAddSchedule = () => {
+    openDialog("UPSERT_SCHEDULE", {
+      subjects: mockSubjects,
     });
   };
 
@@ -96,10 +104,32 @@ function SubjectsPage({
     });
   };
 
+  const handleEditSchedule = (schedule: any) => {
+    openDialog("UPSERT_SCHEDULE", {
+      subjects: mockSubjects,
+      initialData: {
+        id: schedule.id,
+        subjectId: schedule.subjectId,
+        dayOfWeek: schedule.dayOfWeek,
+        timeOfDay: schedule.timeOfDay,
+      },
+    });
+  };
+
   const handleDeleteSubject = (subject: any) => {
     openDialog("CONFIRM_ACTION", {
       title: "Delete Subject?",
       description: `Are you sure you want to delete the subject "${subject.name}"?`,
+      actionButtonVariant: "destructive",
+      actionButtonText: "Delete",
+      handleAction: closeDialog,
+    });
+  };
+
+  const handleDeleteSchedule = (schedule: any, subjectName: string) => {
+    openDialog("CONFIRM_ACTION", {
+      title: "Delete Schedule?",
+      description: `Are you sure you want to delete the schedule for "${subjectName}"?`,
       actionButtonVariant: "destructive",
       actionButtonText: "Delete",
       handleAction: closeDialog,
@@ -175,11 +205,55 @@ function SubjectsPage({
               </div>
             ) : (
               schedulesByDay[dayIdx]?.map((sched, idx) => (
-                <div key={idx} className="flex items-center gap-3 py-1">
-                  <span className="font-mono text-sm text-slate-600 min-w-[60px]">
-                    {formatTime12h(sched.time)}
-                  </span>
-                  <span className="text-slate-800">{sched.subjectName}</span>
+                <div
+                  key={idx}
+                  className="flex items-center justify-between py-1"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="font-mono text-sm text-slate-600 min-w-[60px]">
+                      {formatTime12h(sched.time)}
+                    </span>
+                    <span className="text-slate-800">{sched.subjectName}</span>
+                  </div>
+
+                  {/* Actions Menu - Only show if user can manage subjects */}
+                  {canManageSubjects && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 w-6 p-0"
+                        >
+                          <MoreVertical className="w-3 h-3" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        <DropdownMenuGroup>
+                          <DropdownMenuItem
+                            onSelect={() => handleEditSchedule(sched.schedule)}
+                          >
+                            <Edit2 className="w-4 h-4 mr-2" />
+                            Edit Schedule
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onSelect={() =>
+                              handleDeleteSchedule(
+                                sched.schedule,
+                                sched.subjectName
+                              )
+                            }
+                            className="text-red-600 hover:bg-red-50"
+                          >
+                            <Trash2 className="w-4 h-4 mr-2 text-red-600" />
+                            <span className="hover:text-red-600">
+                              Delete Schedule
+                            </span>
+                          </DropdownMenuItem>
+                        </DropdownMenuGroup>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
                 </div>
               ))
             )}
@@ -195,9 +269,13 @@ function SubjectsPage({
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-slate-800">Subjects</h1>
         {canManageSubjects && (
-          <Button onClick={handleAddSubject}>
+          <Button
+            onClick={
+              activeTab === "subjects" ? handleAddSubject : handleAddSchedule
+            }
+          >
             <Plus className="w-4 h-4" />
-            Add Subject
+            {activeTab === "subjects" ? "Add Subject" : "Add Schedule"}
           </Button>
         )}
       </div>
