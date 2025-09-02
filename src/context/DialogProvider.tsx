@@ -1,3 +1,4 @@
+"use client";
 import DialogContainer from "@/components/DialogContainer";
 import { createContext, useState } from "react";
 

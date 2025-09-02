@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import ClientLayout from "./ClientLayout";
+import { DialogProvider } from "@/context/DialogProvider";
 
 export const metadata: Metadata = {
   title: "Due It",
@@ -15,7 +15,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <ClientLayout>{children}</ClientLayout>
+        <DialogProvider>{children}</DialogProvider>
       </body>
     </html>
   );

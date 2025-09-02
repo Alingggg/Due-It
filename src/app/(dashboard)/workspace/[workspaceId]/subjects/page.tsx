@@ -6,14 +6,7 @@ import {
   getCurrentUserRole,
 } from "@/data/mockData";
 import { format, parse } from "date-fns";
-import {
-  BookOpen,
-  Calendar,
-  Plus,
-  MoreVertical,
-  Edit2,
-  Trash2,
-} from "lucide-react";
+import { BookOpen, Plus, MoreVertical, Edit2, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
