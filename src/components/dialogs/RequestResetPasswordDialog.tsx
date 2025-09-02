@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
-function RequestResetPasswordDialog() {
+function RequestResetPasswordDialog({ onClose }: { onClose: () => void }) {
   const [submitted, setSubmitted] = useState(false);
 
   function handleSubmit(e: React.FormEvent) {
@@ -14,7 +14,7 @@ function RequestResetPasswordDialog() {
   }
 
   return (
-    <Dialog>
+    <Dialog open onOpenChange={onClose}>
       <DialogContent>
         <DialogTitle className="text-slate-800">
           {submitted ? "Check Your Email" : "Request Password Reset"}

@@ -28,7 +28,7 @@ function ConfirmActionDialog({
   handleAction,
 }: ConfirmActionDialogProps) {
   return (
-    <AlertDialog open={true} onOpenChange={onClose}>
+    <AlertDialog open onOpenChange={onClose}>
       <AlertDialogContent>
         <AlertDialogTitle className="text-slate-800">{title}</AlertDialogTitle>
         <AlertDialogDescription className="text-slate-600">

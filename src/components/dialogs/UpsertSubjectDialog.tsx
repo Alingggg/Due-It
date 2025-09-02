@@ -35,7 +35,7 @@ function UpsertSubjectDialog({
   }
 
   return (
-    <Dialog>
+    <Dialog open onOpenChange={onClose}>
       <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogTitle className="text-slate-800">
           {initialData.name ? "Edit Subject" : "Add New Subject"}
