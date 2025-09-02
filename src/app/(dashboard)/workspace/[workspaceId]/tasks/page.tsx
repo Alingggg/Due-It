@@ -35,6 +35,9 @@ function TasksPage() {
   // Get current user's role in this workspace
   const currentUserRole = getCurrentUserRole(workspaceId);
 
+  // Add tab state
+  const [activeTab, setActiveTab] = useState<"pending" | "past-due">("pending");
+
   // Initialize states from URL params or defaults
   const [sortBy, setSortBy] = useState(searchParams.get("sort") || "dueDate");
   const [filterType, setFilterType] = useState(
@@ -66,8 +69,19 @@ function TasksPage() {
     (subject) => subject.workspaceId === workspaceId
   );
 
-  // Filter tasks
-  const filteredTasks = tasks.filter((task) => {
+  // Filter tasks by tab (pending/past due)
+  const now = new Date();
+  const tabFilteredTasks = tasks.filter((task) => {
+    const dueDate = new Date(task.dueDate);
+    if (activeTab === "pending") {
+      return dueDate >= now;
+    } else {
+      return dueDate < now;
+    }
+  });
+
+  // Filter tasks by other filters
+  const filteredTasks = tabFilteredTasks.filter((task) => {
     const typeMatch = filterType === "all" || task.type === filterType;
     const doneByMatch = filterDoneBy === "all" || task.doneBy === filterDoneBy;
     return typeMatch && doneByMatch;
@@ -174,7 +188,7 @@ function TasksPage() {
         <h1 className="text-2xl font-bold text-slate-800">Tasks</h1>
         <div className="flex items-center space-x-4">
           <div className="text-sm text-slate-500">
-            {sortedTasks.length} of {tasks.length} tasks
+            {sortedTasks.length} of {tabFilteredTasks.length} tasks
           </div>
           {(currentUserRole === "admin" || currentUserRole === "co") && (
             <Button onClick={() => openDialog("UPSERT_TASK")}>
@@ -183,6 +197,32 @@ function TasksPage() {
             </Button>
           )}
         </div>
+      </div>
+
+      {/* Tabs */}
+      <div className="border-b border-slate-200">
+        <nav className="flex space-x-8">
+          <button
+            onClick={() => setActiveTab("pending")}
+            className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
+              activeTab === "pending"
+                ? "border-blue-500 text-blue-600"
+                : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
+            }`}
+          >
+            Pending
+          </button>
+          <button
+            onClick={() => setActiveTab("past-due")}
+            className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
+              activeTab === "past-due"
+                ? "border-blue-500 text-blue-600"
+                : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
+            }`}
+          >
+            Past Due
+          </button>
+        </nav>
       </div>
 
       {/* Filters */}
@@ -254,13 +294,17 @@ function TasksPage() {
             <ClipboardList className="w-12 h-12 mx-auto" />
           </div>
           <h3 className="text-lg font-medium text-slate-800 mb-1">
-            {tasks.length === 0
-              ? "No tasks created yet"
+            {tabFilteredTasks.length === 0
+              ? activeTab === "pending"
+                ? "No pending tasks"
+                : "No past due tasks"
               : "No tasks match your filters"}
           </h3>
           <p className="text-slate-600 mb-4">
-            {tasks.length === 0
-              ? "Create your first task to get started."
+            {tabFilteredTasks.length === 0
+              ? activeTab === "pending"
+                ? "All tasks are completed or past due."
+                : "Great! No tasks are overdue."
               : "Try adjusting your filters to see more tasks."}
           </p>
         </div>

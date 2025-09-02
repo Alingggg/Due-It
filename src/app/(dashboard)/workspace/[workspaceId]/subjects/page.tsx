@@ -213,10 +213,7 @@ function SubjectsPage({
                 : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
             }`}
           >
-            <div className="flex items-center gap-2">
-              <BookOpen className="w-4 h-4" />
-              Subjects
-            </div>
+            Subjects
           </button>
           <button
             onClick={() => setActiveTab("schedule")}
@@ -226,10 +223,7 @@ function SubjectsPage({
                 : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
             }`}
           >
-            <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4" />
-              Schedule
-            </div>
+            Schedule
           </button>
         </nav>
       </div>
