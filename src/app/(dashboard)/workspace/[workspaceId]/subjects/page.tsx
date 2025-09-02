@@ -1,6 +1,10 @@
 "use client";
-import { useMemo, useState } from "react";
-import { mockSchedules, mockSubjects } from "@/data/mockData";
+import { use, useMemo, useState } from "react";
+import {
+  mockSchedules,
+  mockSubjects,
+  getCurrentUserRole,
+} from "@/data/mockData";
 import { format, parse } from "date-fns";
 import {
   BookOpen,
@@ -60,12 +64,20 @@ function formatTime12h(time: string) {
   return format(parsed, "h:mm a");
 }
 
-function SubjectsPage() {
+function SubjectsPage({
+  params,
+}: {
+  params: Promise<{ workspaceId: string }>;
+}) {
+  const { workspaceId } = use(params);
   const [activeTab, setActiveTab] = useState<"subjects" | "schedule">(
     "subjects"
   );
   const { openDialog, closeDialog } = useDialogContext();
   const schedulesByDay = useGroupedSchedules();
+  const currentUserRole = getCurrentUserRole(workspaceId);
+  const canManageSubjects =
+    currentUserRole === "admin" || currentUserRole === "co";
 
   const handleAddSubject = () => {
     openDialog("UPSERT_SUBJECT", {
@@ -90,7 +102,7 @@ function SubjectsPage() {
       description: `Are you sure you want to delete the subject "${subject.name}"?`,
       actionButtonVariant: "destructive",
       actionButtonText: "Delete",
-      handleAction: closeDialog(),
+      handleAction: closeDialog,
     });
   };
 
@@ -118,29 +130,33 @@ function SubjectsPage() {
               </div>
             </div>
 
-            {/* Actions Menu */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm">
-                  <MoreVertical className="w-4 h-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuGroup>
-                  <DropdownMenuItem onSelect={() => handleEditSubject(subject)}>
-                    <Edit2 className="w-4 h-4 mr-2" />
-                    Edit Subject
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onSelect={() => handleDeleteSubject(subject)}
-                    className="text-red-600 hover:bg-red-50"
-                  >
-                    <Trash2 className="w-4 h-4 mr-2 text-red-600" />
-                    <span className="hover:text-red-600">Delete Subject</span>
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {/* Actions Menu - Only show if user can manage subjects */}
+            {canManageSubjects && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm">
+                    <MoreVertical className="w-4 h-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuGroup>
+                    <DropdownMenuItem
+                      onSelect={() => handleEditSubject(subject)}
+                    >
+                      <Edit2 className="w-4 h-4 mr-2" />
+                      Edit Subject
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onSelect={() => handleDeleteSubject(subject)}
+                      className="text-red-600 hover:bg-red-50"
+                    >
+                      <Trash2 className="w-4 h-4 mr-2 text-red-600" />
+                      <span className="hover:text-red-600">Delete Subject</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
         </div>
       ))}
@@ -178,10 +194,12 @@ function SubjectsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-slate-800">Subjects</h1>
-        <Button onClick={handleAddSubject}>
-          <Plus className="w-4 h-4" />
-          Add Subject
-        </Button>
+        {canManageSubjects && (
+          <Button onClick={handleAddSubject}>
+            <Plus className="w-4 h-4" />
+            Add Subject
+          </Button>
+        )}
       </div>
 
       {/* Tabs */}
