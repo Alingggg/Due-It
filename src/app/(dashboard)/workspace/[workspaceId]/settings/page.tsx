@@ -4,7 +4,6 @@ import {
   getInviteCodeByWorkspaceId,
   getCurrentUserRole,
   canManageWorkspace,
-  generateNewInviteCode,
   mockInviteCodes,
 } from "@/data/mockData";
 import { Check, Copy, RefreshCcw, UserMinus } from "lucide-react";
@@ -19,6 +18,16 @@ import {
 } from "@/components/ui/select";
 import { useParams } from "next/navigation";
 import useDialogContext from "@/hooks/Dialog";
+
+const generateNewInviteCode = (): string => {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  const prefix = "INV2025-";
+  let result = prefix;
+  for (let i = 0; i < 6; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+};
 
 const semesterOptions = [
   { value: 1, label: "1" },
