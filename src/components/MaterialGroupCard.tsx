@@ -1,26 +1,21 @@
 "use client";
 import { useRouter } from "next/navigation";
-import {
-  MaterialGroup,
-  getSubjectById,
-  getMaterialsByGroupId,
-} from "@/data/mockData";
+import { MaterialGroup, getMaterialsByGroupId } from "@/data/mockData";
 import { Folder, Paperclip } from "lucide-react";
 import { format } from "date-fns";
 
 interface MaterialGroupCardProps {
   materialGroup: MaterialGroup;
   workspaceId: string;
-  hideSubject?: boolean;
+  subjectName?: string;
 }
 
 function MaterialGroupCard({
   materialGroup,
   workspaceId,
-  hideSubject = false,
+  subjectName,
 }: MaterialGroupCardProps) {
   const router = useRouter();
-  const subject = getSubjectById(materialGroup.subjectId);
   const materials = getMaterialsByGroupId(materialGroup.id);
 
   const handleCardClick = () => {
@@ -44,11 +39,9 @@ function MaterialGroupCard({
             </h3>
 
             <div className="text-xs sm:text-sm text-slate-600 flex flex-col sm:flex-row sm:items-center space-y-0.5 sm:space-y-0 sm:space-x-4">
-              {!hideSubject && (
+              {subjectName && (
                 <>
-                  <span className="truncate text-blue-600">
-                    {subject?.name || "Unknown Subject"}
-                  </span>
+                  <span className="truncate text-blue-600">{subjectName}</span>
                   <span className="text-slate-400 hidden sm:inline">•</span>
                 </>
               )}

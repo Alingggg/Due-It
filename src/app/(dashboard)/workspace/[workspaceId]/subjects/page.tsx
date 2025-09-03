@@ -1,8 +1,8 @@
 "use client";
-import { use, useMemo, useState } from "react";
+import { use, useMemo, useState, useContext } from "react";
 import {
-  mockSchedules,
-  mockSubjects,
+  getSubjectsByWorkspaceId,
+  getSchedulesByWorkspaceId,
   getCurrentUserRole,
 } from "@/data/mockData";
 import { format, parse } from "date-fns";
@@ -16,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import useDialogContext from "@/hooks/Dialog";
+import { SemesterContext } from "@/context/SemesterProvider";
 
 const DAYS = [
   "Sunday",
@@ -28,7 +29,8 @@ const DAYS = [
 ];
 
 // Group and sort schedules by day, then by time
-function useGroupedSchedules() {
+function useGroupedSchedules(workspaceId: string, semester: 1 | 2) {
+  const schedules = getSchedulesByWorkspaceId(workspaceId, semester);
   return useMemo(() => {
     // { [dayIdx]: Array<{ subjectName, time, schedule }> }
     const grouped: Record<
@@ -36,27 +38,23 @@ function useGroupedSchedules() {
       { subjectName: string; time: string; schedule: any }[]
     > = {};
     for (let i = 0; i < 7; i++) grouped[i] = [];
-    mockSchedules.forEach((sched) => {
-      const subject = mockSubjects.find((s) => s.id === sched.subjectId);
-      if (subject) {
-        grouped[sched.dayOfWeek].push({
-          subjectName: subject.name,
-          time: sched.timeOfDay,
-          schedule: sched,
-        });
-      }
+    schedules.forEach((sched) => {
+      grouped[sched.dayOfWeek].push({
+        subjectName: sched.subjectName,
+        time: sched.timeOfDay,
+        schedule: sched,
+      });
     });
     // Sort each day's subjects by time
     for (let i = 0; i < 7; i++) {
       grouped[i].sort((a, b) => a.time.localeCompare(b.time));
     }
     return grouped;
-  }, []);
+  }, [schedules]);
 }
 
 // Helper to format "HH:mm" to "h:mm AM/PM"
 function formatTime12h(time: string) {
-  // Parse as today with the given time
   const parsed = parse(time, "HH:mm", new Date());
   return format(parsed, "h:mm a");
 }
@@ -67,14 +65,19 @@ function SubjectsPage({
   params: Promise<{ workspaceId: string }>;
 }) {
   const { workspaceId } = use(params);
+  const semesterContext = useContext(SemesterContext);
+  const semester = semesterContext?.semester ?? 1;
+
   const [activeTab, setActiveTab] = useState<"subjects" | "schedule">(
     "subjects"
   );
   const { openDialog, closeDialog } = useDialogContext();
-  const schedulesByDay = useGroupedSchedules();
+  const schedulesByDay = useGroupedSchedules(workspaceId, semester);
   const currentUserRole = getCurrentUserRole(workspaceId);
   const canManageSubjects =
     currentUserRole === "admin" || currentUserRole === "co";
+
+  const subjects = getSubjectsByWorkspaceId(workspaceId, semester);
 
   const handleAddSubject = () => {
     openDialog("UPSERT_SUBJECT");
@@ -82,7 +85,7 @@ function SubjectsPage({
 
   const handleAddSchedule = () => {
     openDialog("UPSERT_SCHEDULE", {
-      subjects: mockSubjects,
+      subjects,
     });
   };
 
@@ -99,7 +102,7 @@ function SubjectsPage({
 
   const handleEditSchedule = (schedule: any) => {
     openDialog("UPSERT_SCHEDULE", {
-      subjects: mockSubjects,
+      subjects,
       initialData: {
         id: schedule.id,
         subjectId: schedule.subjectId,
@@ -119,7 +122,7 @@ function SubjectsPage({
     });
   };
 
-  const handleDeleteSchedule = (schedule: any, subjectName: string) => {
+  const handleDeleteSchedule = (subjectName: string) => {
     openDialog("CONFIRM_ACTION", {
       title: "Delete Schedule?",
       description: `Are you sure you want to delete the schedule for "${subjectName}"?`,
@@ -131,7 +134,7 @@ function SubjectsPage({
 
   const renderSubjectsTab = () => (
     <div className="space-y-4">
-      {mockSubjects.map((subject) => (
+      {subjects.map((subject) => (
         <div
           key={subject.id}
           className="bg-white rounded-lg border border-slate-200 p-3 sm:p-4 hover:shadow-md hover:border-blue-200 transition-all relative"
@@ -231,10 +234,7 @@ function SubjectsPage({
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onSelect={() =>
-                              handleDeleteSchedule(
-                                sched.schedule,
-                                sched.subjectName
-                              )
+                              handleDeleteSchedule(sched.subjectName)
                             }
                             className="text-red-600 hover:bg-red-50"
                           >

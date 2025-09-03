@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import MaterialGroupCard from "@/components/MaterialGroupCard";
 import { Button } from "@/components/ui/button";
@@ -25,12 +25,16 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Label } from "@/components/ui/label";
+import { SemesterContext } from "@/context/SemesterProvider";
 
 function MaterialsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { workspaceId } = useParams<{ workspaceId: string }>();
-  const materialGroups = getMaterialGroupsByWorkspaceId(workspaceId);
+  const semesterContext = useContext(SemesterContext);
+  const semester = semesterContext?.semester ?? 1;
+
+  const materialGroups = getMaterialGroupsByWorkspaceId(workspaceId, semester);
   const { openDialog } = useDialogContext();
 
   // Get current user's role in this workspace
@@ -134,7 +138,6 @@ function MaterialsPage() {
                         key={materialGroup.id}
                         materialGroup={materialGroup}
                         workspaceId={workspaceId}
-                        hideSubject={true}
                       />
                     ))}
                   </div>
@@ -150,6 +153,7 @@ function MaterialsPage() {
           key={materialGroup.id}
           workspaceId={workspaceId}
           materialGroup={materialGroup}
+          subjectName={materialGroup.subjectName}
         />
       ));
     }

@@ -1,7 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { ClipboardList, HelpCircle } from "lucide-react";
-import { Task, getSubjectById } from "@/data/mockData";
+import { Task } from "@/data/mockData";
 import {
   format,
   isToday,
@@ -12,12 +12,11 @@ import {
 interface TaskCardProps {
   task: Task;
   workspaceId: string;
-  hideSubject?: boolean;
+  subjectName?: string;
 }
 
-function TaskCard({ task, workspaceId, hideSubject = false }: TaskCardProps) {
+function TaskCard({ task, workspaceId, subjectName }: TaskCardProps) {
   const router = useRouter();
-  const subject = getSubjectById(task.subjectId);
 
   const handleCardClick = () => {
     router.push(`/workspace/${workspaceId}/tasks/${task.id}`);
@@ -89,11 +88,9 @@ function TaskCard({ task, workspaceId, hideSubject = false }: TaskCardProps) {
             </h3>
 
             <div className="text-xs sm:text-sm text-slate-600 flex flex-col sm:flex-row sm:items-center space-y-0.5 sm:space-y-0 sm:space-x-4">
-              {!hideSubject && (
+              {subjectName && (
                 <>
-                  <span className="truncate">
-                    {subject?.name || "Unknown Subject"}
-                  </span>
+                  <span className="truncate">{subjectName}</span>
                   <span className="text-slate-400 hidden sm:inline">•</span>
                 </>
               )}
