@@ -14,7 +14,7 @@ async function WorkspaceLayout({ children, params }: WorkspaceLayoutProps) {
   return (
     <div className="flex h-screen bg-slate-50">
       <Sidebar workspaceId={workspaceId} />
-      <div className="flex-1 overflow-auto p-4 sm:p-6 pt-20 lg:pt-6">
+      <div className="flex-1 overflow-auto p-4 pt-20 sm:px-6 lg:pt-6">
         <WorkspaceHeader
           workspaceName={workspace?.name ?? "Untitled Workspace"}
         />
