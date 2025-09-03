@@ -35,7 +35,7 @@ interface UpsertTaskDialogProps {
     dueDate?: string;
     subjectId?: string;
   };
-  subjects?: { id: string; name: string }[];
+  subjects: { id: string; name: string }[];
   onClose: () => void;
   onSubmit: (data: any) => void;
   isLoading?: boolean;
@@ -54,7 +54,7 @@ const doneByOptions = [
 
 function UpsertTaskDialog({
   initialData = {},
-  subjects = [],
+  subjects,
   onClose,
   onSubmit,
   isLoading = false,
@@ -68,9 +68,7 @@ function UpsertTaskDialog({
     initialData.doneBy || "individual"
   );
   const [dueDate, setDueDate] = useState(initialData.dueDate || "");
-  const [subjectId, setSubjectId] = useState(
-    initialData.subjectId || (subjects[0]?.id ?? "")
-  );
+  const [subjectId, setSubjectId] = useState(initialData.subjectId || "");
   const [open, setOpen] = useState(false);
   const [date, setDate] = useState<Date | undefined>(undefined);
 

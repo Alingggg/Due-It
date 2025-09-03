@@ -5,8 +5,7 @@ import TaskCard from "@/components/TaskCard";
 import { Button } from "@/components/ui/button";
 import {
   getTasksByWorkspaceId,
-  mockSubjects,
-  getSubjectById,
+  getSubjectsByWorkspaceId,
   getCurrentUserRole,
 } from "@/data/mockData";
 import { ClipboardList, Filter, Plus } from "lucide-react";
@@ -35,6 +34,8 @@ function TasksPage() {
   const semester = semesterContext?.semester ?? 1;
 
   const tasks = getTasksByWorkspaceId(workspaceId, semester);
+
+  const subjects = getSubjectsByWorkspaceId(workspaceId, semester);
 
   const { openDialog } = useDialogContext();
 
@@ -70,11 +71,6 @@ function TasksPage() {
     router.replace(newUrl, { scroll: false });
   }, [sortBy, filterType, filterDoneBy, router, workspaceId]);
 
-  // Get subjects for this workspace
-  const workspaceSubjects = mockSubjects.filter(
-    (subject) => subject.workspaceId === workspaceId
-  );
-
   // Filter tasks by tab (pending/past due)
   const now = new Date();
   const tabFilteredTasks = tasks.filter((task) => {
@@ -98,10 +94,8 @@ function TasksPage() {
     if (sortBy === "dueDate") {
       return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
     } else if (sortBy === "subject") {
-      const subjectA =
-        workspaceSubjects.find((s) => s.id === a.subjectId)?.name || "";
-      const subjectB =
-        workspaceSubjects.find((s) => s.id === b.subjectId)?.name || "";
+      const subjectA = subjects.find((s) => s.id === a.subjectId)?.name || "";
+      const subjectB = subjects.find((s) => s.id === b.subjectId)?.name || "";
       return subjectA.localeCompare(subjectB);
     }
     return 0;
@@ -111,8 +105,7 @@ function TasksPage() {
   const groupedTasks =
     sortBy === "subject"
       ? sortedTasks.reduce((groups, task) => {
-          const subject = getSubjectById(task.subjectId);
-          const subjectName = subject?.name || "Unknown Subject";
+          const subjectName = task.subjectName || "Unknown Subject";
           if (!groups[subjectName]) {
             groups[subjectName] = [];
           }
@@ -202,7 +195,7 @@ function TasksPage() {
             {sortedTasks.length} of {tabFilteredTasks.length} tasks
           </div>
           {(currentUserRole === "admin" || currentUserRole === "co") && (
-            <Button onClick={() => openDialog("UPSERT_TASK")}>
+            <Button onClick={() => openDialog("UPSERT_TASK", { subjects })}>
               <Plus className="w-4 h-4" />
               <span>Create</span>
             </Button>

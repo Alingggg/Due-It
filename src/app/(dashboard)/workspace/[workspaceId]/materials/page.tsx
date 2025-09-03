@@ -5,7 +5,7 @@ import MaterialGroupCard from "@/components/MaterialGroupCard";
 import { Button } from "@/components/ui/button";
 import {
   getMaterialGroupsByWorkspaceId,
-  mockSubjects,
+  getSubjectsByWorkspaceId,
   getSubjectById,
   getCurrentUserRole,
 } from "@/data/mockData";
@@ -40,6 +40,8 @@ function MaterialsPage() {
   // Get current user's role in this workspace
   const currentUserRole = getCurrentUserRole(workspaceId);
 
+  const subjects = getSubjectsByWorkspaceId(workspaceId, semester);
+
   // Initialize states from URL params or defaults
   const [sortBy, setSortBy] = useState(
     searchParams.get("sort") || "createdDate"
@@ -64,11 +66,6 @@ function MaterialsPage() {
     router.replace(newUrl, { scroll: false });
   }, [sortBy, filterSubject, router]);
 
-  // Get subjects for this workspace
-  const workspaceSubjects = mockSubjects.filter(
-    (subject) => subject.workspaceId === workspaceId
-  );
-
   // Filter material groups
   const filteredMaterialGroups = materialGroups.filter((group) => {
     const subjectMatch =
@@ -83,10 +80,8 @@ function MaterialsPage() {
         new Date(b.createdDate).getTime() - new Date(a.createdDate).getTime()
       ); // Latest first
     } else if (sortBy === "subject") {
-      const subjectA =
-        workspaceSubjects.find((s) => s.id === a.subjectId)?.name || "";
-      const subjectB =
-        workspaceSubjects.find((s) => s.id === b.subjectId)?.name || "";
+      const subjectA = subjects.find((s) => s.id === a.subjectId)?.name || "";
+      const subjectB = subjects.find((s) => s.id === b.subjectId)?.name || "";
       return subjectA.localeCompare(subjectB);
     }
     return 0;
@@ -167,7 +162,7 @@ function MaterialsPage() {
 
   const subjectOptions = [
     { value: "all", label: "All Subjects" },
-    ...workspaceSubjects.map((subject) => ({
+    ...subjects.map((subject) => ({
       value: subject.id,
       label: subject.name,
     })),
@@ -179,7 +174,7 @@ function MaterialsPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-slate-800">Materials</h1>
         {(currentUserRole === "admin" || currentUserRole === "co") && (
-          <Button onClick={() => openDialog("UPSERT_MATERIAL")}>
+          <Button onClick={() => openDialog("UPSERT_MATERIAL", { subjects })}>
             <Plus className="w-4 h-4" />
             Create
           </Button>

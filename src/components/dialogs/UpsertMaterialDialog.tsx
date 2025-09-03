@@ -11,6 +11,13 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export interface MaterialGroup {
   id: string;
@@ -31,8 +38,14 @@ export interface Material {
   isLink: boolean;
 }
 
+export interface Subject {
+  id: string;
+  name: string;
+}
+
 interface UpsertMaterialDialogProps {
   onClose: () => void;
+  subjects: Subject[];
   materialGroup?: MaterialGroup;
   materials?: Material[];
 }
@@ -51,6 +64,7 @@ const EMPTY_MATERIALS: Material[] = [];
 
 function UpsertMaterialDialog({
   onClose,
+  subjects,
   materialGroup,
   materials: initialMaterials = EMPTY_MATERIALS,
 }: UpsertMaterialDialogProps) {
@@ -60,6 +74,7 @@ function UpsertMaterialDialog({
   );
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [subjectId, setSubjectId] = useState("");
   const [materials, setMaterials] = useState<MaterialItem[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -74,6 +89,7 @@ function UpsertMaterialDialog({
     if (materialGroup) {
       setTitle(materialGroup.title);
       setDescription(materialGroup.description);
+      setSubjectId(materialGroup.subjectId);
       setMaterials(
         memoizedInitialMaterials.map((material) => ({
           id: material.id,
@@ -87,6 +103,7 @@ function UpsertMaterialDialog({
     } else {
       setTitle("");
       setDescription("");
+      setSubjectId("");
       setMaterials([]);
     }
     setTempLinkUrl("");
@@ -176,6 +193,7 @@ function UpsertMaterialDialog({
 
     if (!title.trim()) newErrors.title = "Title is required";
     if (!description.trim()) newErrors.description = "Description is required";
+    if (!isEditing && !subjectId) newErrors.subjectId = "Subject is required";
     if (materials.length === 0)
       newErrors.materials = "At least one material is required";
 
@@ -259,15 +277,34 @@ function UpsertMaterialDialog({
             )}
           </div>
 
-          {/* Subject - Just display, not editable for now */}
-          {isEditing && (
-            <div className="space-y-2">
-              <Label>Subject</Label>
-              <div className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-slate-50 text-slate-600">
-                Subject Name (Not editable for now)
-              </div>
-            </div>
-          )}
+          {/* Subject */}
+          <div className="space-y-2">
+            <Label htmlFor="subject-select">
+              Subject <span className="text-red-500">*</span>
+            </Label>
+            <Select
+              value={subjectId}
+              onValueChange={setSubjectId}
+              disabled={isSubmitting}
+            >
+              <SelectTrigger
+                id="subject-select"
+                className={`w-full ${errors.subjectId ? "border-red-500" : ""}`}
+              >
+                <SelectValue placeholder="Select a subject" />
+              </SelectTrigger>
+              <SelectContent>
+                {subjects.map((subject) => (
+                  <SelectItem key={subject.id} value={subject.id}>
+                    {subject.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {errors.subjectId && (
+              <p className="mt-1 text-xs text-red-600">{errors.subjectId}</p>
+            )}
+          </div>
 
           {/* Add Material Section */}
           <div className="space-y-2">
