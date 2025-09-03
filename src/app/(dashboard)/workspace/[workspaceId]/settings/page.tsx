@@ -9,8 +9,21 @@ import {
 } from "@/data/mockData";
 import { Check, Copy, RefreshCcw, UserMinus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useParams } from "next/navigation";
 import useDialogContext from "@/hooks/Dialog";
+
+const semesterOptions = [
+  { value: 1, label: "1" },
+  { value: 2, label: "2" },
+];
 
 function WorkspaceSettingsPage() {
   const { workspaceId } = useParams<{ workspaceId: string }>();
@@ -18,6 +31,7 @@ function WorkspaceSettingsPage() {
     getInviteCodeByWorkspaceId(workspaceId)
   );
   const [copied, setCopied] = useState(false);
+  const [defaultSemester, setDefaultSemester] = useState<1 | 2>(1);
   const { openDialog, closeDialog } = useDialogContext();
 
   // Get current values each render to handle temporary role changes
@@ -72,6 +86,11 @@ function WorkspaceSettingsPage() {
         mockInviteCodes[index] = updatedCode;
       }
     }
+  };
+
+  const handleDefaultSemesterChange = (value: string) => {
+    const newSemester = Number(value) as 1 | 2;
+    setDefaultSemester(newSemester);
   };
 
   return (
@@ -169,6 +188,49 @@ function WorkspaceSettingsPage() {
                   </Button>
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Semester Section - Only for admins and co-admins */}
+      {canManage && (
+        <div className="bg-white rounded-lg border border-slate-200 p-4 sm:p-6">
+          <h2 className="text-base sm:text-lg font-semibold text-slate-800 mb-3 sm:mb-4">
+            Semester
+          </h2>
+
+          <div className="space-y-3">
+            <p className="text-xs sm:text-sm text-slate-600">
+              Choose which semester will be selected by default when members
+              visit this workspace.
+            </p>
+
+            <div className="flex items-center space-x-3">
+              <Label
+                htmlFor="default-semester"
+                className="text-sm font-medium text-slate-700"
+              >
+                Default:
+              </Label>
+              <Select
+                value={defaultSemester.toString()}
+                onValueChange={handleDefaultSemesterChange}
+              >
+                <SelectTrigger id="default-semester" className="w-24">
+                  <SelectValue placeholder="Select" />
+                </SelectTrigger>
+                <SelectContent>
+                  {semesterOptions.map((option) => (
+                    <SelectItem
+                      key={option.value}
+                      value={option.value.toString()}
+                    >
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </div>
