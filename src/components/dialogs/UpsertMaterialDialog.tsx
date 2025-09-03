@@ -145,7 +145,19 @@ function UpsertMaterialDialog({
     }
 
     try {
-      new URL(tempLinkUrl);
+      let urlToValidate = tempLinkUrl;
+
+      // Only add protocol if none is present
+      if (!/^https?:\/\//i.test(tempLinkUrl)) {
+        urlToValidate = `https://${tempLinkUrl}`;
+      }
+
+      const url = new URL(urlToValidate);
+
+      // Basic validation - ensure it has a valid hostname
+      if (!url.hostname || url.hostname === "localhost") {
+        throw new Error("Invalid hostname");
+      }
     } catch {
       setErrors({
         ...errors,
@@ -421,21 +433,14 @@ function UpsertMaterialDialog({
                   >
                     <div className="flex items-start justify-between gap-3">
                       <h4 className="text-sm font-medium text-slate-700 break-words min-w-0 flex-1">
-                        {material.isLink ? (
-                          <>
+                        <>
+                          {material.isLink ? (
                             <LucideLink className="inline w-4 h-4 mr-2 flex-shrink-0" />
-                            <span className="break-all">
-                              {material.fileName}
-                            </span>
-                          </>
-                        ) : (
-                          <>
+                          ) : (
                             <LucideFile className="inline w-4 h-4 mr-2 flex-shrink-0" />
-                            <span className="break-all">
-                              {material.fileName}
-                            </span>
-                          </>
-                        )}
+                          )}
+                          <span className="break-all">{material.fileName}</span>
+                        </>
                       </h4>
                       <Button
                         onClick={() => removeMaterial(material.id)}
@@ -470,33 +475,6 @@ function UpsertMaterialDialog({
                         </div>
                       )}
                     </div>
-
-                    {/* Edit URL for links */}
-                    {material.isLink && (
-                      <div className="space-y-2">
-                        <Label>
-                          URL <span className="text-red-500">*</span>
-                        </Label>
-                        <Input
-                          value={material.url || ""}
-                          onChange={(e) =>
-                            updateMaterial(material.id, { url: e.target.value })
-                          }
-                          className={`w-full px-2 py-1.5 border rounded text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 ${
-                            errors[`material-${material.id}-url`]
-                              ? "border-red-500"
-                              : "border-slate-300"
-                          }`}
-                          placeholder="https://example.com"
-                          disabled={isSubmitting}
-                        />
-                        {errors[`material-${material.id}-url`] && (
-                          <p className="mt-1 text-xs text-red-600">
-                            {errors[`material-${material.id}-url`]}
-                          </p>
-                        )}
-                      </div>
-                    )}
                   </div>
                 ))}
               </div>
