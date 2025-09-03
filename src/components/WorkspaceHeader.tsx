@@ -1,5 +1,6 @@
 "use client";
-import { useState } from "react";
+import { useContext } from "react";
+import { SemesterContext } from "@/context/SemesterProvider";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -10,12 +11,19 @@ import {
 } from "@/components/ui/select";
 
 const semesterOptions = [
-  { value: "1", label: "1" },
-  { value: "2", label: "2" },
+  { value: 1, label: "1" },
+  { value: 2, label: "2" },
 ];
 
 function WorkspaceHeader({ workspaceName }: { workspaceName: string }) {
-  const [semester, setSemester] = useState("1");
+  const semesterContext = useContext(SemesterContext);
+
+  if (!semesterContext) {
+    throw new Error("WorkspaceHeader must be used within a SemesterProvider");
+  }
+
+  const { semester, setSemester } = semesterContext;
+
   return (
     <div className="mb-6 pb-3 border-b border-slate-200">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -25,13 +33,16 @@ function WorkspaceHeader({ workspaceName }: { workspaceName: string }) {
 
         <div className="flex items-center space-x-2">
           <Label htmlFor="semester">Semester:</Label>
-          <Select value={semester} onValueChange={setSemester}>
+          <Select
+            value={semester.toString()}
+            onValueChange={(val) => setSemester(Number(val) as 1 | 2)}
+          >
             <SelectTrigger id="semester">
               <SelectValue placeholder="Select an option" />
             </SelectTrigger>
             <SelectContent>
               {semesterOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
+                <SelectItem key={option.value} value={option.value.toString()}>
                   {option.label}
                 </SelectItem>
               ))}
