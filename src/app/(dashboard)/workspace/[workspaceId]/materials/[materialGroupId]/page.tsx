@@ -1,11 +1,12 @@
 "use client";
-import { use } from "react";
+import { use, useContext } from "react";
 import { notFound, useRouter } from "next/navigation";
 import {
   getMaterialGroupById,
   getMaterialsByGroupId,
   getSubjectById,
   canManageWorkspace,
+  getSubjectsByWorkspaceId,
 } from "@/data/mockData";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,6 +19,7 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import useDialogContext from "@/hooks/Dialog";
+import { SemesterContext } from "@/context/SemesterProvider";
 
 interface MaterialGroupDetailsPageProps {
   params: Promise<{
@@ -40,6 +42,9 @@ function MaterialGroupDetailsPage({ params }: MaterialGroupDetailsPageProps) {
   const materialGroup = getMaterialGroupById(materialGroupId);
   const materials = getMaterialsByGroupId(materialGroupId);
   const { openDialog, closeDialog } = useDialogContext();
+  const semesterContext = useContext(SemesterContext);
+  const semester = semesterContext?.semester ?? 1;
+  const subjects = getSubjectsByWorkspaceId(workspaceId, semester);
 
   if (!materialGroup) {
     notFound();
@@ -75,7 +80,7 @@ function MaterialGroupDetailsPage({ params }: MaterialGroupDetailsPageProps) {
         {canManage && (
           <div className="flex items-center space-x-2">
             <Button
-              onClick={() => openDialog("UPSERT_MATERIAL")}
+              onClick={() => openDialog("UPSERT_MATERIAL", { subjects })}
               variant="outline"
             >
               <Pencil className="w-3 h-3 sm:w-4 sm:h-4" />
