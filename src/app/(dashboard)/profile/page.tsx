@@ -3,8 +3,9 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { LogOut, Save, ArrowLeft } from "lucide-react";
+import { LogOut, ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useLogout } from "@/hooks/Auth";
 
 function ProfilePage() {
   const [userData, setUserData] = useState({
@@ -48,17 +49,13 @@ function ProfilePage() {
     }
   };
 
-  const handleGoBack = () => {
-    router.back();
-  };
-
   return (
     <div className="max-w-2xl mx-auto space-y-6 sm:space-y-8 px-2 sm:px-0 pt-6 sm:pt-8">
       {/* Header with Back Button */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <Button
-            onClick={handleGoBack}
+            onClick={() => router.back()}
             variant="ghost"
             size="sm"
             className="p-2 hover:bg-slate-100"
@@ -193,7 +190,7 @@ function ProfilePage() {
             </p>
           </div>
 
-          <Button variant="destructive">
+          <Button onClick={useLogout} variant="destructive">
             <LogOut className="w-4 h-4" />
             Logout
           </Button>

@@ -1,6 +1,7 @@
 import supabase from "@/lib/supabase";
 import { useMutation } from "@tanstack/react-query";
 import { redirect } from "next/navigation";
+import { useEffect, useState } from "react";
 
 function useRegister() {
   return useMutation({
@@ -60,4 +61,31 @@ function useLogin() {
   });
 }
 
-export { useRegister, useLogin };
+async function useLogout() {
+  const { error } = await supabase.auth.signOut();
+
+  if (error) {
+    console.log(error);
+    throw new Error(error.message);
+  }
+}
+
+function useSession() {
+  const [session, setSession] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setIsLoading(false);
+    });
+  }, []);
+
+  return {
+    isAuthenticated: !!session,
+    isLoading,
+    user: session?.user || null,
+  };
+}
+
+export { useRegister, useLogin, useLogout, useSession };

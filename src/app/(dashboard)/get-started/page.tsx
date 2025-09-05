@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { useLogout } from "@/hooks/Auth";
 
 function GetStarted() {
   const [isLoading, setIsLoading] = useState(false);
@@ -18,10 +19,6 @@ function GetStarted() {
 
   function handleCreateWorkspace() {
     console.log("Creating new workspace");
-  }
-
-  function handleLogout() {
-    console.log("Logging out");
   }
 
   return (
@@ -85,7 +82,7 @@ function GetStarted() {
 
         <div className="pt-3 border-t border-slate-200">
           <Button
-            onClick={handleLogout}
+            onClick={useLogout}
             variant="outline"
             className="w-full text-red-600 border-red-300 hover:bg-red-50"
           >
