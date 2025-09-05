@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { DialogProvider } from "@/context/DialogProvider";
-import { SemesterProvider } from "@/context/SemesterProvider";
-import { QueryClientProvider } from "./query-client-provider";
+import { ProviderLayout } from "./ProviderLayout";
 
 export const metadata: Metadata = {
   title: "Due It",
@@ -17,11 +15,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <QueryClientProvider>
-          <SemesterProvider>
-            <DialogProvider>{children}</DialogProvider>
-          </SemesterProvider>
-        </QueryClientProvider>
+        <ProviderLayout>{children}</ProviderLayout>
       </body>
     </html>
   );
