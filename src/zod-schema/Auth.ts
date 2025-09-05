@@ -38,4 +38,9 @@ const registerSchema = z
     path: ["confirmPassword"],
   });
 
-export { registerSchema };
+const loginSchema = z.object({
+  email: authFields.email,
+  password: authFields.password,
+});
+
+export { registerSchema, loginSchema };

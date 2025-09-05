@@ -1,19 +1,28 @@
 "use client";
-import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import useDialogContext from "@/hooks/Dialog";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { loginSchema } from "@/zod-schema/Auth";
+import * as z from "zod";
+import { useLogin } from "@/hooks/Auth";
+import { useForm } from "react-hook-form";
+
+type FormData = z.infer<typeof loginSchema>;
 
 function SignIn() {
-  const [isLoading, setIsLoading] = useState(false);
   const { openDialog } = useDialogContext();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormData>({ resolver: zodResolver(loginSchema) });
+  const { mutate, isPending } = useLogin();
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-
-    console.log("Form submitted");
+  function onSubmit(data: FormData) {
+    mutate(data);
   }
 
   return (
@@ -28,19 +37,37 @@ function SignIn() {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-4"
+          noValidate
+        >
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" placeholder="Enter your email" />
+            <Input
+              {...register("email")}
+              id="email"
+              type="email"
+              placeholder="Enter your email"
+              disabled={isPending}
+            />
+            {errors.email && (
+              <p className="text-red-500 text-xs">{errors.email.message}</p>
+            )}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
             <Input
+              {...register("password")}
               id="password"
               type="password"
               placeholder="Enter your password"
+              disabled={isPending}
             />
+            {errors.password && (
+              <p className="text-red-500 text-xs">{errors.password.message}</p>
+            )}
           </div>
 
           <div className="text-right">
@@ -53,8 +80,8 @@ function SignIn() {
             </Button>
           </div>
 
-          <Button disabled={isLoading} className="w-full" type="submit">
-            {isLoading ? "Signing in..." : "Sign in"}
+          <Button disabled={isPending} className="w-full" type="submit">
+            {isPending ? "Signing in..." : "Sign in"}
           </Button>
         </form>
 

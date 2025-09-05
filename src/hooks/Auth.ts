@@ -1,5 +1,6 @@
 import supabase from "@/lib/supabase";
 import { useMutation } from "@tanstack/react-query";
+import { redirect } from "next/navigation";
 
 function useRegister() {
   return useMutation({
@@ -34,4 +35,29 @@ function useRegister() {
   });
 }
 
-export { useRegister };
+function useLogin() {
+  return useMutation({
+    mutationFn: async ({
+      email,
+      password,
+    }: {
+      email: string;
+      password: string;
+    }) => {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        console.log(error);
+        throw new Error(error.message);
+      }
+    },
+    onSuccess: () => {
+      redirect("/get-started");
+    },
+  });
+}
+
+export { useRegister, useLogin };
