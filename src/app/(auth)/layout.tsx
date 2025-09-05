@@ -33,7 +33,10 @@ function RootLayout({ children }: { children: React.ReactNode }) {
 
   if (isLoading || isRedirecting) {
     return (
-      <LoadingPage message={isLoading ? "Loading..." : "Redirecting..."} />
+      <LoadingPage
+        message={isLoading ? "Loading..." : "Redirecting to workspace..."}
+        size="lg"
+      />
     );
   }
 

@@ -17,6 +17,7 @@ function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [editedData, setEditedData] = useState(userData);
   const [isSaving, setIsSaving] = useState(false);
+  const { mutate: logout } = useLogout();
 
   const router = useRouter();
 
@@ -190,7 +191,7 @@ function ProfilePage() {
             </p>
           </div>
 
-          <Button onClick={useLogout} variant="destructive">
+          <Button onClick={() => logout()} variant="destructive">
             <LogOut className="w-4 h-4" />
             Logout
           </Button>

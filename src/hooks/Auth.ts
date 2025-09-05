@@ -1,6 +1,6 @@
 import supabase from "@/lib/supabase";
 import { useMutation } from "@tanstack/react-query";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 function useRegister() {
@@ -37,6 +37,7 @@ function useRegister() {
 }
 
 function useLogin() {
+  const router = useRouter();
   return useMutation({
     mutationFn: async ({
       email,
@@ -56,18 +57,27 @@ function useLogin() {
       }
     },
     onSuccess: () => {
-      redirect("/get-started");
+      router.push("/get-started");
     },
   });
 }
 
-async function useLogout() {
-  const { error } = await supabase.auth.signOut();
+function useLogout() {
+  const router = useRouter();
 
-  if (error) {
-    console.log(error);
-    throw new Error(error.message);
-  }
+  return useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase.auth.signOut();
+
+      if (error) {
+        console.log(error);
+        throw new Error(error.message);
+      }
+    },
+    onSuccess: () => {
+      router.push("/sign-in");
+    },
+  });
 }
 
 function useSession() {

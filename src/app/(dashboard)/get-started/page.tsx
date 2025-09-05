@@ -7,6 +7,7 @@ import { useLogout } from "@/hooks/Auth";
 
 function GetStarted() {
   const [isLoading, setIsLoading] = useState(false);
+  const { mutate: logout } = useLogout();
 
   function handleJoinWithCode(e: React.FormEvent) {
     e.preventDefault();
@@ -82,7 +83,7 @@ function GetStarted() {
 
         <div className="pt-3 border-t border-slate-200">
           <Button
-            onClick={useLogout}
+            onClick={() => logout()}
             variant="outline"
             className="w-full text-red-600 border-red-300 hover:bg-red-50"
           >
