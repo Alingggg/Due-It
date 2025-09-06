@@ -1,7 +1,7 @@
 "use client";
 import supabase from "@/lib/supabase";
 import generateJoinCode from "@/utils/generateJoinCode";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 
 function useJoinWorkspace() {
@@ -67,4 +67,21 @@ function useCreateWorkspace() {
   });
 }
 
-export { useJoinWorkspace, useCreateWorkspace };
+function useUserWorkspace(isAuthenticated: boolean) {
+  return useQuery({
+    queryKey: ["userWorkspace"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("workspace_members")
+        .select("*")
+        .maybeSingle();
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: isAuthenticated,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+}
+
+export { useJoinWorkspace, useCreateWorkspace, useUserWorkspace };

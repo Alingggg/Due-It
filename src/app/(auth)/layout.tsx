@@ -1,40 +1,51 @@
 "use client";
 
 import { useSession } from "@/hooks/Auth";
-import supabase from "@/lib/supabase";
+import { useUserWorkspace } from "@/hooks/Workspace";
 import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
 import LoadingPage from "@/components/LoadingPage";
 
 function RootLayout({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, isLoading } = useSession();
+  const { isAuthenticated, isLoading: isSessionLoading } = useSession();
+  const {
+    data: workspace,
+    isLoading: workspaceLoading,
+    isError,
+    error,
+  } = useUserWorkspace(isAuthenticated);
   const [isRedirecting, setIsRedirecting] = useState(false);
 
   useEffect(() => {
-    const checkAuthAndRedirect = async () => {
-      if (!isLoading && isAuthenticated) {
-        setIsRedirecting(true);
+    if (!isSessionLoading && isAuthenticated && !workspaceLoading) {
+      setIsRedirecting(true);
 
-        const { data, error } = await supabase
-          .from("workspace_members")
-          .select("workspace_id")
-          .maybeSingle();
-
-        if (data?.workspace_id && !error) {
-          redirect(`/workspace/${data.workspace_id}/tasks`);
-        } else {
-          redirect("/get-started");
-        }
+      if (workspace?.workspace_id) {
+        redirect(`/workspace/${workspace.workspace_id}/tasks`);
+      } else {
+        redirect("/get-started");
       }
-    };
+    }
+  }, [isAuthenticated, isSessionLoading, workspace, workspaceLoading]);
 
-    checkAuthAndRedirect();
-  }, [isAuthenticated, isLoading]);
+  if (isError) {
+    console.error("Failed to load workspace:", error);
+  }
 
-  if (isLoading || isRedirecting) {
+  if (
+    isSessionLoading ||
+    (isAuthenticated && workspaceLoading) ||
+    isRedirecting
+  ) {
     return (
       <LoadingPage
-        message={isLoading ? "Loading..." : "Redirecting to workspace..."}
+        message={
+          isSessionLoading
+            ? "Loading..."
+            : isRedirecting
+            ? "Redirecting to workspace..."
+            : "Loading workspace..."
+        }
         size="lg"
       />
     );
