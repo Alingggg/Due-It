@@ -18,7 +18,7 @@ function RootLayout({ children }: { children: React.ReactNode }) {
         const { data, error } = await supabase
           .from("workspace_members")
           .select("workspace_id")
-          .single();
+          .maybeSingle();
 
         if (data?.workspace_id && !error) {
           redirect(`/workspace/${data.workspace_id}/tasks`);
