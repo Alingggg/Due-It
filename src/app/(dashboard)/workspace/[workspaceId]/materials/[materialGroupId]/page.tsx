@@ -138,7 +138,10 @@ function MaterialGroupDetailsPage({ params }: MaterialGroupDetailsPageProps) {
             Materials ({materials.length})
           </h3>
           {canManage && (
-            <Button variant="outline">
+            <Button
+              onClick={() => openDialog("ADD_MATERIAL", { materialGroupId })}
+              variant="outline"
+            >
               <Plus className="w-4 h-4" />
               Add Material
             </Button>
