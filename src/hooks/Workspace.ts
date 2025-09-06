@@ -1,5 +1,6 @@
 "use client";
 import supabase from "@/lib/supabase";
+import generateJoinCode from "@/utils/generateJoinCode";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 
@@ -41,4 +42,29 @@ function useJoinWorkspace() {
   });
 }
 
-export { useJoinWorkspace };
+function useCreateWorkspace() {
+  const router = useRouter();
+  return useMutation({
+    mutationFn: async (workspaceName: string) => {
+      const code = generateJoinCode();
+
+      const { data: workspaceId, error } = await supabase.rpc(
+        "create_workspace_with_member_and_code",
+        {
+          workspace_name: workspaceName,
+          invite_code: code,
+          member_role: "admin",
+        }
+      );
+
+      if (error) throw new Error(error.message);
+
+      router.push(`/workspace/${workspaceId}/tasks`);
+    },
+    onError: (error: any) => {
+      console.log("Error creating workspace:", error);
+    },
+  });
+}
+
+export { useJoinWorkspace, useCreateWorkspace };

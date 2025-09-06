@@ -1,5 +1,4 @@
 "use client";
-import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -11,40 +10,32 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { workspaceSchema } from "@/zod-schema/Workspace";
+import { useForm } from "react-hook-form";
+import { useCreateWorkspace } from "@/hooks/Workspace";
+
+type CreateWorkspaceForm = z.infer<typeof workspaceSchema>;
 
 interface CreateWorkspaceDialogProps {
   onClose: () => void;
 }
 
 function CreateWorkspaceDialog({ onClose }: CreateWorkspaceDialogProps) {
-  const [workspaceName, setWorkspaceName] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState("");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<CreateWorkspaceForm>({
+    resolver: zodResolver(workspaceSchema),
+  });
+  const { mutate: createWorkspace, isPending: isSubmitting } =
+    useCreateWorkspace();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!workspaceName.trim()) {
-      setError("Workspace name is required");
-      return;
-    }
-
-    if (workspaceName.trim().length < 3) {
-      setError("Workspace name must be at least 3 characters");
-      return;
-    }
-
-    setIsSubmitting(true);
-    setError("");
-
-    try {
-      console.log("Creating workspace:", workspaceName);
-      onClose();
-    } catch (err) {
-      setError("Failed to create workspace. Please try again.");
-      setIsSubmitting(false);
-    }
-  };
+  function onSubmit({ workspaceName }: CreateWorkspaceForm) {
+    createWorkspace(workspaceName, { onSuccess: onClose });
+  }
 
   return (
     <Dialog open onOpenChange={onClose}>
@@ -56,23 +47,23 @@ function CreateWorkspaceDialog({ onClose }: CreateWorkspaceDialogProps) {
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="workspace-name">
+            <Label htmlFor="workspaceName">
               Workspace Name <span className="text-red-500">*</span>
             </Label>
             <Input
-              id="workspace-name"
-              value={workspaceName}
-              onChange={(e) => {
-                setWorkspaceName(e.target.value);
-                if (error) setError("");
-              }}
+              {...register("workspaceName")}
+              id="workspaceName"
               placeholder="Enter workspace name"
               disabled={isSubmitting}
               autoFocus
             />
-            {error && <p className="text-sm text-red-600">{error}</p>}
+            {errors.workspaceName && (
+              <p className="text-red-500 text-xs">
+                {errors.workspaceName.message}
+              </p>
+            )}
           </div>
 
           <DialogFooter>
