@@ -1,51 +1,25 @@
 "use client";
 
 import { useSession } from "@/hooks/Auth";
-import { useUserWorkspace } from "@/hooks/Workspace";
 import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
 import LoadingPage from "@/components/LoadingPage";
 
 function RootLayout({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading: isSessionLoading } = useSession();
-  const {
-    data: workspace,
-    isLoading: workspaceLoading,
-    isError,
-    error,
-  } = useUserWorkspace(isAuthenticated);
   const [isRedirecting, setIsRedirecting] = useState(false);
 
   useEffect(() => {
-    if (!isSessionLoading && isAuthenticated && !workspaceLoading) {
+    if (!isSessionLoading && isAuthenticated) {
       setIsRedirecting(true);
-
-      if (workspace?.workspace_id) {
-        redirect(`/workspace/${workspace.workspace_id}/tasks`);
-      } else {
-        redirect("/get-started");
-      }
+      redirect("/get-started");
     }
-  }, [isAuthenticated, isSessionLoading, workspace, workspaceLoading]);
+  }, [isAuthenticated, isSessionLoading]);
 
-  if (isError) {
-    console.error("Failed to load workspace:", error);
-  }
-
-  if (
-    isSessionLoading ||
-    (isAuthenticated && workspaceLoading) ||
-    isRedirecting
-  ) {
+  if (isSessionLoading || isRedirecting) {
     return (
       <LoadingPage
-        message={
-          isSessionLoading
-            ? "Loading..."
-            : isRedirecting
-            ? "Redirecting to workspace..."
-            : "Loading workspace..."
-        }
+        message={isSessionLoading ? "Loading..." : "Redirecting..."}
         size="lg"
       />
     );
