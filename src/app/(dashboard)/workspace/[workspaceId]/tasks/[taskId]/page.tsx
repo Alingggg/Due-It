@@ -1,7 +1,12 @@
 "use client";
-import { use } from "react";
+import { use, useContext } from "react";
 import { notFound, useRouter } from "next/navigation";
-import { mockTasks, getSubjectById, getCurrentUserRole } from "@/data/mockData";
+import {
+  mockTasks,
+  getSubjectById,
+  getCurrentUserRole,
+  getSubjectsByWorkspaceId,
+} from "@/data/mockData";
 import { Button } from "@/components/ui/button";
 import {
   Clock,
@@ -15,6 +20,7 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import useDialogContext from "@/hooks/Dialog";
+import { SemesterContext } from "@/context/SemesterProvider";
 
 interface TaskDetailPageProps {
   params: Promise<{ workspaceId: string; taskId: string }>;
@@ -25,6 +31,9 @@ function TaskDetailPage({ params }: TaskDetailPageProps) {
   const router = useRouter();
   const task = mockTasks.find((t) => t.id === taskId);
   const { openDialog, closeDialog } = useDialogContext();
+  const semesterContext = useContext(SemesterContext);
+  const semester = semesterContext?.semester ?? 1;
+  const subjects = getSubjectsByWorkspaceId(workspaceId, semester);
 
   // Get current user's role in this workspace
   const currentUserRole = getCurrentUserRole(workspaceId);
@@ -74,7 +83,9 @@ function TaskDetailPage({ params }: TaskDetailPageProps) {
         {canManageTask && (
           <div className="flex items-center space-x-2">
             <Button
-              onClick={() => openDialog("UPSERT_TASK", task)}
+              onClick={() =>
+                openDialog("UPSERT_TASK", { initialData: task, subjects })
+              }
               variant="outline"
             >
               <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
