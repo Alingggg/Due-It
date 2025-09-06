@@ -3,10 +3,9 @@ import { useState } from "react";
 import {
   getInviteCodeByWorkspaceId,
   getCurrentUserRole,
-  canManageWorkspace,
   mockInviteCodes,
 } from "@/data/mockData";
-import { Check, Copy, RefreshCcw, UserMinus } from "lucide-react";
+import { Check, Copy, RefreshCcw, UserMinus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
@@ -45,7 +44,7 @@ function WorkspaceSettingsPage() {
 
   // Get current values each render to handle temporary role changes
   const userRole = getCurrentUserRole(workspaceId);
-  const canManage = canManageWorkspace(workspaceId);
+  const isAdmin = userRole === "admin";
 
   // Handle copying invite code
   const handleCopyCode = async () => {
@@ -58,7 +57,7 @@ function WorkspaceSettingsPage() {
 
   // Handle enabling/disabling invite code
   const handleToggleInviteCode = () => {
-    if (inviteCode && canManage) {
+    if (inviteCode && isAdmin) {
       const updatedCode = {
         ...inviteCode,
         enabled: !inviteCode.enabled,
@@ -78,7 +77,7 @@ function WorkspaceSettingsPage() {
 
   // Handle renewing invite code
   const handleRenewCode = () => {
-    if (inviteCode && canManage) {
+    if (inviteCode && isAdmin) {
       const newCode = generateNewInviteCode();
       const updatedCode = {
         ...inviteCode,
@@ -110,8 +109,8 @@ function WorkspaceSettingsPage() {
         </h1>
       </div>
 
-      {/* Invite Code Section - Only for admins and co-admins */}
-      {canManage && inviteCode && (
+      {/* Invite Code Section - Show to everyone */}
+      {inviteCode && (
         <div className="bg-white rounded-lg border border-slate-200 p-4 sm:p-6">
           <h2 className="text-base sm:text-lg font-semibold text-slate-800 mb-3 sm:mb-4">
             Invite Code
@@ -143,8 +142,8 @@ function WorkspaceSettingsPage() {
               </div>
             </div>
 
-            {/* Last Changed */}
-            {inviteCode.updatedAt && (
+            {/* Last Changed - Only show to admins */}
+            {isAdmin && inviteCode.updatedAt && (
               <div className="text-xs text-slate-500">
                 Last changed: {new Date(inviteCode.updatedAt).toLocaleString()}
               </div>
@@ -176,8 +175,8 @@ function WorkspaceSettingsPage() {
                 )}
               </div>
 
-              {/* Buttons row */}
-              {canManage && (
+              {/* Buttons row - Only for admins */}
+              {isAdmin && (
                 <div className="flex items-center space-x-2 mt-2 sm:mt-0">
                   <Button
                     onClick={handleToggleInviteCode}
@@ -202,8 +201,8 @@ function WorkspaceSettingsPage() {
         </div>
       )}
 
-      {/* Semester Section - Only for admins and co-admins */}
-      {canManage && (
+      {/* Semester Section - Only for admins */}
+      {isAdmin && (
         <div className="bg-white rounded-lg border border-slate-200 p-4 sm:p-6">
           <h2 className="text-base sm:text-lg font-semibold text-slate-800 mb-3 sm:mb-4">
             Semester
@@ -275,6 +274,36 @@ function WorkspaceSettingsPage() {
             >
               <UserMinus className="w-4 h-4" />
               Leave
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Workspace Section - Only for admins */}
+      {isAdmin && (
+        <div className="bg-white rounded-lg border border-red-200 p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="flex-1 pr-0 sm:pr-6">
+              <h3 className="text-base sm:text-lg font-semibold text-red-800 mb-1 sm:mb-2">
+                Delete Workspace
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-600">
+                Permanently delete this workspace and all its data including
+                tasks, materials, discussions, and member information. This
+                action cannot be undone.
+              </p>
+            </div>
+
+            <Button
+              onClick={() =>
+                openDialog("CONFIRM_DELETE_WORKSPACE", {
+                  workspaceName: "Placeholder Workspace Name",
+                })
+              }
+              variant="destructive"
+            >
+              <Trash2 className="w-4 h-4" />
+              Delete Workspace
             </Button>
           </div>
         </div>
