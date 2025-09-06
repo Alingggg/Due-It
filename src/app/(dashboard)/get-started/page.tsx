@@ -85,7 +85,7 @@ function GetStarted() {
           <Button
             onClick={() => logout()}
             variant="outline"
-            className="w-full text-red-600 border-red-300 hover:bg-red-50"
+            className="w-full text-red-600 border-red-600 hover:bg-red-50"
           >
             Logout
           </Button>

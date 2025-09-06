@@ -184,8 +184,8 @@ function WorkspaceSettingsPage() {
                     variant="outline"
                     className={`${
                       inviteCode.enabled
-                        ? "border-red-600 text-red-700 bg-red-50 hover:bg-red-100 hover:text-red-900"
-                        : "border-green-600 text-green-700 bg-green-50 hover:bg-green-100 hover:text-green-900"
+                        ? "border-red-600 text-red-600 hover:bg-red-50 hover:text-red-700"
+                        : "border-green-600 text-green-600 hover:bg-green-50 hover:text-green-700"
                     }`}
                   >
                     {inviteCode.enabled ? "Disable" : "Enable"}
