@@ -1,23 +1,38 @@
 "use client";
-import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useLogout } from "@/hooks/Auth";
 import useDialogContext from "@/hooks/Dialog";
+import { useJoinWorkspace } from "@/hooks/Workspace";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { codeSchema } from "@/zod-schema/Code";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+type JoinWorkspaceForm = z.infer<typeof codeSchema>;
 
 function GetStarted() {
-  const [isLoading, setIsLoading] = useState(false);
   const { openDialog } = useDialogContext();
   const { mutate: logout } = useLogout();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setError,
+    clearErrors,
+  } = useForm<JoinWorkspaceForm>({ resolver: zodResolver(codeSchema) });
+  const { mutate: joinWorkspace, isPending } = useJoinWorkspace();
 
-  function handleJoinWithCode(e: React.FormEvent) {
-    e.preventDefault();
-    setIsLoading(true);
-
-    console.log("Joining workspace");
-
-    setTimeout(() => setIsLoading(false), 2000);
+  function onSubmit({ code }: { code: string }) {
+    clearErrors("code");
+    joinWorkspace(code, {
+      onError: (error: any) => {
+        setError("code", {
+          message: error.message || "Failed to join workspace",
+        });
+      },
+    });
   }
 
   return (
@@ -38,19 +53,24 @@ function GetStarted() {
             Join a Workspace
           </h3>
           <form
-            onSubmit={handleJoinWithCode}
+            onSubmit={handleSubmit(onSubmit)}
             className="space-y-3 sm:space-y-4"
+            noValidate
           >
             <div className="space-y-2">
               <Label htmlFor="joinCode">Workspace Code</Label>
               <Input
+                {...register("code")}
                 id="joinCode"
                 type="text"
                 placeholder="Enter workspace code"
               />
+              {errors.code && (
+                <p className="text-red-500 text-xs">{errors.code.message}</p>
+              )}
             </div>
-            <Button type="submit" disabled={isLoading} className="w-full">
-              {isLoading ? "Joining..." : "Join Workspace"}
+            <Button type="submit" disabled={isPending} className="w-full">
+              {isPending ? "Joining..." : "Join Workspace"}
             </Button>
           </form>
         </div>
