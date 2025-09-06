@@ -41,6 +41,8 @@ function TasksPage() {
 
   // Get current user's role in this workspace
   const currentUserRole = getCurrentUserRole(workspaceId);
+  const canCreateTasks =
+    currentUserRole === "admin" || currentUserRole === "co";
 
   // Add tab state
   const [activeTab, setActiveTab] = useState<"pending" | "past-due">("pending");
@@ -294,23 +296,41 @@ function TasksPage() {
       {/* Empty State */}
       {sortedTasks.length === 0 && (
         <div className="text-center py-12">
-          <div className="text-slate-400 mb-2">
+          <div className="text-slate-400 mb-4">
             <ClipboardList className="w-12 h-12 mx-auto" />
           </div>
-          <h3 className="text-lg font-medium text-slate-800 mb-1">
-            {tabFilteredTasks.length === 0
-              ? activeTab === "pending"
-                ? "No pending tasks"
-                : "No past due tasks"
-              : "No tasks match your filters"}
-          </h3>
-          <p className="text-slate-600 mb-4">
-            {tabFilteredTasks.length === 0
-              ? activeTab === "pending"
-                ? "All tasks are completed or past due."
-                : "Great! No tasks are overdue."
-              : "Try adjusting your filters to see more tasks."}
-          </p>
+          {tasks.length === 0 ? (
+            <>
+              <h3 className="text-lg font-medium text-slate-800 mb-2">
+                No tasks yet
+              </h3>
+              <p className="text-slate-600 max-w-sm mx-auto">
+                This workspace doesn't have any tasks yet.
+              </p>
+            </>
+          ) : tabFilteredTasks.length === 0 ? (
+            <>
+              <h3 className="text-lg font-medium text-slate-800 mb-2">
+                {activeTab === "pending"
+                  ? "No pending tasks"
+                  : "No past-due tasks"}
+              </h3>
+              <p className="text-slate-600 max-w-sm mx-auto">
+                {activeTab === "pending"
+                  ? "There are no upcoming tasks."
+                  : "You're all caught up! There are no overdue tasks."}
+              </p>
+            </>
+          ) : (
+            <>
+              <h3 className="text-lg font-medium text-slate-800 mb-2">
+                No tasks match your filters
+              </h3>
+              <p className="text-slate-600 max-w-sm mx-auto">
+                Try adjusting or clearing your filters to see more tasks.
+              </p>
+            </>
+          )}
         </div>
       )}
     </div>

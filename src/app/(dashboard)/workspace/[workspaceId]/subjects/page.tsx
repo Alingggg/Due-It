@@ -134,58 +134,74 @@ function SubjectsPage({
 
   const renderSubjectsTab = () => (
     <div className="space-y-4">
-      {subjects.map((subject) => (
-        <div
-          key={subject.id}
-          className="bg-white rounded-lg border border-slate-200 p-3 sm:p-4 hover:shadow-md hover:border-blue-200 transition-all relative"
-        >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3 flex-1">
-              <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                <BookOpen className="w-4 h-4 text-blue-600" />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-medium text-slate-800">{subject.name}</h3>
-                <div className="mt-1 flex items-baseline gap-2 text-sm text-slate-600">
-                  <span className="font-mono text-[0.95em]">
-                    {subject.code}
-                  </span>
-                  <span className="text-slate-400">•</span>
-                  <span>{subject.instructor}</span>
+      {subjects.length === 0 ? (
+        <div className="text-center py-12">
+          <div className="text-slate-400 mb-4">
+            <BookOpen className="w-12 h-12 mx-auto" />
+          </div>
+          <h3 className="text-lg font-medium text-slate-800 mb-2">
+            No subjects yet
+          </h3>
+          <p className="text-slate-600 mb-6 max-w-sm mx-auto">
+            No subjects have been added yet.
+          </p>
+        </div>
+      ) : (
+        subjects.map((subject) => (
+          <div
+            key={subject.id}
+            className="bg-white rounded-lg border border-slate-200 p-3 sm:p-4 hover:shadow-md hover:border-blue-200 transition-all relative"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3 flex-1">
+                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <BookOpen className="w-4 h-4 text-blue-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-medium text-slate-800">{subject.name}</h3>
+                  <div className="mt-1 flex items-baseline gap-2 text-sm text-slate-600">
+                    <span className="font-mono text-[0.95em]">
+                      {subject.code}
+                    </span>
+                    <span className="text-slate-400">•</span>
+                    <span>{subject.instructor}</span>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Actions Menu - Only show if user can manage subjects */}
-            {canManageSubjects && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm">
-                    <MoreVertical className="w-4 h-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuGroup>
-                    <DropdownMenuItem
-                      onSelect={() => handleEditSubject(subject)}
-                    >
-                      <Edit2 className="w-4 h-4 mr-2" />
-                      Edit Subject
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onSelect={() => handleDeleteSubject(subject)}
-                      className="text-red-600 hover:bg-red-50"
-                    >
-                      <Trash2 className="w-4 h-4 mr-2 text-red-600" />
-                      <span className="hover:text-red-600">Delete Subject</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
+              {/* Actions Menu - Only show if user can manage subjects */}
+              {canManageSubjects && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm">
+                      <MoreVertical className="w-4 h-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuGroup>
+                      <DropdownMenuItem
+                        onSelect={() => handleEditSubject(subject)}
+                      >
+                        <Edit2 className="w-4 h-4 mr-2" />
+                        Edit Subject
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onSelect={() => handleDeleteSubject(subject)}
+                        className="text-red-600 hover:bg-red-50"
+                      >
+                        <Trash2 className="w-4 h-4 mr-2 text-red-600" />
+                        <span className="hover:text-red-600">
+                          Delete Subject
+                        </span>
+                      </DropdownMenuItem>
+                    </DropdownMenuGroup>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+            </div>
           </div>
-        </div>
-      ))}
+        ))
+      )}
     </div>
   );
 
