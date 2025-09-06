@@ -4,9 +4,11 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useLogout } from "@/hooks/Auth";
+import useDialogContext from "@/hooks/Dialog";
 
 function GetStarted() {
   const [isLoading, setIsLoading] = useState(false);
+  const { openDialog } = useDialogContext();
   const { mutate: logout } = useLogout();
 
   function handleJoinWithCode(e: React.FormEvent) {
@@ -16,10 +18,6 @@ function GetStarted() {
     console.log("Joining workspace");
 
     setTimeout(() => setIsLoading(false), 2000);
-  }
-
-  function handleCreateWorkspace() {
-    console.log("Creating new workspace");
   }
 
   return (
@@ -73,7 +71,7 @@ function GetStarted() {
             Start fresh with your own workspace and invite others to join.
           </p>
           <Button
-            onClick={handleCreateWorkspace}
+            onClick={() => openDialog("CREATE_WORKSPACE")}
             variant="outline"
             className="w-full"
           >

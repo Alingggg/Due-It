@@ -8,6 +8,7 @@ import ConfirmActionDialog from "@/components/dialogs/ConfirmActionDialog";
 import UpsertScheduleDialog from "@/components/dialogs/UpsertScheduleDialog";
 import AddMaterialDialog from "@/components/dialogs/AddMaterialDialog";
 import ConfirmDeleteWorkspace from "@/components/dialogs/ConfirmDeleteWorkspace";
+import CreateWorkspaceDialog from "@/components/dialogs/CreateWorkspaceDialog";
 
 export default function DialogContainer() {
   const { dialogType, dialogProps, closeDialog } = useDialogContext();
@@ -23,6 +24,7 @@ export default function DialogContainer() {
     UPSERT_SCHEDULE: UpsertScheduleDialog,
     ADD_MATERIAL: AddMaterialDialog,
     CONFIRM_DELETE_WORKSPACE: ConfirmDeleteWorkspace,
+    CREATE_WORKSPACE: CreateWorkspaceDialog,
   };
 
   const DialogComponent = dialogMap[dialogType];
