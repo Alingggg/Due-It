@@ -175,7 +175,7 @@ function TasksPage() {
   const typeOptions = [
     { value: "all", label: "All" },
     { value: "activity", label: "Activity" },
-    { value: "quiz", label: "Quiz" },
+    { value: "exam", label: "Exam" },
   ];
 
   const doneByOptions = [

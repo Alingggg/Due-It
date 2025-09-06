@@ -51,7 +51,7 @@ function TaskDetailPage({ params }: TaskDetailPageProps) {
   };
 
   const doneByInfo = getDoneByInfo(task.doneBy);
-  const TypeIcon = task.type === "quiz" ? HelpCircle : ClipboardList;
+  const TypeIcon = task.type === "exam" ? HelpCircle : ClipboardList;
   const DoneByIcon = doneByInfo.icon;
 
   return (
@@ -118,7 +118,9 @@ function TaskDetailPage({ params }: TaskDetailPageProps) {
             <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-6 space-y-2 sm:space-y-0 text-sm text-slate-600 mb-4">
               <div className="flex items-center">
                 <TypeIcon className="w-4 h-4 mr-2 flex-shrink-0" />
-                <span className="capitalize">{task.type}</span>
+                <span className="capitalize">
+                  {task.type === "exam" ? "Exam" : task.type}
+                </span>
               </div>
               <div className="flex items-center">
                 <DoneByIcon className="w-4 h-4 mr-2 flex-shrink-0" />

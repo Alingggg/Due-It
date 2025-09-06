@@ -65,7 +65,7 @@ function TaskCard({ task, workspaceId, subjectName }: TaskCardProps) {
 
   // Get type icon
   const getTypeIcon = (type: string) => {
-    return type === "quiz" ? HelpCircle : ClipboardList;
+    return type === "exam" ? HelpCircle : ClipboardList;
   };
 
   const dueInfo = formatDueDate(task.dueDate);
@@ -95,7 +95,9 @@ function TaskCard({ task, workspaceId, subjectName }: TaskCardProps) {
                 </>
               )}
               <div className="flex items-center space-x-2">
-                <span className="capitalize">{task.type}</span>
+                <span className="capitalize">
+                  {task.type === "exam" ? "Exam" : task.type}
+                </span>
                 <span className="text-slate-400">•</span>
                 <span className="capitalize">{task.doneBy}</span>
               </div>

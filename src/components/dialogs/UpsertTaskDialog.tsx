@@ -30,7 +30,7 @@ interface UpsertTaskDialogProps {
   initialData?: {
     title?: string;
     description?: string;
-    type?: "quiz" | "assignment";
+    type?: "exam" | "activity";
     doneBy?: "individual" | "pair" | "group";
     dueDate?: string;
     subjectId?: string;
@@ -42,8 +42,8 @@ interface UpsertTaskDialogProps {
 }
 
 const typeOptions = [
-  { value: "quiz", label: "Quiz", icon: HelpCircle },
-  { value: "assignment", label: "Assignment", icon: ClipboardList },
+  { value: "exam", label: "Exam", icon: HelpCircle },
+  { value: "activity", label: "Activity", icon: ClipboardList },
 ];
 
 const doneByOptions = [
@@ -61,8 +61,8 @@ function UpsertTaskDialog({
 }: UpsertTaskDialogProps) {
   const [title, setTitle] = useState(initialData.title || "");
   const [description, setDescription] = useState(initialData.description || "");
-  const [type, setType] = useState<"quiz" | "assignment">(
-    initialData.type || "assignment"
+  const [type, setType] = useState<"exam" | "activity">(
+    initialData.type || "activity"
   );
   const [doneBy, setDoneBy] = useState<"individual" | "pair" | "group">(
     initialData.doneBy || "individual"
@@ -133,7 +133,7 @@ function UpsertTaskDialog({
                 {typeOptions.map((opt) => (
                   <Button
                     key={opt.value}
-                    onClick={() => setType(opt.value as "quiz" | "assignment")}
+                    onClick={() => setType(opt.value as "exam" | "activity")}
                     variant="outline"
                     className={`transition-all duration-200 ${
                       type === opt.value ? "" : "border-gray-200 text-gray-600"
