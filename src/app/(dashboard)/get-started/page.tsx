@@ -64,6 +64,7 @@ function GetStarted() {
                 id="joinCode"
                 type="text"
                 placeholder="Enter workspace code"
+                disabled={isPending}
               />
               {errors.code && (
                 <p className="text-red-500 text-xs">{errors.code.message}</p>
