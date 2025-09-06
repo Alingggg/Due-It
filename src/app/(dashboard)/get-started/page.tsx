@@ -24,7 +24,7 @@ function GetStarted() {
   } = useForm<JoinWorkspaceForm>({ resolver: zodResolver(codeSchema) });
   const { mutate: joinWorkspace, isPending } = useJoinWorkspace();
 
-  function onSubmit({ code }: { code: string }) {
+  function onSubmit({ code }: JoinWorkspaceForm) {
     clearErrors("code");
     joinWorkspace(code, {
       onError: (error: any) => {
