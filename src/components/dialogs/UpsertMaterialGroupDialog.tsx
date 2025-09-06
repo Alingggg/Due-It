@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Upload,
@@ -47,7 +47,6 @@ interface UpsertMaterialDialogProps {
   onClose: () => void;
   subjects: Subject[];
   materialGroup?: MaterialGroup;
-  materials?: Material[];
 }
 
 interface MaterialItem {
@@ -60,18 +59,11 @@ interface MaterialItem {
   fileType?: string;
 }
 
-const EMPTY_MATERIALS: Material[] = [];
-
 function UpsertMaterialDialog({
   onClose,
   subjects,
   materialGroup,
-  materials: initialMaterials = EMPTY_MATERIALS,
 }: UpsertMaterialDialogProps) {
-  const memoizedInitialMaterials = useMemo(
-    () => initialMaterials,
-    [initialMaterials]
-  );
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [subjectId, setSubjectId] = useState("");
@@ -90,25 +82,17 @@ function UpsertMaterialDialog({
       setTitle(materialGroup.title);
       setDescription(materialGroup.description);
       setSubjectId(materialGroup.subjectId);
-      setMaterials(
-        memoizedInitialMaterials.map((material) => ({
-          id: material.id,
-          fileName: material.fileName,
-          isLink: material.isLink,
-          url: material.isLink ? material.downloadUrl : undefined,
-          fileSize: material.fileSize,
-          fileType: material.fileType,
-        }))
-      );
     } else {
+      // Reset for create mode
       setTitle("");
       setDescription("");
       setSubjectId("");
-      setMaterials([]);
     }
+    // Always start with an empty list for new materials to be added
+    setMaterials([]);
     setTempLinkUrl("");
     setTempLinkName("");
-  }, [materialGroup, memoizedInitialMaterials]);
+  }, [materialGroup]);
 
   const handleShowFileUpload = () => {
     setShowFileUpload(true);
@@ -205,35 +189,42 @@ function UpsertMaterialDialog({
 
     if (!title.trim()) newErrors.title = "Title is required";
     if (!description.trim()) newErrors.description = "Description is required";
-    if (!isEditing && !subjectId) newErrors.subjectId = "Subject is required";
-    if (materials.length === 0)
-      newErrors.materials = "At least one material is required";
 
-    materials.forEach((material) => {
-      if (!material.fileName.trim()) {
-        newErrors[`material-${material.id}-fileName`] = "Name is required";
+    // Only validate subject and materials in create mode
+    if (!isEditing) {
+      if (!subjectId) newErrors.subjectId = "Subject is required";
+
+      if (materials.length === 0) {
+        newErrors.materials = "At least one material is required";
       }
-      if (material.isLink) {
-        if (!material.url?.trim()) {
-          newErrors[`material-${material.id}-url`] = "URL is required";
-        } else {
-          try {
-            new URL(material.url);
-          } catch {
-            newErrors[`material-${material.id}-url`] =
-              "Please enter a valid URL";
-          }
+
+      materials.forEach((material) => {
+        if (!material.fileName.trim()) {
+          newErrors[`material-${material.id}-fileName`] = "Name is required";
         }
-      } else if (!isEditing && !material.file) {
-        newErrors[`material-${material.id}-file`] = "Please select a file";
-      }
-    });
+        if (material.isLink) {
+          if (!material.url?.trim()) {
+            newErrors[`material-${material.id}-url`] = "URL is required";
+          } else {
+            try {
+              new URL(material.url);
+            } catch {
+              newErrors[`material-${material.id}-url`] =
+                "Please enter a valid URL";
+            }
+          }
+        } else if (!material.file) {
+          newErrors[`material-${material.id}-file`] = "Please select a file";
+        }
+      });
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
     if (!validateForm()) return;
     setIsSubmitting(true);
     try {
@@ -289,140 +280,146 @@ function UpsertMaterialDialog({
             )}
           </div>
 
-          {/* Subject */}
-          <div className="space-y-2">
-            <Label htmlFor="subject-select">
-              Subject <span className="text-red-500">*</span>
-            </Label>
-            <Select
-              value={subjectId}
-              onValueChange={setSubjectId}
-              disabled={isSubmitting}
-            >
-              <SelectTrigger
-                id="subject-select"
-                className={`w-full ${errors.subjectId ? "border-red-500" : ""}`}
-              >
-                <SelectValue placeholder="Select a subject" />
-              </SelectTrigger>
-              <SelectContent>
-                {subjects.map((subject) => (
-                  <SelectItem key={subject.id} value={subject.id}>
-                    {subject.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.subjectId && (
-              <p className="mt-1 text-xs text-red-600">{errors.subjectId}</p>
-            )}
-          </div>
-
-          {/* Add Material Section */}
-          <div className="space-y-2">
-            <Label>
-              Add Materials <span className="text-red-500">*</span>
-            </Label>
-            {errors.materials && (
-              <p className="mb-2 text-xs text-red-600">{errors.materials}</p>
-            )}
-
-            {/* Add Material Buttons */}
-            <div className="flex flex-col sm:flex-row gap-2 justify-center mb-3">
-              <Button
-                onClick={handleShowFileUpload}
-                variant="outline"
+          {/* Subject - Only show in Create mode */}
+          {!isEditing && (
+            <div className="space-y-2">
+              <Label htmlFor="subject-select">
+                Subject <span className="text-red-500">*</span>
+              </Label>
+              <Select
+                value={subjectId}
+                onValueChange={setSubjectId}
                 disabled={isSubmitting}
-                type="button"
               >
-                <LucideFile className="w-4 h-4" />
-                Upload File
-              </Button>
-              <Button
-                onClick={handleShowLinkInput}
-                variant="outline"
-                disabled={isSubmitting}
-                type="button"
-              >
-                <LucideLink className="w-4 h-4" />
-                Add Link
-              </Button>
+                <SelectTrigger
+                  id="subject-select"
+                  className={`w-full ${
+                    errors.subjectId ? "border-red-500" : ""
+                  }`}
+                >
+                  <SelectValue placeholder="Select a subject" />
+                </SelectTrigger>
+                <SelectContent>
+                  {subjects.map((subject) => (
+                    <SelectItem key={subject.id} value={subject.id}>
+                      {subject.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.subjectId && (
+                <p className="mt-1 text-xs text-red-600">{errors.subjectId}</p>
+              )}
             </div>
+          )}
 
-            {/* File Upload Container */}
-            {showFileUpload && (
-              <div className="mb-3 p-4 border border-slate-200 rounded-lg bg-slate-50">
-                <div className="text-center">
-                  <Input
-                    type="file"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        handleFileSelect(file);
-                      }
-                    }}
-                    className="hidden"
-                    id="file-upload"
-                    disabled={isSubmitting}
-                    accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.jpg,.jpeg,.png,.zip,.rar"
-                  />
-                  <Label
-                    htmlFor="file-upload"
-                    className="flex flex-col items-center justify-center w-full px-6 py-8 border-2 border-dashed border-slate-300 rounded-lg cursor-pointer transition-colors hover:border-slate-400 hover:bg-slate-100"
-                  >
-                    <Upload className="w-8 h-8 text-slate-400 mb-2" />
-                    <p className="text-sm text-slate-600 mb-1">
-                      Click to select file
-                    </p>
-                    <p className="text-xs text-slate-500">or drag and drop</p>
-                  </Label>
-                </div>
+          {/* Add Material Section - Only show in Create mode */}
+          {!isEditing && (
+            <div className="space-y-2">
+              <Label>
+                Add Materials <span className="text-red-500">*</span>
+              </Label>
+              {errors.materials && (
+                <p className="mb-2 text-xs text-red-600">{errors.materials}</p>
+              )}
+
+              {/* Add Material Buttons */}
+              <div className="flex flex-col sm:flex-row gap-2 justify-center mb-3">
+                <Button
+                  onClick={handleShowFileUpload}
+                  variant="outline"
+                  disabled={isSubmitting}
+                  type="button"
+                >
+                  <LucideFile className="w-4 h-4" />
+                  Upload File
+                </Button>
+                <Button
+                  onClick={handleShowLinkInput}
+                  variant="outline"
+                  disabled={isSubmitting}
+                  type="button"
+                >
+                  <LucideLink className="w-4 h-4" />
+                  Add Link
+                </Button>
               </div>
-            )}
 
-            {/* Link Input Container */}
-            {showLinkInput && (
-              <div className="mb-3 p-4 border border-slate-200 rounded-lg bg-slate-50">
-                <div className="space-y-2">
-                  <div className="space-y-2">
-                    <Label>
-                      Link Name <span className="text-red-500">*</span>
-                    </Label>
+              {/* File Upload Container */}
+              {showFileUpload && (
+                <div className="mb-3 p-4 border border-slate-200 rounded-lg bg-slate-50">
+                  <div className="text-center">
                     <Input
-                      value={tempLinkName}
-                      onChange={(e) => setTempLinkName(e.target.value)}
-                      className="w-full px-3 py-2 border border-slate-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="Enter link name"
+                      type="file"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          handleFileSelect(file);
+                        }
+                      }}
+                      className="hidden"
+                      id="file-upload"
                       disabled={isSubmitting}
+                      accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.jpg,.jpeg,.png,.zip,.rar"
                     />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>
-                      URL <span className="text-red-500">*</span>
+                    <Label
+                      htmlFor="file-upload"
+                      className="flex flex-col items-center justify-center w-full px-6 py-8 border-2 border-dashed border-slate-300 rounded-lg cursor-pointer transition-colors hover:border-slate-400 hover:bg-slate-100"
+                    >
+                      <Upload className="w-8 h-8 text-slate-400 mb-2" />
+                      <p className="text-sm text-slate-600 mb-1">
+                        Click to select file
+                      </p>
+                      <p className="text-xs text-slate-500">or drag and drop</p>
                     </Label>
-                    <Input
-                      value={tempLinkUrl}
-                      onChange={(e) => setTempLinkUrl(e.target.value)}
-                      className="w-full px-3 py-2 border border-slate-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="https://example.com"
-                      disabled={isSubmitting}
-                    />
-                  </div>
-                  {errors.tempLink && (
-                    <p className="text-xs text-red-600">{errors.tempLink}</p>
-                  )}
-                  <div className="flex gap-2 justify-end">
-                    <Button onClick={handleAddLink} type="button">
-                      Add Link
-                    </Button>
                   </div>
                 </div>
-              </div>
-            )}
-          </div>
+              )}
 
-          {/* Materials List */}
-          {materials.length > 0 && (
+              {/* Link Input Container */}
+              {showLinkInput && (
+                <div className="mb-3 p-4 border border-slate-200 rounded-lg bg-slate-50">
+                  <div className="space-y-2">
+                    <div className="space-y-2">
+                      <Label>
+                        Link Name <span className="text-red-500">*</span>
+                      </Label>
+                      <Input
+                        value={tempLinkName}
+                        onChange={(e) => setTempLinkName(e.target.value)}
+                        className="w-full px-3 py-2 border border-slate-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Enter link name"
+                        disabled={isSubmitting}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>
+                        URL <span className="text-red-500">*</span>
+                      </Label>
+                      <Input
+                        value={tempLinkUrl}
+                        onChange={(e) => setTempLinkUrl(e.target.value)}
+                        className="w-full px-3 py-2 border border-slate-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="https://example.com"
+                        disabled={isSubmitting}
+                      />
+                    </div>
+                    {errors.tempLink && (
+                      <p className="text-xs text-red-600">{errors.tempLink}</p>
+                    )}
+                    <div className="flex gap-2 justify-end">
+                      <Button onClick={handleAddLink} type="button">
+                        Add Link
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Materials List - Only show in Create mode */}
+          {!isEditing && materials.length > 0 && (
             <div className="space-y-2">
               <Label>Materials ({materials.length})</Label>
               <div className="space-y-3">

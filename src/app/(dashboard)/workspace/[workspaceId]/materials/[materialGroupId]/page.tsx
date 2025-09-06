@@ -16,6 +16,7 @@ import {
   Trash2,
   Pencil,
   ExternalLink,
+  Plus,
 } from "lucide-react";
 import { format } from "date-fns";
 import useDialogContext from "@/hooks/Dialog";
@@ -80,7 +81,9 @@ function MaterialGroupDetailsPage({ params }: MaterialGroupDetailsPageProps) {
         {canManage && (
           <div className="flex items-center space-x-2">
             <Button
-              onClick={() => openDialog("UPSERT_MATERIAL", { subjects })}
+              onClick={() =>
+                openDialog("UPSERT_MATERIAL", { subjects, materialGroup })
+              }
               variant="outline"
             >
               <Pencil className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -130,10 +133,16 @@ function MaterialGroupDetailsPage({ params }: MaterialGroupDetailsPageProps) {
 
       {/* Materials Section */}
       <div className="bg-white rounded-lg border border-slate-200">
-        <div className="p-4 sm:p-6 border-b border-slate-200">
+        <div className="p-4 sm:p-6 border-b border-slate-200 flex items-center justify-between">
           <h3 className="text-base sm:text-lg font-semibold text-slate-800">
             Materials ({materials.length})
           </h3>
+          {canManage && (
+            <Button variant="outline">
+              <Plus className="w-4 h-4" />
+              Add Material
+            </Button>
+          )}
         </div>
 
         {/* Materials List */}
@@ -173,22 +182,44 @@ function MaterialGroupDetailsPage({ params }: MaterialGroupDetailsPageProps) {
                   </div>
                 </div>
 
-                <Button
-                  onClick={() => handleOpenMaterial(material)}
-                  variant="outline"
-                >
-                  {material.isLink ? (
-                    <>
-                      <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4" />
-                      Open
-                    </>
-                  ) : (
-                    <>
-                      <Download className="w-3 h-3 sm:w-4 sm:h-4" />
-                      Download
-                    </>
+                {/* Action buttons: Open/Download and Trash */}
+                <div className="flex justify-between sm:justify-start sm:gap-3 w-full sm:w-auto">
+                  <Button
+                    onClick={() => handleOpenMaterial(material)}
+                    variant="outline"
+                  >
+                    {material.isLink ? (
+                      <>
+                        <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4" />
+                        Open
+                      </>
+                    ) : (
+                      <>
+                        <Download className="w-3 h-3 sm:w-4 sm:h-4" />
+                        Download
+                      </>
+                    )}
+                  </Button>
+                  {canManage && (
+                    <Button
+                      onClick={() =>
+                        openDialog("CONFIRM_ACTION", {
+                          title: `Delete "${material.fileName}"?`,
+                          description: `Are you sure you want to delete this material? This action cannot be undone.`,
+                          actionButtonVariant: "destructive",
+                          actionButtonText: "Delete",
+                          handleAction: closeDialog,
+                        })
+                      }
+                      variant="ghost"
+                      size="icon"
+                      className="text-red-600 hover:text-red-600 hover:bg-red-50"
+                      aria-label="Delete material"
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </Button>
                   )}
-                </Button>
+                </div>
               </div>
             </div>
           ))}
