@@ -23,11 +23,11 @@ function RootLayout({ children }: { children: React.ReactNode }) {
       if (!isAuthenticated) {
         setIsRedirecting(true);
         router.push("/sign-in");
-      } else if (workspace?.workspace_id) {
+      } else if (workspace?.id) {
         // User HAS a workspace - only redirect from get-started, allow profile
         if (pathname === "/get-started") {
           setIsRedirecting(true);
-          router.push(`/workspace/${workspace.workspace_id}/tasks`);
+          router.push(`/workspace/${workspace.id}/tasks`);
         } else {
           setIsRedirecting(false);
         }

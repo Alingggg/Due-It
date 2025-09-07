@@ -8,13 +8,9 @@ import { useProfile } from "@/hooks/Auth";
 function MembersPage() {
   const queryClient = useQueryClient();
   const workspace = queryClient.getQueryData<any>(["userWorkspace"]);
-  const { data: members, isLoading } = useWorkspaceMembers(
-    workspace?.workspace_id || ""
-  );
+  const { data: members, isLoading } = useWorkspaceMembers(workspace?.id || "");
   const { data: currentUser } = useProfile();
-  const { data: currentUserRole } = useWorkspaceRole(
-    workspace?.workspace_id || ""
-  );
+  const { data: currentUserRole } = useWorkspaceRole(workspace?.id || "");
 
   if (isLoading) {
     return <LoadingPage message="Loading members..." />;

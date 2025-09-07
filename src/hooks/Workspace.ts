@@ -73,11 +73,11 @@ function useUserWorkspace(isAuthenticated: boolean) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("workspace_members")
-        .select("*")
+        .select("workspace:workspaces(*)")
         .maybeSingle();
 
       if (error) throw error;
-      return data;
+      return data?.workspace;
     },
     enabled: isAuthenticated,
     staleTime: 5 * 60 * 1000, // 5 minutes
