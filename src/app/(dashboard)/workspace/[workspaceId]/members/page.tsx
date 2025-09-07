@@ -1,16 +1,23 @@
 "use client";
 import MemberCard from "@/components/MemberCard";
 import { useQueryClient } from "@tanstack/react-query";
-import { useWorkspaceMembers, useWorkspaceRole } from "@/hooks/Workspace";
+import {
+  useGetWorkspaceMembers,
+  useGetUserWorkspaceRole,
+} from "@/hooks/Workspace";
 import LoadingPage from "@/components/LoadingPage";
-import { useProfile } from "@/hooks/Auth";
+import { useGetProfile } from "@/hooks/Auth";
 
 function MembersPage() {
   const queryClient = useQueryClient();
   const workspace = queryClient.getQueryData<any>(["userWorkspace"]);
-  const { data: members, isLoading } = useWorkspaceMembers(workspace?.id || "");
-  const { data: currentUser } = useProfile();
-  const { data: currentUserRole } = useWorkspaceRole(workspace?.id || "");
+  const { data: members, isLoading } = useGetWorkspaceMembers(
+    workspace?.id || ""
+  );
+  const { data: currentUser } = useGetProfile();
+  const { data: currentUserRole } = useGetUserWorkspaceRole(
+    workspace?.id || ""
+  );
 
   if (isLoading) {
     return <LoadingPage message="Loading members..." />;

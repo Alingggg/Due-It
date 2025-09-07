@@ -7,9 +7,9 @@ import { LogOut, ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
   useLogout,
-  useProfile,
+  useGetProfile,
   useUpdateProfile,
-  useSession,
+  useGetSession,
 } from "@/hooks/Auth";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -20,8 +20,8 @@ type ProfileForm = z.infer<typeof ProfileSchema>;
 
 function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
-  const { user } = useSession();
-  const { data: profileData, isSuccess: profileFetched } = useProfile();
+  const { user } = useGetSession();
+  const { data: profileData, isSuccess: profileFetched } = useGetProfile();
   const { mutate: updateProfile, isPending: isUpdatingProfile } =
     useUpdateProfile();
   const { mutate: logout } = useLogout();

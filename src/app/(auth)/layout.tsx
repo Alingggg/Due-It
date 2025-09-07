@@ -1,12 +1,12 @@
 "use client";
 
-import { useSession } from "@/hooks/Auth";
+import { useGetSession } from "@/hooks/Auth";
 import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
 import LoadingPage from "@/components/LoadingPage";
 
 function RootLayout({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, isLoading: isSessionLoading } = useSession();
+  const { isAuthenticated, isLoading: isSessionLoading } = useGetSession();
   const [isRedirecting, setIsRedirecting] = useState(false);
 
   useEffect(() => {

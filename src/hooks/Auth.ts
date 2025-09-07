@@ -81,7 +81,7 @@ function useLogout() {
   });
 }
 
-function useSession() {
+function useGetSession() {
   const [session, setSession] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -99,7 +99,7 @@ function useSession() {
   };
 }
 
-function useProfile() {
+function useGetProfile() {
   return useQuery({
     queryKey: ["profile"],
     queryFn: async () => {
@@ -162,7 +162,7 @@ export {
   useRegister,
   useLogin,
   useLogout,
-  useSession,
-  useProfile,
+  useGetSession,
+  useGetProfile,
   useUpdateProfile,
 };

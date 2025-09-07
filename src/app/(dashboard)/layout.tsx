@@ -1,19 +1,19 @@
 "use client";
 
 import LoadingPage from "@/components/LoadingPage";
-import { useSession } from "@/hooks/Auth";
-import { useUserWorkspace } from "@/hooks/Workspace";
+import { useGetSession } from "@/hooks/Auth";
+import { useGetUserWorkspace } from "@/hooks/Workspace";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 function RootLayout({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, isLoading: isSessionLoading } = useSession();
+  const { isAuthenticated, isLoading: isSessionLoading } = useGetSession();
   const {
     data: workspace,
     isLoading: workspaceLoading,
     isError,
     error,
-  } = useUserWorkspace(isAuthenticated);
+  } = useGetUserWorkspace(isAuthenticated);
   const router = useRouter();
   const pathname = usePathname();
   const [isRedirecting, setIsRedirecting] = useState(false);

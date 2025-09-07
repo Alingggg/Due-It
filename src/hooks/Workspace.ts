@@ -67,7 +67,7 @@ function useCreateWorkspace() {
   });
 }
 
-function useUserWorkspace(isAuthenticated: boolean) {
+function useGetUserWorkspace(isAuthenticated: boolean) {
   return useQuery({
     queryKey: ["userWorkspace"],
     queryFn: async () => {
@@ -84,7 +84,7 @@ function useUserWorkspace(isAuthenticated: boolean) {
   });
 }
 
-function useWorkspaceMembers(workspaceId: string) {
+function useGetWorkspaceMembers(workspaceId: string) {
   return useQuery({
     queryKey: ["workspaceMembers", workspaceId],
     queryFn: async () => {
@@ -99,7 +99,7 @@ function useWorkspaceMembers(workspaceId: string) {
   });
 }
 
-function useWorkspaceRole(workspaceId: string) {
+function useGetUserWorkspaceRole(workspaceId: string) {
   return useQuery({
     queryKey: ["workspaceRole", workspaceId],
     queryFn: async () => {
@@ -127,7 +127,7 @@ function useWorkspaceRole(workspaceId: string) {
 export {
   useJoinWorkspace,
   useCreateWorkspace,
-  useUserWorkspace,
-  useWorkspaceMembers,
-  useWorkspaceRole,
+  useGetUserWorkspace,
+  useGetWorkspaceMembers,
+  useGetUserWorkspaceRole,
 };
