@@ -35,7 +35,7 @@ function MemberCard({ member, currentUser, currentUserRole }: MemberCardProps) {
           text: "Admin",
           color: "text-red-600 bg-red-50",
         };
-      case "co":
+      case "co-admin":
         return {
           icon: UserCog,
           text: "Co-Admin",
@@ -76,7 +76,7 @@ function MemberCard({ member, currentUser, currentUserRole }: MemberCardProps) {
               buttonText: "Promote to Admin",
               buttonVariant: "destructive",
             };
-          } else if (newRole === "co") {
+          } else if (newRole === "co-admin") {
             return {
               title: "Promote to Co-Admin",
               description: `Are you sure you want to promote ${memberName} to Co-Admin? They will be able to manage members and tasks.`,
@@ -142,7 +142,7 @@ function MemberCard({ member, currentUser, currentUserRole }: MemberCardProps) {
     if (currentUserRole === "admin") {
       return true;
     }
-    if (currentUserRole === "co") {
+    if (currentUserRole === "co-admin") {
       return targetMemberRole === "member";
     }
     return false;
@@ -172,10 +172,10 @@ function MemberCard({ member, currentUser, currentUserRole }: MemberCardProps) {
           },
           {
             label: "Promote to Co-Admin",
-            action: () => handleRoleChange("co"),
+            action: () => handleRoleChange("co-admin"),
           },
         ];
-      } else if (member.role === "co") {
+      } else if (member.role === "co-admin") {
         actions = [
           {
             label: "Promote to Admin",
@@ -192,7 +192,7 @@ function MemberCard({ member, currentUser, currentUserRole }: MemberCardProps) {
         action: handleKickMember,
         danger: true,
       });
-    } else if (currentUserRole === "co") {
+    } else if (currentUserRole === "co-admin") {
       // Co-admins can only kick members
       if (member.role === "member") {
         actions = [
