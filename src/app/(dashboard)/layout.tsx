@@ -24,20 +24,20 @@ function RootLayout({ children }: { children: React.ReactNode }) {
         setIsRedirecting(true);
         router.push("/sign-in");
       } else if (workspace?.workspace_id) {
-        // User HAS a workspace - redirect to it ONLY if not already there
-        if (!pathname.startsWith(`/workspace/${workspace.workspace_id}`)) {
+        // User HAS a workspace - only redirect from get-started, allow profile
+        if (pathname === "/get-started") {
           setIsRedirecting(true);
           router.push(`/workspace/${workspace.workspace_id}/tasks`);
         } else {
-          setIsRedirecting(false); // Reset if already at correct workspace
+          setIsRedirecting(false);
         }
       } else {
-        // User has NO workspace - redirect to get-started ONLY if not already there
-        if (pathname !== "/get-started") {
+        // User has NO workspace - redirect to get-started ONLY if not already there or on profile
+        if (pathname !== "/get-started" && pathname !== "/profile") {
           setIsRedirecting(true);
           router.push("/get-started");
         } else {
-          setIsRedirecting(false); // Reset if already at get-started
+          setIsRedirecting(false);
         }
       }
     }
