@@ -84,4 +84,50 @@ function useUserWorkspace(isAuthenticated: boolean) {
   });
 }
 
-export { useJoinWorkspace, useCreateWorkspace, useUserWorkspace };
+function useWorkspaceMembers(workspaceId: string) {
+  return useQuery({
+    queryKey: ["workspaceMembers", workspaceId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("workspace_members_with_profile")
+        .select("*")
+        .eq("workspace_id", workspaceId);
+
+      if (error) throw error;
+      return data;
+    },
+  });
+}
+
+function useWorkspaceRole(workspaceId: string) {
+  return useQuery({
+    queryKey: ["workspaceRole", workspaceId],
+    queryFn: async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        throw new Error("User is not authenticated");
+      }
+
+      const { data, error } = await supabase
+        .from("workspace_members")
+        .select("role")
+        .eq("workspace_id", workspaceId)
+        .eq("user_id", user.id)
+        .single();
+
+      if (error) throw error;
+      return data?.role;
+    },
+  });
+}
+
+export {
+  useJoinWorkspace,
+  useCreateWorkspace,
+  useUserWorkspace,
+  useWorkspaceMembers,
+  useWorkspaceRole,
+};

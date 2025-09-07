@@ -1,6 +1,6 @@
 "use client";
 import supabase from "@/lib/supabase";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -99,4 +99,23 @@ function useSession() {
   };
 }
 
-export { useRegister, useLogin, useLogout, useSession };
+function useProfile() {
+  return useQuery({
+    queryKey: ["profile"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .single();
+
+      if (error) {
+        console.log(error);
+        throw new Error(error.message);
+      }
+
+      return data;
+    },
+  });
+}
+
+export { useRegister, useLogin, useLogout, useSession, useProfile };
