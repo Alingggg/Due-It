@@ -14,13 +14,12 @@ const authFields = {
       error: "Must include upper & lowercase letters, a number, and a symbol",
     }),
   name: z
-    .string()
-    .min(2, "Name must be at least 2 characters")
-    .max(32, "Name must be at most 32 characters")
-    .regex(
-      /^[\p{L}\s'-]+$/u,
-      "Name can only contain letters, spaces, hyphens, and apostrophes"
-    ),
+    .string({ error: "Name must be a string" })
+    .min(2, { error: "Name must be at least 2 characters" })
+    .max(32, { error: "Name must be at most 32 characters" })
+    .regex(/^[\p{L}\s'-]+$/u, {
+      error: "Name can only contain letters, spaces, hyphens, and apostrophes",
+    }),
 };
 
 const registerSchema = z
