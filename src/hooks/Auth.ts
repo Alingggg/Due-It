@@ -1,6 +1,6 @@
 "use client";
 import supabase from "@/lib/supabase";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -118,4 +118,51 @@ function useProfile() {
   });
 }
 
-export { useRegister, useLogin, useLogout, useSession, useProfile };
+function useUpdateProfile() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (profileData: {
+      firstName: string;
+      lastName: string;
+    }) => {
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
+
+      if (userError || !user) {
+        throw new Error("User not authenticated");
+      }
+
+      const { data, error } = await supabase
+        .from("profiles")
+        .update({
+          first_name: profileData.firstName,
+          last_name: profileData.lastName,
+        })
+        .eq("id", user.id)
+        .select()
+        .single();
+
+      if (error) {
+        console.log(error);
+        throw new Error(error.message);
+      }
+
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
+    },
+  });
+}
+
+export {
+  useRegister,
+  useLogin,
+  useLogout,
+  useSession,
+  useProfile,
+  useUpdateProfile,
+};

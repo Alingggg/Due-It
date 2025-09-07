@@ -1,54 +1,87 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LogOut, ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useLogout } from "@/hooks/Auth";
+import {
+  useLogout,
+  useProfile,
+  useUpdateProfile,
+  useSession,
+} from "@/hooks/Auth";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { ProfileSchema } from "@/zod-schema/Profile";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+type ProfileForm = z.infer<typeof ProfileSchema>;
 
 function ProfilePage() {
-  const [userData, setUserData] = useState({
-    firstName: "John",
-    lastName: "Doe",
-    email: "john.doe@example.com",
-  });
-
   const [isEditing, setIsEditing] = useState(false);
-  const [editedData, setEditedData] = useState(userData);
-  const [isSaving, setIsSaving] = useState(false);
+  const { user } = useSession();
+  const { data: profileData, isSuccess: profileFetched } = useProfile();
+  const { mutate: updateProfile, isPending: isUpdatingProfile } =
+    useUpdateProfile();
   const { mutate: logout } = useLogout();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    watch,
+  } = useForm<ProfileForm>({
+    resolver: zodResolver(ProfileSchema),
+    defaultValues: {
+      firstName: "First name",
+      lastName: "Last name",
+    },
+  });
 
   const router = useRouter();
 
-  const handleEdit = () => {
-    setIsEditing(true);
-    setEditedData(userData);
-  };
+  // Watch form values for display
+  const formValues = watch();
 
-  const handleCancel = () => {
-    setIsEditing(false);
-    setEditedData(userData);
-  };
-
-  const handleSave = async () => {
-    setIsSaving(true);
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Update user data
-      setUserData(editedData);
-      setIsEditing(false);
-
-      // You would make your actual API call here
-      console.log("Saving user data:", editedData);
-    } catch (error) {
-      console.error("Error saving user data:", error);
-    } finally {
-      setIsSaving(false);
+  useEffect(() => {
+    if (profileFetched && profileData) {
+      const profileValues = {
+        firstName: profileData.first_name || "First name",
+        lastName: profileData.last_name || "Last name",
+      };
+      reset(profileValues);
     }
-  };
+  }, [profileFetched, profileData, reset]);
+
+  function handleEdit() {
+    setIsEditing(true);
+  }
+
+  function handleCancel() {
+    setIsEditing(false);
+    if (profileData) {
+      reset({
+        firstName: profileData.first_name || "First name",
+        lastName: profileData.last_name || "Last name",
+      });
+    }
+  }
+
+  function onSubmit(data: ProfileForm) {
+    updateProfile(
+      {
+        firstName: data.firstName,
+        lastName: data.lastName,
+      },
+      {
+        onSuccess: () => {
+          setIsEditing(false);
+        },
+      }
+    );
+  }
 
   return (
     <div className="max-w-2xl mx-auto space-y-6 sm:space-y-8 px-2 sm:px-0 pt-6 sm:pt-8">
@@ -82,12 +115,15 @@ function ProfilePage() {
           )}
         </div>
 
-        <div className="space-y-4 sm:space-y-6">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-4 sm:space-y-6"
+        >
           {/* Profile Avatar Placeholder */}
           <div className="flex items-center space-x-4">
             <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-white text-xl font-medium">
-              {userData.firstName[0]}
-              {userData.lastName[0]}
+              {formValues.firstName?.[0] || "F"}
+              {formValues.lastName?.[0] || "L"}
             </div>
             <div className="text-sm text-slate-600">
               Profile picture coming soon
@@ -103,19 +139,23 @@ function ProfilePage() {
               First Name
             </Label>
             {isEditing ? (
-              <Input
-                id="firstName"
-                type="text"
-                value={editedData.firstName}
-                onChange={(e) =>
-                  setEditedData({ ...editedData, firstName: e.target.value })
-                }
-                placeholder="Enter your first name"
-                className="w-full"
-              />
+              <div className="space-y-2">
+                <Input
+                  {...register("firstName")}
+                  id="firstName"
+                  type="text"
+                  placeholder="Enter your first name"
+                  className="w-full"
+                />
+                {errors.firstName && (
+                  <p className="text-red-500 text-xs">
+                    {errors.firstName.message}
+                  </p>
+                )}
+              </div>
             ) : (
               <div className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-md text-slate-900">
-                {userData.firstName}
+                {formValues.firstName}
               </div>
             )}
           </div>
@@ -129,19 +169,23 @@ function ProfilePage() {
               Last Name
             </Label>
             {isEditing ? (
-              <Input
-                id="lastName"
-                type="text"
-                value={editedData.lastName}
-                onChange={(e) =>
-                  setEditedData({ ...editedData, lastName: e.target.value })
-                }
-                placeholder="Enter your last name"
-                className="w-full"
-              />
+              <div className="space-y-2">
+                <Input
+                  {...register("lastName")}
+                  id="lastName"
+                  type="text"
+                  placeholder="Enter your last name"
+                  className="w-full"
+                />
+                {errors.lastName && (
+                  <p className="text-red-500 text-xs">
+                    {errors.lastName.message}
+                  </p>
+                )}
+              </div>
             ) : (
               <div className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-md text-slate-900">
-                {userData.lastName}
+                {formValues.lastName}
               </div>
             )}
           </div>
@@ -152,7 +196,7 @@ function ProfilePage() {
               Email Address
             </Label>
             <div className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-md text-slate-600">
-              {userData.email}
+              {user?.email}
             </div>
             <p className="text-xs text-slate-500">
               Contact support to change your email address
@@ -165,17 +209,12 @@ function ProfilePage() {
               <Button onClick={handleCancel} variant="outline">
                 Cancel
               </Button>
-              <Button
-                onClick={handleSave}
-                disabled={
-                  isSaving || !editedData.firstName || !editedData.lastName
-                }
-              >
-                {isSaving ? "Saving..." : "Save Changes"}
+              <Button type="submit" disabled={isUpdatingProfile}>
+                {isUpdatingProfile ? "Saving..." : "Save Changes"}
               </Button>
             </div>
           )}
-        </div>
+        </form>
       </div>
 
       {/* Logout Section */}
