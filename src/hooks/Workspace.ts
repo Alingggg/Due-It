@@ -1,7 +1,7 @@
 "use client";
 import supabase from "@/lib/supabase";
 import generateJoinCode from "@/utils/generateJoinCode";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 
 function useJoinWorkspace() {
@@ -49,7 +49,7 @@ function useCreateWorkspace() {
       const code = generateJoinCode();
 
       const { data: workspaceId, error } = await supabase.rpc(
-        "create_workspace_with_member_and_code",
+        "create_workspace_with_member_code_and_default_semester",
         {
           workspace_name: workspaceName,
           invite_code: code,
@@ -124,10 +124,80 @@ function useGetUserWorkspaceRole(workspaceId: string) {
   });
 }
 
+function useGetDefaultSemester() {
+  return useQuery({
+    queryKey: ["defaultSemester"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("default_semester")
+        .select("semester")
+        .single();
+
+      if (error) throw error;
+      return data?.semester;
+    },
+  });
+}
+
+function useUpdateDefaultSemester() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      workspaceId,
+      semester,
+    }: {
+      workspaceId: string;
+      semester: 1 | 2;
+    }) => {
+      const { error } = await supabase
+        .from("default_semester")
+        .update({ semester })
+        .eq("workspace_id", workspaceId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["defaultSemester"] });
+    },
+    onError: (error: any) => {
+      console.log("Error changing default semester:", error);
+    },
+  });
+}
+
+function useDeleteWorkspace() {
+  const queryClient = useQueryClient();
+  const router = useRouter();
+
+  return useMutation({
+    mutationFn: async (workspaceId: string) => {
+      const { error } = await supabase
+        .from("workspaces")
+        .delete()
+        .eq("id", workspaceId);
+
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        predicate: (query) => query.queryKey[0] !== "profile",
+      });
+      router.push("/get-started");
+    },
+    onError: (error: any) => {
+      console.log("Error deleting workspace:", error);
+    },
+  });
+}
+
 export {
   useJoinWorkspace,
   useCreateWorkspace,
   useGetUserWorkspace,
   useGetWorkspaceMembers,
   useGetUserWorkspaceRole,
+  useGetDefaultSemester,
+  useUpdateDefaultSemester,
+  useDeleteWorkspace,
 };

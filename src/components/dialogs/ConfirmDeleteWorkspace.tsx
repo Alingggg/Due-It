@@ -1,5 +1,4 @@
 "use client";
-import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -12,6 +11,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { useDeleteWorkspace, useGetUserWorkspace } from "@/hooks/Workspace";
+import { useForm } from "react-hook-form";
 
 interface ConfirmDeleteWorkspaceProps {
   onClose: () => void;
@@ -22,14 +23,23 @@ function ConfirmDeleteWorkspace({
   onClose,
   workspaceName,
 }: ConfirmDeleteWorkspaceProps) {
-  const [inputValue, setInputValue] = useState("");
+  const { data: workspace } = useGetUserWorkspace();
+  const { register, watch } = useForm({
+    defaultValues: { workspaceName, confirmWorkspaceName: "" },
+  });
+  const { mutate: deleteWorkspace, isPending: isDeletingWorkspace } =
+    useDeleteWorkspace();
 
-  const isDeleteEnabled = inputValue === workspaceName;
+  const inputWorkspace = watch("confirmWorkspaceName");
+  const isDeleteEnabled = workspaceName === inputWorkspace;
 
   function handleDeleteWorkspace() {
-    if (isDeleteEnabled) {
-      console.log("Deleting workspace...");
-      onClose();
+    if (workspace?.id) {
+      deleteWorkspace(workspace.id, {
+        onSuccess: () => {
+          onClose();
+        },
+      });
     }
   }
 
@@ -58,7 +68,7 @@ function ConfirmDeleteWorkspace({
             This action cannot be undone.
           </div>
 
-          <div className="space-y-3 pt-2">
+          <form className="space-y-3 pt-2">
             <div className="space-y-2">
               <Label
                 htmlFor="workspace-name-input"
@@ -71,23 +81,27 @@ function ConfirmDeleteWorkspace({
               </div>
             </div>
             <Input
+              {...register("confirmWorkspaceName")}
               id="workspace-name-input"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
               placeholder="Enter workspace name"
               autoComplete="off"
+              disabled={isDeletingWorkspace}
             />
-          </div>
+          </form>
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
+          <Button
+            variant="outline"
+            onClick={onClose}
+            disabled={isDeletingWorkspace}
+          >
             Cancel
           </Button>
           <Button
             variant="destructive"
             onClick={handleDeleteWorkspace}
-            disabled={!isDeleteEnabled}
+            disabled={!isDeleteEnabled || isDeletingWorkspace}
             className={cn(!isDeleteEnabled && "opacity-50 cursor-not-allowed")}
           >
             Delete Workspace

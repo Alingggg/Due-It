@@ -1,10 +1,5 @@
 "use client";
 import { useState } from "react";
-import {
-  getInviteCodeByWorkspaceId,
-  getCurrentUserRole,
-  mockInviteCodes,
-} from "@/data/mockData";
 import { Check, Copy, RefreshCcw, UserMinus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -15,91 +10,70 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useParams } from "next/navigation";
 import useDialogContext from "@/hooks/Dialog";
+import {
+  useUpdateDefaultSemester,
+  useGetDefaultSemester,
+  useGetUserWorkspaceRole,
+  useGetUserWorkspace,
+} from "@/hooks/Workspace";
+import { useUpdateCodeStatus, useGetCode, useRenewCode } from "@/hooks/Code";
+import LoadingPage from "@/components/LoadingPage";
 
-const generateNewInviteCode = (): string => {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  const prefix = "INV2025-";
-  let result = prefix;
-  for (let i = 0; i < 6; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return result;
-};
-
-const semesterOptions = [
+const SEMESTER_OPTIONS = [
   { value: 1, label: "1" },
   { value: 2, label: "2" },
 ];
 
 function WorkspaceSettingsPage() {
-  const { workspaceId } = useParams<{ workspaceId: string }>();
-  const [inviteCode, setInviteCode] = useState(
-    getInviteCodeByWorkspaceId(workspaceId)
-  );
+  const { data: workspace, isLoading: isWorkspaceLoading } =
+    useGetUserWorkspace();
+  const workspaceId = workspace?.id || "";
+  const { data: codeData, isLoading: isCodeLoading } = useGetCode();
   const [copied, setCopied] = useState(false);
-  const [defaultSemester, setDefaultSemester] = useState<1 | 2>(1);
+  const { data: defaultSemester, isLoading: isDefaultSemesterLoading } =
+    useGetDefaultSemester();
+  const { data: currentUserRole, isLoading: isCurrentUserRoleLoading } =
+    useGetUserWorkspaceRole(workspaceId);
+  const { mutate: renewCode, isPending: isRenewing } = useRenewCode();
+  const { mutate: updateCodeStatus, isPending: isUpdatingCodeStatus } =
+    useUpdateCodeStatus();
+  const {
+    mutate: updateDefaultSemester,
+    isPending: isUpdatingDefaultSemester,
+  } = useUpdateDefaultSemester();
   const { openDialog, closeDialog } = useDialogContext();
+  const isAdmin = currentUserRole === "admin";
+  const isPageLoading =
+    isWorkspaceLoading ||
+    isCodeLoading ||
+    isDefaultSemesterLoading ||
+    isCurrentUserRoleLoading;
 
-  // Get current values each render to handle temporary role changes
-  const userRole = getCurrentUserRole(workspaceId);
-  const isAdmin = userRole === "admin";
-
-  // Handle copying invite code
-  const handleCopyCode = async () => {
-    if (inviteCode?.code) {
-      await navigator.clipboard.writeText(inviteCode.code);
+  function handleCopyCode() {
+    if (codeData?.code) {
+      navigator.clipboard.writeText(codeData.code);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
-  };
+  }
 
-  // Handle enabling/disabling invite code
-  const handleToggleInviteCode = () => {
-    if (inviteCode && isAdmin) {
-      const updatedCode = {
-        ...inviteCode,
-        enabled: !inviteCode.enabled,
-        updatedAt: new Date().toISOString(),
-      };
-      setInviteCode(updatedCode);
+  function handleToggleInviteCode() {
+    updateCodeStatus({ workspaceId, enable: !codeData?.enabled });
+  }
 
-      // Update mock data
-      const index = mockInviteCodes.findIndex(
-        (code) => code.id === inviteCode.id
-      );
-      if (index !== -1) {
-        mockInviteCodes[index] = updatedCode;
-      }
-    }
-  };
+  function handleRenewCode() {
+    renewCode(workspaceId);
+  }
 
-  // Handle renewing invite code
-  const handleRenewCode = () => {
-    if (inviteCode && isAdmin) {
-      const newCode = generateNewInviteCode();
-      const updatedCode = {
-        ...inviteCode,
-        code: newCode,
-        updatedAt: new Date().toISOString(),
-      };
-      setInviteCode(updatedCode);
-
-      // Update mock data
-      const index = mockInviteCodes.findIndex(
-        (code) => code.id === inviteCode.id
-      );
-      if (index !== -1) {
-        mockInviteCodes[index] = updatedCode;
-      }
-    }
-  };
-
-  const handleDefaultSemesterChange = (value: string) => {
+  function handleDefaultSemesterChange(value: string) {
     const newSemester = Number(value) as 1 | 2;
-    setDefaultSemester(newSemester);
-  };
+    updateDefaultSemester({ workspaceId, semester: newSemester });
+  }
+
+  if (isPageLoading) {
+    return <LoadingPage message="Loading workspace settings..." />;
+  }
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8 px-2 sm:px-0">
@@ -110,7 +84,7 @@ function WorkspaceSettingsPage() {
       </div>
 
       {/* Invite Code Section - Show to everyone */}
-      {inviteCode && (
+      {codeData && (
         <div className="bg-white rounded-lg border border-slate-200 p-4 sm:p-6">
           <h2 className="text-base sm:text-lg font-semibold text-slate-800 mb-3 sm:mb-4">
             Invite Code
@@ -120,15 +94,11 @@ function WorkspaceSettingsPage() {
             {/* Code Display */}
             <div className="flex items-center justify-between p-2 sm:p-4 bg-slate-50 rounded-lg border">
               <div className="font-mono text-sm sm:text-base break-all">
-                {inviteCode.code}
+                {codeData.code}
               </div>
 
-              <div className="relative">
-                <Button
-                  onClick={handleCopyCode}
-                  variant="ghost"
-                  title={copied ? "Copied!" : "Copy"}
-                >
+              <div className="relative group">
+                <Button onClick={handleCopyCode} variant="ghost">
                   {copied ? (
                     <Check className="w-4 h-4 text-green-600" />
                   ) : (
@@ -136,16 +106,16 @@ function WorkspaceSettingsPage() {
                   )}
                 </Button>
                 {/* Tooltip */}
-                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
                   {copied ? "Copied!" : "Copy"}
                 </div>
               </div>
             </div>
 
             {/* Last Changed - Only show to admins */}
-            {isAdmin && inviteCode.updatedAt && (
+            {isAdmin && codeData?.updated_at && (
               <div className="text-xs text-slate-500">
-                Last changed: {new Date(inviteCode.updatedAt).toLocaleString()}
+                Last changed: {new Date(codeData.updated_at).toLocaleString()}
               </div>
             )}
 
@@ -159,16 +129,16 @@ function WorkspaceSettingsPage() {
                   </span>
                   <span
                     className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-                      inviteCode.enabled
+                      codeData?.enabled
                         ? "bg-green-100 text-green-800"
                         : "bg-red-100 text-red-800"
                     }`}
                   >
-                    {inviteCode.enabled ? "Active" : "Disabled"}
+                    {codeData?.enabled ? "Active" : "Disabled"}
                   </span>
                 </div>
                 {/* Subtle disabled message - directly under status */}
-                {!inviteCode.enabled && (
+                {!codeData?.enabled && (
                   <span className="block text-xs text-slate-500 mt-1">
                     New members cannot join using this code
                   </span>
@@ -182,15 +152,20 @@ function WorkspaceSettingsPage() {
                     onClick={handleToggleInviteCode}
                     variant="outline"
                     className={`${
-                      inviteCode.enabled
+                      codeData?.enabled
                         ? "border-red-600 text-red-600 hover:bg-red-50 hover:text-red-700"
                         : "border-green-600 text-green-600 hover:bg-green-50 hover:text-green-700"
                     }`}
+                    disabled={isUpdatingCodeStatus}
                   >
-                    {inviteCode.enabled ? "Disable" : "Enable"}
+                    {codeData?.enabled ? "Disable" : "Enable"}
                   </Button>
 
-                  <Button onClick={handleRenewCode} variant="outline">
+                  <Button
+                    onClick={handleRenewCode}
+                    variant="outline"
+                    disabled={isRenewing}
+                  >
                     <RefreshCcw className="w-3.5 h-3.5" />
                     Renew
                   </Button>
@@ -222,14 +197,18 @@ function WorkspaceSettingsPage() {
                 Default:
               </Label>
               <Select
-                value={defaultSemester.toString()}
+                value={defaultSemester?.toString()}
                 onValueChange={handleDefaultSemesterChange}
               >
-                <SelectTrigger id="default-semester" className="w-24">
+                <SelectTrigger
+                  id="default-semester"
+                  className="w-24"
+                  disabled={isUpdatingDefaultSemester}
+                >
                   <SelectValue placeholder="Select" />
                 </SelectTrigger>
                 <SelectContent>
-                  {semesterOptions.map((option) => (
+                  {SEMESTER_OPTIONS.map((option) => (
                     <SelectItem
                       key={option.value}
                       value={option.value.toString()}
@@ -245,7 +224,7 @@ function WorkspaceSettingsPage() {
       )}
 
       {/* Leave Workspace Section - Only for non-admin members */}
-      {userRole !== "admin" && (
+      {currentUserRole !== "admin" && (
         <div className="bg-white rounded-lg border border-slate-200 p-4 sm:p-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div className="flex-1 pr-0 sm:pr-6">
@@ -297,7 +276,7 @@ function WorkspaceSettingsPage() {
             <Button
               onClick={() =>
                 openDialog("CONFIRM_DELETE_WORKSPACE", {
-                  workspaceName: "Placeholder Workspace Name",
+                  workspaceName: workspace?.name,
                 })
               }
               variant="destructive"
