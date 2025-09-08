@@ -67,7 +67,7 @@ function useCreateWorkspace() {
   });
 }
 
-function useGetUserWorkspace(isAuthenticated: boolean) {
+function useGetUserWorkspace(isAuthenticated: boolean = true) {
   return useQuery({
     queryKey: ["userWorkspace"],
     queryFn: async () => {
