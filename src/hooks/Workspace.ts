@@ -1,5 +1,7 @@
 "use client";
 import supabase from "@/lib/supabase";
+import { WorkspaceMemberWithProfile } from "@/types/Member";
+import { toCamelCase } from "@/utils/caseConversion";
 import generateJoinCode from "@/utils/generateJoinCode";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
@@ -94,8 +96,9 @@ function useGetWorkspaceMembers(workspaceId: string) {
         .eq("workspace_id", workspaceId);
 
       if (error) throw error;
-      return data;
+      return data.map<WorkspaceMemberWithProfile>(toCamelCase);
     },
+    enabled: !!workspaceId,
   });
 }
 
@@ -121,6 +124,7 @@ function useGetUserWorkspaceRole(workspaceId: string) {
       if (error) throw error;
       return data?.role;
     },
+    enabled: !!workspaceId,
   });
 }
 

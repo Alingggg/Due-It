@@ -26,11 +26,11 @@ const SEMESTER_OPTIONS = [
 ];
 
 function WorkspaceSettingsPage() {
+  const [copied, setCopied] = useState(false);
   const { data: workspace, isLoading: isWorkspaceLoading } =
     useGetUserWorkspace();
-  const workspaceId = workspace?.id || "";
+  const workspaceId = workspace?.id as string;
   const { data: codeData, isLoading: isCodeLoading } = useGetCode();
-  const [copied, setCopied] = useState(false);
   const { data: defaultSemester, isLoading: isDefaultSemesterLoading } =
     useGetDefaultSemester();
   const { data: currentUserRole, isLoading: isCurrentUserRoleLoading } =
@@ -113,9 +113,9 @@ function WorkspaceSettingsPage() {
             </div>
 
             {/* Last Changed - Only show to admins */}
-            {isAdmin && codeData?.updated_at && (
+            {isAdmin && codeData?.updatedAt && (
               <div className="text-xs text-slate-500">
-                Last changed: {new Date(codeData.updated_at).toLocaleString()}
+                Last changed: {new Date(codeData.updatedAt).toLocaleString()}
               </div>
             )}
 

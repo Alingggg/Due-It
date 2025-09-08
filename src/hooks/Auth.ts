@@ -1,5 +1,7 @@
 "use client";
 import supabase from "@/lib/supabase";
+import { Profile } from "@/types/Profile";
+import { toCamelCase, toSnakeCase } from "@/utils/caseConversion";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -23,8 +25,8 @@ function useRegister() {
         options: {
           emailRedirectTo: `${process.env.NEXT_PUBLIC_FRONTEND_URL}/sign-in`,
           data: {
-            firstName,
-            lastName,
+            first_name: firstName,
+            last_name: lastName,
           },
         },
       });
@@ -95,7 +97,7 @@ function useGetSession() {
   return {
     isAuthenticated: !!session,
     isLoading,
-    user: session?.user || null,
+    user: session?.user,
   };
 }
 
@@ -113,7 +115,7 @@ function useGetProfile() {
         throw new Error(error.message);
       }
 
-      return data;
+      return toCamelCase<Profile>(data);
     },
   });
 }
@@ -126,6 +128,8 @@ function useUpdateProfile() {
       firstName: string;
       lastName: string;
     }) => {
+      const snakeCaseData = toSnakeCase(profileData);
+
       const {
         data: { user },
         error: userError,
@@ -135,22 +139,16 @@ function useUpdateProfile() {
         throw new Error("User not authenticated");
       }
 
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from("profiles")
-        .update({
-          first_name: profileData.firstName,
-          last_name: profileData.lastName,
-        })
+        .update(snakeCaseData)
         .eq("id", user.id)
-        .select()
         .single();
 
       if (error) {
         console.log(error);
         throw new Error(error.message);
       }
-
-      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["profile"] });

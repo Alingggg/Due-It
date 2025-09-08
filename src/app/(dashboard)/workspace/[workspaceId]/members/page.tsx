@@ -1,25 +1,33 @@
 "use client";
 import MemberCard from "@/components/MemberCard";
-import { useQueryClient } from "@tanstack/react-query";
 import {
   useGetWorkspaceMembers,
   useGetUserWorkspaceRole,
+  useGetUserWorkspace,
 } from "@/hooks/Workspace";
 import LoadingPage from "@/components/LoadingPage";
 import { useGetProfile } from "@/hooks/Auth";
+import { Database } from "@/types/supabase";
+
+type Roles = Database["public"]["Enums"]["workspace_role"];
 
 function MembersPage() {
-  const queryClient = useQueryClient();
-  const workspace = queryClient.getQueryData<any>(["userWorkspace"]);
-  const { data: members, isLoading } = useGetWorkspaceMembers(
-    workspace?.id || ""
-  );
-  const { data: currentUser } = useGetProfile();
-  const { data: currentUserRole } = useGetUserWorkspaceRole(
-    workspace?.id || ""
-  );
+  const { data: workspace, isLoading: isLoadingWorkspace } =
+    useGetUserWorkspace();
+  const workspaceId = workspace?.id as string;
+  const { data: members, isLoading: isLoadingMembers } =
+    useGetWorkspaceMembers(workspaceId);
+  const { data: currentUser, isLoading: isLoadingCurrentUser } =
+    useGetProfile();
+  const { data: currentUserRole, isLoading: isLoadingCurrentUserRole } =
+    useGetUserWorkspaceRole(workspaceId);
 
-  if (isLoading) {
+  if (
+    isLoadingWorkspace ||
+    isLoadingMembers ||
+    isLoadingCurrentUser ||
+    isLoadingCurrentUserRole
+  ) {
     return <LoadingPage message="Loading members..." />;
   }
 
@@ -33,23 +41,15 @@ function MembersPage() {
 
       {/* Members List */}
       <div className="space-y-4">
-        {members?.map((member) =>
-          currentUser ? (
+        {currentUser &&
+          members?.map((member) => (
             <MemberCard
-              key={member.user_id}
+              key={member.userId}
               member={member}
               currentUser={currentUser}
-              currentUserRole={
-                currentUserRole as
-                  | "admin"
-                  | "co-admin"
-                  | "member"
-                  | null
-                  | undefined
-              }
+              currentUserRole={currentUserRole as Roles}
             />
-          ) : null
-        )}
+          ))}
       </div>
     </div>
   );

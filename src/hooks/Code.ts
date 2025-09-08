@@ -1,4 +1,6 @@
 import supabase from "@/lib/supabase";
+import { Code } from "@/types/Code";
+import { toCamelCase } from "@/utils/caseConversion";
 import generateJoinCode from "@/utils/generateJoinCode";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -12,7 +14,7 @@ function useGetCode() {
         throw new Error(error.message);
       }
 
-      return data;
+      return toCamelCase<Code>(data);
     },
   });
 }
@@ -23,7 +25,7 @@ function useRenewCode() {
   return useMutation({
     mutationFn: async (workspaceId: string) => {
       const newCode = generateJoinCode();
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from("codes")
         .update({ code: newCode, updated_at: new Date().toISOString() })
         .eq("workspace_id", workspaceId);
@@ -31,8 +33,6 @@ function useRenewCode() {
       if (error) {
         throw new Error(error.message);
       }
-
-      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["workspaceCode"] });
@@ -54,7 +54,7 @@ function useUpdateCodeStatus() {
       workspaceId: string;
       enable: boolean;
     }) => {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from("codes")
         .update({ enabled: enable })
         .eq("workspace_id", workspaceId);
@@ -62,8 +62,6 @@ function useUpdateCodeStatus() {
       if (error) {
         throw new Error(error.message);
       }
-
-      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["workspaceCode"] });

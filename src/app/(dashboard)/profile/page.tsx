@@ -15,17 +15,21 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { ProfileSchema } from "@/zod-schema/Profile";
 import { zodResolver } from "@hookform/resolvers/zod";
+import LoadingPage from "@/components/LoadingPage";
 
 type ProfileForm = z.infer<typeof ProfileSchema>;
 
 function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
-  const { user } = useGetSession();
-  const { data: profileData, isSuccess: profileFetched } = useGetProfile();
+  const { user, isLoading: isLoadingUser } = useGetSession();
+  const {
+    data: profileData,
+    isLoading: isProfileLoading,
+    isSuccess: profileFetched,
+  } = useGetProfile();
   const { mutate: updateProfile, isPending: isUpdatingProfile } =
     useUpdateProfile();
   const { mutate: logout } = useLogout();
-
   const {
     register,
     handleSubmit,
@@ -34,10 +38,6 @@ function ProfilePage() {
     watch,
   } = useForm<ProfileForm>({
     resolver: zodResolver(ProfileSchema),
-    defaultValues: {
-      firstName: "First name",
-      lastName: "Last name",
-    },
   });
 
   const router = useRouter();
@@ -48,8 +48,8 @@ function ProfilePage() {
   useEffect(() => {
     if (profileFetched && profileData) {
       const profileValues = {
-        firstName: profileData.first_name || "First name",
-        lastName: profileData.last_name || "Last name",
+        firstName: profileData.firstName,
+        lastName: profileData.lastName,
       };
       reset(profileValues);
     }
@@ -63,24 +63,22 @@ function ProfilePage() {
     setIsEditing(false);
     if (profileData) {
       reset({
-        firstName: profileData.first_name || "First name",
-        lastName: profileData.last_name || "Last name",
+        firstName: profileData.firstName,
+        lastName: profileData.lastName,
       });
     }
   }
 
   function onSubmit(data: ProfileForm) {
-    updateProfile(
-      {
-        firstName: data.firstName,
-        lastName: data.lastName,
+    updateProfile(data, {
+      onSuccess: () => {
+        setIsEditing(false);
       },
-      {
-        onSuccess: () => {
-          setIsEditing(false);
-        },
-      }
-    );
+    });
+  }
+
+  if (isProfileLoading || isLoadingUser) {
+    return <LoadingPage message="Loading profile..." />;
   }
 
   return (

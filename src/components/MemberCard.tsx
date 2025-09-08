@@ -10,24 +10,23 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { Profile } from "@/types/Profile";
+import { WorkspaceMemberWithProfile } from "@/types/Member";
 import { Database } from "@/types/supabase";
 
-type WorkspaceMemberWithProfile =
-  Database["public"]["Views"]["workspace_members_with_profile"]["Row"];
-type Profile = Database["public"]["Tables"]["profiles"]["Row"];
-type Roles = "admin" | "co-admin" | "member";
+type Roles = Database["public"]["Enums"]["workspace_role"];
 
 interface MemberCardProps {
   member: WorkspaceMemberWithProfile;
   currentUser: Profile;
-  currentUserRole: Roles | null | undefined;
+  currentUserRole: Roles;
 }
 
 function MemberCard({ member, currentUser, currentUserRole }: MemberCardProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { openDialog, closeDialog } = useDialogContext();
 
-  const getRoleInfo = (role: string | null) => {
+  function getRoleInfo(role: string) {
     switch (role) {
       case "admin":
         return {
@@ -54,19 +53,17 @@ function MemberCard({ member, currentUser, currentUserRole }: MemberCardProps) {
           color: "text-slate-600 bg-slate-50",
         };
     }
-  };
+  }
 
-  const getInitials = (firstName: string | null, lastName: string | null) => {
-    return `${firstName?.charAt(0) ?? ""}${
-      lastName?.charAt(0) ?? ""
-    }`.toUpperCase();
-  };
+  function getInitials(firstName: string, lastName: string) {
+    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+  }
 
-  const handleRoleChange = (newRole: string) => {
+  function handleRoleChange(newRole: string) {
     const action = newRole === "member" ? "demote" : "promote";
-    const memberName = `${member.first_name} ${member.last_name}`;
+    const memberName = `${member.firstName} ${member.lastName}`;
 
-    const getActionDetails = () => {
+    function getActionDetails() {
       switch (action) {
         case "promote":
           if (newRole === "admin") {
@@ -100,14 +97,14 @@ function MemberCard({ member, currentUser, currentUserRole }: MemberCardProps) {
             buttonVariant: "default",
           };
       }
-    };
+    }
 
     const actionDetails = getActionDetails();
 
-    const handleAction = () => {
+    function handleAction() {
       console.log(`Changing role of ${memberName} to ${newRole}`);
       closeDialog();
-    };
+    }
 
     openDialog("CONFIRM_ACTION", {
       title: actionDetails?.title,
@@ -116,15 +113,15 @@ function MemberCard({ member, currentUser, currentUserRole }: MemberCardProps) {
       actionButtonText: actionDetails?.buttonText,
       handleAction,
     });
-  };
+  }
 
-  const handleKickMember = () => {
-    const memberName = `${member.first_name} ${member.last_name}`;
+  function handleKickMember() {
+    const memberName = `${member.firstName} ${member.lastName}`;
 
-    const handleAction = () => {
+    function handleAction() {
       console.log(`Kicking member ${memberName}`);
       closeDialog();
-    };
+    }
 
     openDialog("CONFIRM_ACTION", {
       title: "Kick Member",
@@ -133,12 +130,9 @@ function MemberCard({ member, currentUser, currentUserRole }: MemberCardProps) {
       actionButtonText: "Kick Member",
       handleAction,
     });
-  };
+  }
 
-  const canManageMember = (
-    targetMemberRole: string | null,
-    currentUserRole: string | null
-  ) => {
+  function canManageMember(targetMemberRole: string, currentUserRole: string) {
     if (currentUserRole === "admin") {
       return true;
     }
@@ -146,9 +140,9 @@ function MemberCard({ member, currentUser, currentUserRole }: MemberCardProps) {
       return targetMemberRole === "member";
     }
     return false;
-  };
+  }
 
-  const getAvailableActions = (currentUserRole: string) => {
+  function getAvailableActions(currentUserRole: string) {
     let actions: {
       label: string;
       action: () => void;
@@ -157,7 +151,7 @@ function MemberCard({ member, currentUser, currentUserRole }: MemberCardProps) {
 
     if (
       !canManageMember(member.role, currentUserRole) ||
-      member.user_id === currentUser?.id
+      member.userId === currentUser?.id
     ) {
       return actions;
     }
@@ -206,12 +200,12 @@ function MemberCard({ member, currentUser, currentUserRole }: MemberCardProps) {
     }
 
     return actions;
-  };
+  }
 
   const roleInfo = getRoleInfo(member.role);
   const RoleIcon = roleInfo.icon;
-  const initials = getInitials(member.first_name, member.last_name);
-  const availableActions = getAvailableActions(currentUserRole ?? "member");
+  const initials = getInitials(member.firstName, member.lastName);
+  const availableActions = getAvailableActions(currentUserRole);
 
   return (
     <div className="bg-white rounded-lg border border-slate-200 p-3 sm:p-4 hover:shadow-md hover:border-blue-200 transition-all relative">
@@ -225,8 +219,8 @@ function MemberCard({ member, currentUser, currentUserRole }: MemberCardProps) {
           </div>
           <div className="flex-1">
             <h3 className="text-base sm:text-lg font-semibold text-slate-800 mb-0.5 sm:mb-1">
-              {member.first_name} {member.last_name}
-              {member.user_id === currentUser?.id && (
+              {member.firstName} {member.lastName}
+              {member.userId === currentUser?.id && (
                 <span className="text-xs sm:text-sm text-slate-500 ml-1 sm:ml-2">
                   (You)
                 </span>
