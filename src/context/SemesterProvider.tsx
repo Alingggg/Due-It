@@ -1,5 +1,6 @@
 "use client";
-import { createContext, useState } from "react";
+import { useGetDefaultSemester } from "@/hooks/Workspace";
+import { createContext, useEffect, useState } from "react";
 
 type Semester = 1 | 2;
 
@@ -14,6 +15,13 @@ const SemesterContext = createContext<SemesterContextType | undefined>(
 
 function SemesterProvider({ children }: { children: any }) {
   const [semester, setSemester] = useState<Semester>(1);
+  const { data: defaultSemester, isLoading } = useGetDefaultSemester();
+
+  useEffect(() => {
+    if (!isLoading && defaultSemester) {
+      setSemester(defaultSemester as 1 | 2);
+    }
+  }, [isLoading, defaultSemester, setSemester]);
 
   return (
     <SemesterContext.Provider value={{ semester, setSemester }}>

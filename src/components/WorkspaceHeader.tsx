@@ -28,7 +28,7 @@ function WorkspaceHeader({ workspaceName }: { workspaceName: string }) {
     <div className="mb-6 pb-3 border-b border-slate-200">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <h1 className="text-xl sm:text-2xl font-bold text-slate-800">
-          {workspaceName || "Untitled Workspace"}
+          {workspaceName}
         </h1>
 
         <div className="flex items-center space-x-2">
