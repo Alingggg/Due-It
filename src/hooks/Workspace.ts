@@ -77,7 +77,7 @@ function useGetUserWorkspace(isAuthenticated: boolean = true) {
         .maybeSingle();
 
       if (error) throw error;
-      return data?.workspace;
+      return data?.workspace || null;
     },
     enabled: isAuthenticated,
     staleTime: 5 * 60 * 1000, // 5 minutes
