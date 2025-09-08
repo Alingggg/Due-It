@@ -154,6 +154,7 @@ function useUpdateProfile() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["profile"] });
+      queryClient.invalidateQueries({ queryKey: ["workspaceMembers"] });
     },
   });
 }
