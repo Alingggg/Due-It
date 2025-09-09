@@ -84,9 +84,13 @@ function SubjectsPage() {
   }
 
   function renderSubjectsTab() {
+    const sortedSubjects = subjects
+      ? [...subjects].sort((a, b) => a.name.localeCompare(b.name))
+      : [];
+
     return (
       <div className="space-y-4">
-        {subjects?.length === 0 ? (
+        {sortedSubjects.length === 0 ? (
           <div className="text-center py-12">
             <div className="text-slate-400 mb-4">
               <BookOpen className="w-12 h-12 mx-auto" />
@@ -99,7 +103,7 @@ function SubjectsPage() {
             </p>
           </div>
         ) : (
-          subjects?.map((subject) => (
+          sortedSubjects.map((subject) => (
             <SubjectCard
               key={subject.id}
               subject={subject}
