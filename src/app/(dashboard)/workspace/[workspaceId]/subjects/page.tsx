@@ -76,7 +76,7 @@ function SubjectsPage() {
     currentUserRole === "admin" || currentUserRole === "co-admin";
 
   function handleAddSubject() {
-    openDialog("UPSERT_SUBJECT");
+    openDialog("UPSERT_SUBJECT", { semester, workspaceId });
   }
   function handleAddSchedule() {
     openDialog("UPSERT_SCHEDULE", {

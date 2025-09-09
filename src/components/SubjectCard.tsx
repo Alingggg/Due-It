@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Subject } from "@/types/Subject";
 import useDialogContext from "@/hooks/Dialog";
+import { useDeleteSubject } from "@/hooks/Subject";
 
 interface SubjectCardProps {
   subject: Subject;
@@ -16,16 +17,12 @@ interface SubjectCardProps {
 }
 
 function SubjectCard({ subject, canManage }: SubjectCardProps) {
+  const { mutate: deleteSubject } = useDeleteSubject();
   const { openDialog, closeDialog } = useDialogContext();
 
   function handleEdit() {
     openDialog("UPSERT_SUBJECT", {
-      initialData: {
-        id: subject.id,
-        name: subject.name,
-        code: subject.subjectCode,
-        instructor: subject.instructorName,
-      },
+      initialData: subject,
     });
   }
 
@@ -35,7 +32,7 @@ function SubjectCard({ subject, canManage }: SubjectCardProps) {
       description: `Are you sure you want to delete the subject "${subject.name}"?`,
       actionButtonVariant: "destructive",
       actionButtonText: "Delete",
-      handleAction: closeDialog,
+      handleAction: () => deleteSubject(subject.id, { onSuccess: closeDialog }),
     });
   }
 

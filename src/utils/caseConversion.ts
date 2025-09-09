@@ -1,5 +1,5 @@
-function toSnakeCase(obj: Record<string, any>): Record<string, any> {
-  if (!obj || typeof obj !== "object") return obj;
+function toSnakeCase<T = Record<string, any>>(obj: Record<string, any>): T {
+  if (!obj || typeof obj !== "object") return obj as T;
 
   const result: Record<string, any> = {};
 
@@ -11,7 +11,7 @@ function toSnakeCase(obj: Record<string, any>): Record<string, any> {
     result[snakeKey] = value;
   }
 
-  return result;
+  return result as T;
 }
 
 function toCamelCase<T = Record<string, any>>(obj: Record<string, any>): T {
