@@ -1,5 +1,5 @@
 "use client";
-import { use, useContext } from "react";
+import { use } from "react";
 import { notFound, useRouter } from "next/navigation";
 import {
   getMaterialGroupById,
@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import useDialogContext from "@/hooks/Dialog";
-import { SemesterContext } from "@/context/SemesterProvider";
+import useSemesterContext from "@/hooks/Semester";
 
 interface MaterialGroupDetailsPageProps {
   params: Promise<{
@@ -43,8 +43,7 @@ function MaterialGroupDetailsPage({ params }: MaterialGroupDetailsPageProps) {
   const materialGroup = getMaterialGroupById(materialGroupId);
   const materials = getMaterialsByGroupId(materialGroupId);
   const { openDialog, closeDialog } = useDialogContext();
-  const semesterContext = useContext(SemesterContext);
-  const semester = semesterContext?.semester ?? 1;
+  const { semester } = useSemesterContext();
   const subjects = getSubjectsByWorkspaceId(workspaceId, semester);
 
   if (!materialGroup) {

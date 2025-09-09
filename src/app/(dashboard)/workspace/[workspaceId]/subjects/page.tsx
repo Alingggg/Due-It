@@ -1,9 +1,8 @@
 "use client";
-import { useMemo, useState, useContext } from "react";
+import { useMemo, useState } from "react";
 import { BookOpen, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import useDialogContext from "@/hooks/Dialog";
-import { SemesterContext } from "@/context/SemesterProvider";
 import {
   useGetUserWorkspace,
   useGetUserWorkspaceRole,
@@ -15,6 +14,7 @@ import { Database } from "@/types/supabase";
 import LoadingPage from "@/components/LoadingPage";
 import SubjectCard from "@/components/SubjectCard";
 import ScheduleItem from "@/components/ScheduleItem";
+import useSemesterContext from "@/hooks/Semester";
 
 type DaysOfWeek = Database["public"]["Enums"]["day_of_week"];
 
@@ -61,8 +61,7 @@ function SubjectsPage() {
   );
   const { data: workspace } = useGetUserWorkspace();
   const workspaceId = workspace?.id || "";
-  const semesterContext = useContext(SemesterContext);
-  const semester = semesterContext?.semester ?? 1;
+  const { semester } = useSemesterContext();
 
   const { openDialog } = useDialogContext();
   const { data: currentUserRole, isLoading: isLoadingUserRole } =

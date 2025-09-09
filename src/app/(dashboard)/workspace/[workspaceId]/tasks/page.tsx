@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import TaskCard from "@/components/TaskCard";
 import { Button } from "@/components/ui/button";
@@ -24,14 +24,13 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Label } from "@/components/ui/label";
-import { SemesterContext } from "@/context/SemesterProvider";
+import useSemesterContext from "@/hooks/Semester";
 
 function TasksPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { workspaceId } = useParams<{ workspaceId: string }>();
-  const semesterContext = useContext(SemesterContext);
-  const semester = semesterContext?.semester ?? 1;
+  const { semester } = useSemesterContext();
 
   const tasks = getTasksByWorkspaceId(workspaceId, semester);
 

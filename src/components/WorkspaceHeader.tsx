@@ -1,6 +1,4 @@
 "use client";
-import { useContext } from "react";
-import { SemesterContext } from "@/context/SemesterProvider";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -9,6 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import useSemesterContext from "@/hooks/Semester";
 
 const semesterOptions = [
   { value: 1, label: "1" },
@@ -16,13 +15,7 @@ const semesterOptions = [
 ];
 
 function WorkspaceHeader({ workspaceName }: { workspaceName: string }) {
-  const semesterContext = useContext(SemesterContext);
-
-  if (!semesterContext) {
-    throw new Error("WorkspaceHeader must be used within a SemesterProvider");
-  }
-
-  const { semester, setSemester } = semesterContext;
+  const { semester, setSemester } = useSemesterContext();
 
   return (
     <div className="mb-6 pb-3 border-b border-slate-200">
