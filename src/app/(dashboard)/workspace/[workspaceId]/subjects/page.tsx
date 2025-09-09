@@ -34,22 +34,23 @@ function useGroupedSchedules(schedules: SemesterSchedule[]) {
     // grouped: { [day in DaysOfWeek]: Array<{ subjectName: string; time: string; schedule: SemesterSchedule }> }
     const grouped: Record<
       DaysOfWeek,
-      { subjectName: string; time: string; schedule: SemesterSchedule }[]
+      { subjectName: string; schedule: SemesterSchedule }[]
     > = DAYS.reduce((acc, day) => {
       acc[day] = [];
       return acc;
-    }, {} as Record<DaysOfWeek, { subjectName: string; time: string; schedule: SemesterSchedule }[]>);
+    }, {} as Record<DaysOfWeek, { subjectName: string; schedule: SemesterSchedule }[]>);
 
     schedules.forEach((sched) => {
       grouped[sched.dayOfWeek].push({
         subjectName: sched.subjectName,
-        time: sched.timeOfDay,
         schedule: sched,
       });
     });
     // Sort each day's subjects by time
     DAYS.forEach((day) => {
-      grouped[day].sort((a, b) => a.time.localeCompare(b.time));
+      grouped[day].sort((a, b) =>
+        a.schedule.startTime.localeCompare(b.schedule.startTime)
+      );
     });
     return grouped;
   }, [schedules]);
@@ -134,9 +135,8 @@ function SubjectsPage() {
                     key={idx}
                     schedule={sched.schedule}
                     subjectName={sched.subjectName}
-                    time={sched.time}
                     canManage={canManageSubjects}
-                    subjects={subjects}
+                    subjects={subjects ?? []}
                   />
                 ))
               )}

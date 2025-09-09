@@ -36,7 +36,7 @@ function useAddSubject() {
       const snakeCaseData = toSnakeCase(subject) as {
         instructor_name: string;
         name: string;
-        semester: number;
+        semester: 1 | 2;
         subject_code: string;
         workspace_id: string;
       };

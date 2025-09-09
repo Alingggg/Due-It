@@ -11,29 +11,29 @@ import {
 import { SemesterSchedule } from "@/types/Schedule";
 import { Subject } from "@/types/Subject";
 import useDialogContext from "@/hooks/Dialog";
+import { useDeleteSchedule } from "@/hooks/Schedule";
 
 interface ScheduleItemProps {
   schedule: SemesterSchedule;
   subjectName: string;
-  time: string;
   canManage: boolean;
-  subjects: Subject[] | undefined;
+  subjects: Subject[];
 }
 
-// Helper to format "HH:mm" to "h:mm AM/PM"
+// Helper to format "HH:mm:ss" to "h:mm AM/PM"
 function formatTime12h(time: string) {
-  const parsed = parse(time, "HH:mm", new Date());
+  const parsed = parse(time, "HH:mm:ss", new Date());
   return format(parsed, "h:mm a");
 }
 
 function ScheduleItem({
   schedule,
   subjectName,
-  time,
   canManage,
   subjects,
 }: ScheduleItemProps) {
   const { openDialog, closeDialog } = useDialogContext();
+  const { mutate: deleteSchedule } = useDeleteSchedule();
 
   function handleEdit() {
     openDialog("UPSERT_SCHEDULE", {
@@ -42,7 +42,8 @@ function ScheduleItem({
         id: schedule.id,
         subjectId: schedule.subjectId,
         dayOfWeek: schedule.dayOfWeek,
-        timeOfDay: schedule.timeOfDay,
+        startTime: schedule.startTime,
+        endTime: schedule.endTime,
       },
     });
   }
@@ -53,17 +54,23 @@ function ScheduleItem({
       description: `Are you sure you want to delete the schedule for "${subjectName}"?`,
       actionButtonVariant: "destructive",
       actionButtonText: "Delete",
-      handleAction: closeDialog,
+      handleAction: () =>
+        deleteSchedule(schedule.id, { onSuccess: closeDialog }),
     });
   }
 
   return (
     <div className="flex items-center justify-between py-1">
       <div className="flex items-center gap-3">
-        <span className="font-mono text-sm text-slate-600 min-w-[60px]">
-          {formatTime12h(time)}
+        <span className="font-mono text-xs sm:text-sm text-slate-600 min-w-[110px] tracking-tighter">
+          {formatTime12h(schedule.startTime)} -{" "}
+          {formatTime12h(schedule.endTime)}
         </span>
-        <span className="text-slate-800">{subjectName}</span>
+        {/* Separator - only show on desktop */}
+        <div className="hidden sm:block w-1 h-1 bg-slate-400 rounded-full"></div>
+        <span className="text-slate-800 text-xs sm:text-base">
+          {subjectName}
+        </span>
       </div>
 
       {/* Actions Menu - Only show if user can manage subjects */}

@@ -1,9 +1,11 @@
+import useSemesterContext from "@/hooks/Semester";
 import { useGetUserWorkspace } from "@/hooks/Workspace";
 import { queryKeys } from "@/lib/queryKeys";
 import supabase from "@/lib/supabase";
 import { SemesterSchedule } from "@/types/Schedule";
-import { toCamelCase } from "@/utils/caseConversion";
-import { useQuery } from "@tanstack/react-query";
+import { Database } from "@/types/supabase";
+import { toCamelCase, toSnakeCase } from "@/utils/caseConversion";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 function useGetSchedules(semester: 1 | 2) {
   const { data: workspace } = useGetUserWorkspace();
@@ -25,4 +27,96 @@ function useGetSchedules(semester: 1 | 2) {
   });
 }
 
-export { useGetSchedules };
+function useAddSchedule() {
+  const queryClient = useQueryClient();
+  const { data: workspace } = useGetUserWorkspace();
+  const { semester } = useSemesterContext();
+
+  return useMutation({
+    mutationFn: async (
+      newSchedule: Omit<SemesterSchedule, "id" | "semester" | "subjectName">
+    ) => {
+      const snakeCaseData = toSnakeCase(newSchedule) as {
+        subject_id: string;
+        day_of_week: Database["public"]["Enums"]["day_of_week"];
+        start_time: string;
+        end_time: string;
+      };
+
+      const { error } = await supabase.from("schedules").insert(snakeCaseData);
+
+      if (error) {
+        throw new Error(error.message);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.schedule.list(workspace?.id || "", semester),
+      });
+    },
+  });
+}
+
+function useUpdateSchedule() {
+  const queryClient = useQueryClient();
+  const { data: workspace } = useGetUserWorkspace();
+  const { semester } = useSemesterContext();
+
+  return useMutation({
+    mutationFn: async (
+      newSchedule: Omit<SemesterSchedule, "semester" | "subjectName">
+    ) => {
+      const snakeCaseData = toSnakeCase(newSchedule) as {
+        subject_id: string;
+        day_of_week: Database["public"]["Enums"]["day_of_week"];
+        start_time: string;
+        end_time: string;
+      };
+
+      const { error } = await supabase
+        .from("schedules")
+        .update(snakeCaseData)
+        .eq("id", newSchedule.id);
+
+      if (error) {
+        throw new Error(error.message);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.schedule.list(workspace?.id || "", semester),
+      });
+    },
+  });
+}
+
+function useDeleteSchedule() {
+  const queryClient = useQueryClient();
+  const { data: workspace } = useGetUserWorkspace();
+  const { semester } = useSemesterContext();
+
+  return useMutation({
+    mutationFn: async (scheduleId: string) => {
+      const { error } = await supabase
+        .from("schedules")
+        .delete()
+        .eq("id", scheduleId);
+
+      if (error) {
+        throw new Error(error.message);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.schedule.list(workspace?.id || "", semester),
+      });
+    },
+  });
+}
+
+export {
+  useGetSchedules,
+  useAddSchedule,
+  useUpdateSchedule,
+  useDeleteSchedule,
+};

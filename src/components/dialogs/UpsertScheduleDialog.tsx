@@ -1,159 +1,154 @@
 "use client";
-import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { Subject } from "@/types/Subject";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ScheduleSchema } from "@/zod-schema/Schedule";
+import * as z from "zod";
+import { useAddSchedule, useUpdateSchedule } from "@/hooks/Schedule";
+import { SelectField } from "@/components/SelectField";
+import { Form } from "@/components/ui/form";
+import { SemesterSchedule } from "@/types/Schedule";
 
-interface Subject {
-  id: string;
-  name: string;
-  code: string;
-}
+type ScheduleFormData = z.infer<typeof ScheduleSchema>;
 
 interface UpsertScheduleDialogProps {
-  initialData?: {
-    subjectId?: string;
-    dayOfWeek?: number;
-    timeOfDay?: string;
-  };
+  initialData?: Partial<SemesterSchedule>;
   subjects: Subject[];
   onClose: () => void;
-  isLoading?: boolean;
 }
 
 const DAYS_OF_WEEK = [
-  { value: 0, label: "Sunday" },
-  { value: 1, label: "Monday" },
-  { value: 2, label: "Tuesday" },
-  { value: 3, label: "Wednesday" },
-  { value: 4, label: "Thursday" },
-  { value: 5, label: "Friday" },
-  { value: 6, label: "Saturday" },
+  { value: "sunday", label: "Sunday" },
+  { value: "monday", label: "Monday" },
+  { value: "tuesday", label: "Tuesday" },
+  { value: "wednesday", label: "Wednesday" },
+  { value: "thursday", label: "Thursday" },
+  { value: "friday", label: "Friday" },
+  { value: "saturday", label: "Saturday" },
 ];
 
 function UpsertScheduleDialog({
   initialData = {},
   subjects,
   onClose,
-  isLoading = false,
 }: UpsertScheduleDialogProps) {
-  const [subjectId, setSubjectId] = useState(initialData.subjectId || "");
-  const [dayOfWeek, setDayOfWeek] = useState(
-    initialData.dayOfWeek?.toString() || ""
-  );
-  const [timeOfDay, setTimeOfDay] = useState(initialData.timeOfDay || "");
+  const form = useForm<ScheduleFormData>({
+    defaultValues: {
+      subjectId: initialData.subjectId || "",
+      dayOfWeek: initialData.dayOfWeek || undefined,
+      startTime: initialData.startTime || "00:00",
+      endTime: initialData.endTime || "00:00",
+    },
+    resolver: zodResolver(ScheduleSchema),
+  });
+  const { mutate: addSchedule, isPending: isAdding } = useAddSchedule();
+  const { mutate: updateSchedule, isPending: isUpdating } = useUpdateSchedule();
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    onClose();
+  function onSubmit(data: ScheduleFormData) {
+    if (initialData.id) {
+      updateSchedule({ id: initialData.id, ...data }, { onSuccess: onClose });
+    } else {
+      addSchedule(data, { onSuccess: onClose });
+    }
   }
 
   return (
     <Dialog open onOpenChange={onClose}>
       <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogTitle className="text-slate-800">
-          {initialData.subjectId ? "Edit Schedule" : "Add New Schedule"}
+          {initialData.id ? "Edit Schedule" : "Add New Schedule"}
         </DialogTitle>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Subject Selection */}
-          <div className="space-y-2">
-            <Label htmlFor="subject-select">
-              Subject <span className="text-red-500">*</span>
-            </Label>
-            <Select
-              value={subjectId}
-              onValueChange={setSubjectId}
-              disabled={isLoading}
-            >
-              <SelectTrigger id="subject-select" className="w-full">
-                <SelectValue placeholder="Select a subject..." />
-              </SelectTrigger>
-              <SelectContent>
-                {subjects.map((subject) => (
-                  <SelectItem key={subject.id} value={subject.id}>
-                    {subject.code} - {subject.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            {/* Subject Selection */}
+            <SelectField
+              control={form.control}
+              name="subjectId"
+              label="Subject"
+              options={subjects.map((subject) => ({
+                label: `${subject.subjectCode} - ${subject.name}`,
+                value: subject.id,
+              }))}
+              required
+            />
 
-          {/* Day of Week and Time - Side by side, both full width */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
             {/* Day of Week */}
-            <div className="space-y-2 w-full">
-              <Label htmlFor="day-select">
-                Day of Week <span className="text-red-500">*</span>
-              </Label>
-              <Select
-                value={dayOfWeek}
-                onValueChange={setDayOfWeek}
-                disabled={isLoading}
+            <SelectField
+              control={form.control}
+              name="dayOfWeek"
+              label="Day of Week"
+              options={DAYS_OF_WEEK}
+              required
+            />
+
+            {/* Start Time and End Time */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+              {/* Start Time */}
+              <div className="space-y-2 w-full">
+                <Label htmlFor="startTime">
+                  Start Time <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  {...form.register("startTime")}
+                  id="startTime"
+                  type="time"
+                  disabled={isAdding || isUpdating}
+                  className="w-full leading-none bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+                />
+                {form.formState.errors.startTime && (
+                  <p className="text-red-500 text-sm">
+                    {form.formState.errors.startTime.message}
+                  </p>
+                )}
+              </div>
+
+              {/* End Time */}
+              <div className="space-y-2 w-full">
+                <Label htmlFor="endTime">
+                  End Time <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  {...form.register("endTime")}
+                  id="endTime"
+                  type="time"
+                  disabled={isAdding || isUpdating}
+                  className="w-full leading-none bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+                />
+                {form.formState.errors.endTime && (
+                  <p className="text-red-500 text-sm">
+                    {form.formState.errors.endTime.message}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="pt-4 border-t border-gray-200">
+              <Button
+                disabled={isAdding || isUpdating}
+                type="submit"
+                className="w-full"
               >
-                <SelectTrigger id="day-select" className="w-full">
-                  <SelectValue placeholder="Select a day..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {DAYS_OF_WEEK.map((day) => (
-                    <SelectItem key={day.value} value={day.value.toString()}>
-                      {day.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                {isAdding || isUpdating ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Saving...
+                  </div>
+                ) : initialData.id ? (
+                  "Save Changes"
+                ) : (
+                  "Create Schedule"
+                )}
+              </Button>
             </div>
-
-            {/* Time of Day */}
-            <div className="space-y-2 w-full">
-              <Label htmlFor="time-input">
-                Time of Day <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="time-input"
-                type="time"
-                disabled={isLoading}
-                defaultValue="00:00:00"
-                className="w-full leading-none bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
-              />
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="pt-4 border-t border-gray-200">
-            <Button
-              disabled={
-                isLoading ||
-                !subjectId.trim() ||
-                !dayOfWeek ||
-                !timeOfDay.trim()
-              }
-              type="submit"
-              onClick={onClose}
-              className="w-full"
-            >
-              {isLoading ? (
-                <div className="flex items-center justify-center gap-2">
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  Saving...
-                </div>
-              ) : initialData.subjectId ? (
-                "Save Changes"
-              ) : (
-                "Create Schedule"
-              )}
-            </Button>
-          </div>
-        </form>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

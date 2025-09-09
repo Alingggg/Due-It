@@ -5,7 +5,8 @@ interface SemesterSchedule {
   subjectId: string;
   semester: number;
   dayOfWeek: Database["public"]["Enums"]["day_of_week"];
-  timeOfDay: string;
+  startTime: string;
+  endTime: string;
   subjectName: string;
 }
 
