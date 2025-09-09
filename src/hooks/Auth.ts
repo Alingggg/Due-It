@@ -1,4 +1,6 @@
 "use client";
+import { useGetUserWorkspace } from "@/hooks/Workspace";
+import { queryKeys } from "@/lib/queryKeys";
 import supabase from "@/lib/supabase";
 import { Profile } from "@/types/Profile";
 import { toCamelCase, toSnakeCase } from "@/utils/caseConversion";
@@ -103,7 +105,7 @@ function useGetSession() {
 
 function useGetProfile() {
   return useQuery({
-    queryKey: ["profile"],
+    queryKey: queryKeys.profile.detail(),
     queryFn: async () => {
       const { data, error } = await supabase
         .from("profiles")
@@ -122,6 +124,7 @@ function useGetProfile() {
 
 function useUpdateProfile() {
   const queryClient = useQueryClient();
+  const { data: workspace } = useGetUserWorkspace();
 
   return useMutation({
     mutationFn: async (profileData: {
@@ -151,8 +154,10 @@ function useUpdateProfile() {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["profile"] });
-      queryClient.invalidateQueries({ queryKey: ["workspaceMembers"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.profile.detail() });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.members.list(workspace?.id || ""),
+      });
     },
   });
 }

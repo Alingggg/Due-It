@@ -1,3 +1,6 @@
+import useSemesterContext from "@/hooks/Semester";
+import { useGetUserWorkspace } from "@/hooks/Workspace";
+import { queryKeys } from "@/lib/queryKeys";
 import supabase from "@/lib/supabase";
 import { Code } from "@/types/Code";
 import { toCamelCase } from "@/utils/caseConversion";
@@ -5,8 +8,11 @@ import generateJoinCode from "@/utils/generateJoinCode";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 function useGetCode() {
+  const { data: workspace } = useGetUserWorkspace();
+  const { semester } = useSemesterContext();
+
   return useQuery({
-    queryKey: ["workspaceCode"],
+    queryKey: queryKeys.code.detail(workspace?.id || "", semester),
     queryFn: async () => {
       const { data, error } = await supabase.from("codes").select("*").single();
 
@@ -21,6 +27,8 @@ function useGetCode() {
 
 function useRenewCode() {
   const queryClient = useQueryClient();
+  const { data: workspace } = useGetUserWorkspace();
+  const { semester } = useSemesterContext();
 
   return useMutation({
     mutationFn: async (workspaceId: string) => {
@@ -35,7 +43,9 @@ function useRenewCode() {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["workspaceCode"] });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.code.detail(workspace?.id || "", semester),
+      });
     },
     onError: (error) => {
       console.error("Error renewing code:", error);
@@ -45,6 +55,8 @@ function useRenewCode() {
 
 function useUpdateCodeStatus() {
   const queryClient = useQueryClient();
+  const { data: workspace } = useGetUserWorkspace();
+  const { semester } = useSemesterContext();
 
   return useMutation({
     mutationFn: async ({
@@ -64,7 +76,9 @@ function useUpdateCodeStatus() {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["workspaceCode"] });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.code.detail(workspace?.id || "", semester),
+      });
     },
     onError: (error) => {
       console.error("Error updating code status:", error);

@@ -1,4 +1,5 @@
 "use client";
+import { queryKeys } from "@/lib/queryKeys";
 import supabase from "@/lib/supabase";
 import { WorkspaceMemberWithProfile } from "@/types/Member";
 import { toCamelCase } from "@/utils/caseConversion";
@@ -88,7 +89,7 @@ function useGetUserWorkspace(isAuthenticated: boolean = true) {
 
 function useGetWorkspaceMembers(workspaceId: string) {
   return useQuery({
-    queryKey: ["workspaceMembers", workspaceId],
+    queryKey: queryKeys.members.list(workspaceId),
     queryFn: async () => {
       const { data, error } = await supabase
         .from("workspace_members_with_profile")
@@ -104,7 +105,7 @@ function useGetWorkspaceMembers(workspaceId: string) {
 
 function useGetUserWorkspaceRole(workspaceId: string) {
   return useQuery({
-    queryKey: ["workspaceRole", workspaceId],
+    queryKey: queryKeys.roles.detail(workspaceId),
     queryFn: async () => {
       const {
         data: { user },
@@ -129,8 +130,10 @@ function useGetUserWorkspaceRole(workspaceId: string) {
 }
 
 function useGetDefaultSemester() {
+  const { data: workspace } = useGetUserWorkspace();
+
   return useQuery({
-    queryKey: ["defaultSemester"],
+    queryKey: queryKeys.defaultSemesters.detail(workspace?.id || ""),
     queryFn: async () => {
       const { data, error } = await supabase
         .from("default_semester")
@@ -145,6 +148,7 @@ function useGetDefaultSemester() {
 
 function useUpdateDefaultSemester() {
   const queryClient = useQueryClient();
+  const { data: workspace } = useGetUserWorkspace();
 
   return useMutation({
     mutationFn: async ({
@@ -162,7 +166,9 @@ function useUpdateDefaultSemester() {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["defaultSemester"] });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.defaultSemesters.detail(workspace?.id || ""),
+      });
     },
     onError: (error: any) => {
       console.log("Error changing default semester:", error);
@@ -185,7 +191,7 @@ function useDeleteWorkspace() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        predicate: (query) => query.queryKey[0] !== "profile",
+        queryKey: queryKeys.workspaces.all,
       });
       router.push("/get-started");
     },

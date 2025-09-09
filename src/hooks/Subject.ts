@@ -2,10 +2,15 @@ import supabase from "@/lib/supabase";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toCamelCase, toSnakeCase } from "@/utils/caseConversion";
 import { Subject } from "@/types/Subject";
+import { queryKeys } from "@/lib/queryKeys";
+import { useGetUserWorkspace } from "@/hooks/Workspace";
+import useSemesterContext from "@/hooks/Semester";
 
 function useGetSubjects(semester: 1 | 2) {
+  const { data: workspace } = useGetUserWorkspace();
+
   return useQuery({
-    queryKey: ["subjects"],
+    queryKey: queryKeys.subjects.list(workspace?.id || "", semester),
     queryFn: async () => {
       const { data, error } = await supabase
         .from("subjects")
@@ -23,6 +28,8 @@ function useGetSubjects(semester: 1 | 2) {
 
 function useAddSubject() {
   const queryClient = useQueryClient();
+  const { data: workspace } = useGetUserWorkspace();
+  const { semester } = useSemesterContext();
 
   const mutation = useMutation({
     mutationFn: async (subject: Omit<Subject, "id">) => {
@@ -41,7 +48,9 @@ function useAddSubject() {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["subjects"] });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.subjects.list(workspace?.id || "", semester),
+      });
     },
   });
 
@@ -50,6 +59,8 @@ function useAddSubject() {
 
 function useUpdateSubject() {
   const queryClient = useQueryClient();
+  const { data: workspace } = useGetUserWorkspace();
+  const { semester } = useSemesterContext();
 
   const mutation = useMutation({
     mutationFn: async (subject: Subject) => {
@@ -72,7 +83,9 @@ function useUpdateSubject() {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["subjects"] });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.subjects.list(workspace?.id || "", semester),
+      });
     },
   });
 
@@ -81,6 +94,8 @@ function useUpdateSubject() {
 
 function useDeleteSubject() {
   const queryClient = useQueryClient();
+  const { data: workspace } = useGetUserWorkspace();
+  const { semester } = useSemesterContext();
 
   const mutation = useMutation({
     mutationFn: async (subjectId: string) => {
@@ -94,7 +109,9 @@ function useDeleteSubject() {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["subjects"] });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.subjects.list(workspace?.id || "", semester),
+      });
     },
   });
 
