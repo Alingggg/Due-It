@@ -7,27 +7,24 @@ import {
 } from "@/hooks/Workspace";
 import LoadingPage from "@/components/LoadingPage";
 import { useGetProfile } from "@/hooks/Auth";
-import { Database } from "@/types/supabase";
-
-type Roles = Database["public"]["Enums"]["workspace_role"];
 
 function MembersPage() {
   const { data: workspace, isLoading: isLoadingWorkspace } =
     useGetUserWorkspace();
-  const workspaceId = workspace?.id as string;
+  const workspaceId = workspace?.id!;
   const { data: members, isLoading: isLoadingMembers } =
     useGetWorkspaceMembers(workspaceId);
   const { data: currentUser, isLoading: isLoadingCurrentUser } =
     useGetProfile();
   const { data: currentUserRole, isLoading: isLoadingCurrentUserRole } =
     useGetUserWorkspaceRole(workspaceId);
-
-  if (
+  const isPageLoading =
     isLoadingWorkspace ||
     isLoadingMembers ||
     isLoadingCurrentUser ||
-    isLoadingCurrentUserRole
-  ) {
+    isLoadingCurrentUserRole;
+
+  if (isPageLoading) {
     return <LoadingPage message="Loading members..." />;
   }
 
@@ -42,12 +39,13 @@ function MembersPage() {
       {/* Members List */}
       <div className="space-y-4">
         {currentUser &&
+          currentUserRole &&
           members?.map((member) => (
             <MemberCard
               key={member.userId}
               member={member}
               currentUser={currentUser}
-              currentUserRole={currentUserRole as Roles}
+              currentUserRole={currentUserRole}
             />
           ))}
       </div>

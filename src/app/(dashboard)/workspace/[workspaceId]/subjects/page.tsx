@@ -61,9 +61,8 @@ function SubjectsPage() {
     "subjects"
   );
   const { data: workspace } = useGetUserWorkspace();
-  const workspaceId = workspace?.id || "";
+  const workspaceId = workspace?.id!;
   const { semester } = useSemesterContext();
-
   const { openDialog } = useDialogContext();
   const { data: currentUserRole, isLoading: isLoadingUserRole } =
     useGetUserWorkspaceRole(workspaceId);

@@ -25,7 +25,7 @@ function ProfilePage() {
   const {
     data: profileData,
     isLoading: isProfileLoading,
-    isSuccess: profileFetched,
+    isSuccess: isProfileFetched,
   } = useGetProfile();
   const { mutate: updateProfile, isPending: isUpdatingProfile } =
     useUpdateProfile();
@@ -46,14 +46,14 @@ function ProfilePage() {
   const formValues = watch();
 
   useEffect(() => {
-    if (profileFetched && profileData) {
+    if (isProfileFetched && profileData) {
       const profileValues = {
         firstName: profileData.firstName,
         lastName: profileData.lastName,
       };
       reset(profileValues);
     }
-  }, [profileFetched, profileData, reset]);
+  }, [isProfileFetched, profileData, reset]);
 
   function handleEdit() {
     setIsEditing(true);
@@ -82,7 +82,7 @@ function ProfilePage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6 sm:space-y-8 px-2 sm:px-0 pt-6 sm:pt-8">
+    <div className="max-w-2xl mx-auto space-y-6 sm:space-y-8 p-4 pt-6 sm:pt-8">
       {/* Header with Back Button */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
@@ -152,7 +152,7 @@ function ProfilePage() {
                 )}
               </div>
             ) : (
-              <div className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-md text-slate-900">
+              <div className="px-3 py-2 border border-slate-200 rounded-md text-slate-900">
                 {formValues.firstName}
               </div>
             )}
@@ -182,7 +182,7 @@ function ProfilePage() {
                 )}
               </div>
             ) : (
-              <div className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-md text-slate-900">
+              <div className="px-3 py-2 border border-slate-200 rounded-md text-slate-900">
                 {formValues.lastName}
               </div>
             )}
@@ -194,7 +194,7 @@ function ProfilePage() {
               Email Address
             </Label>
             <div className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-md text-slate-600">
-              {user?.email}
+              {user.email}
             </div>
             <p className="text-xs text-slate-500">
               Contact support to change your email address

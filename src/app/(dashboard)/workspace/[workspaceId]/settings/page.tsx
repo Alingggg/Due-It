@@ -29,13 +29,13 @@ function WorkspaceSettingsPage() {
   const [copied, setCopied] = useState(false);
   const { data: workspace, isLoading: isWorkspaceLoading } =
     useGetUserWorkspace();
-  const workspaceId = workspace?.id as string;
+  const workspaceId = workspace?.id!;
   const { data: codeData, isLoading: isCodeLoading } = useGetCode();
   const { data: defaultSemester, isLoading: isDefaultSemesterLoading } =
     useGetDefaultSemester();
   const { data: currentUserRole, isLoading: isCurrentUserRoleLoading } =
     useGetUserWorkspaceRole(workspaceId);
-  const { mutate: renewCode, isPending: isRenewing } = useRenewCode();
+  const { mutate: renewCode, isPending: isRenewingCode } = useRenewCode();
   const { mutate: updateCodeStatus, isPending: isUpdatingCodeStatus } =
     useUpdateCodeStatus();
   const {
@@ -113,7 +113,7 @@ function WorkspaceSettingsPage() {
             </div>
 
             {/* Last Changed - Only show to admins */}
-            {isAdmin && codeData?.updatedAt && (
+            {isAdmin && codeData.updatedAt && (
               <div className="text-xs text-slate-500">
                 Last changed: {new Date(codeData.updatedAt).toLocaleString()}
               </div>
@@ -129,16 +129,16 @@ function WorkspaceSettingsPage() {
                   </span>
                   <span
                     className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-                      codeData?.enabled
+                      codeData.enabled
                         ? "bg-green-100 text-green-800"
                         : "bg-red-100 text-red-800"
                     }`}
                   >
-                    {codeData?.enabled ? "Active" : "Disabled"}
+                    {codeData.enabled ? "Active" : "Disabled"}
                   </span>
                 </div>
                 {/* Subtle disabled message - directly under status */}
-                {!codeData?.enabled && (
+                {!codeData.enabled && (
                   <span className="block text-xs text-slate-500 mt-1">
                     New members cannot join using this code
                   </span>
@@ -152,19 +152,19 @@ function WorkspaceSettingsPage() {
                     onClick={handleToggleInviteCode}
                     variant="outline"
                     className={`${
-                      codeData?.enabled
+                      codeData.enabled
                         ? "border-red-600 text-red-600 hover:bg-red-50 hover:text-red-700"
                         : "border-green-600 text-green-600 hover:bg-green-50 hover:text-green-700"
                     }`}
                     disabled={isUpdatingCodeStatus}
                   >
-                    {codeData?.enabled ? "Disable" : "Enable"}
+                    {codeData.enabled ? "Disable" : "Enable"}
                   </Button>
 
                   <Button
                     onClick={handleRenewCode}
                     variant="outline"
-                    disabled={isRenewing}
+                    disabled={isRenewingCode}
                   >
                     <RefreshCcw className="w-3.5 h-3.5" />
                     Renew
