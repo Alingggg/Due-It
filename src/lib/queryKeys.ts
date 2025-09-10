@@ -24,18 +24,18 @@ const queryKeys = {
   },
 
   // Tasks within semester
-  // tasks: {
-  //   all: (workspaceId: string, semester: Semester) =>
-  //     ["workspaces", workspaceId, "semesters", semester, "tasks"] as const,
-  //   list: (workspaceId: string, semester: Semester) =>
-  //     [...queryKeys.tasks.all(workspaceId, semester), "list"] as const,
-  //   detail: (workspaceId: string, semester: Semester, taskId: string) =>
-  //     [
-  //       ...queryKeys.tasks.all(workspaceId, semester),
-  //       "detail",
-  //       taskId,
-  //     ] as const,
-  // },
+  tasks: {
+    all: (workspaceId: string, semester: Semester) =>
+      ["workspaces", workspaceId, "semesters", semester, "tasks"] as const,
+    list: (workspaceId: string, semester: Semester) =>
+      [...queryKeys.tasks.all(workspaceId, semester), "list"] as const,
+    detail: (workspaceId: string, semester: Semester, taskId: string) =>
+      [
+        ...queryKeys.tasks.all(workspaceId, semester),
+        "detail",
+        taskId,
+      ] as const,
+  },
 
   // Material Groups within semester
   // materialGroups: {

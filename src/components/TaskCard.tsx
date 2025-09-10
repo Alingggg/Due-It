@@ -1,29 +1,29 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { ClipboardList, HelpCircle } from "lucide-react";
-import { Task } from "@/data/mockData";
 import {
   format,
   isToday,
   isTomorrow,
   differenceInCalendarDays,
 } from "date-fns";
+import { SemesterTask } from "@/types/Task";
 
 interface TaskCardProps {
-  task: Task;
+  task: SemesterTask;
   workspaceId: string;
-  subjectName?: string;
+  subjectName: string;
 }
 
 function TaskCard({ task, workspaceId, subjectName }: TaskCardProps) {
   const router = useRouter();
 
-  const handleCardClick = () => {
+  function handleCardClick() {
     router.push(`/workspace/${workspaceId}/tasks/${task.id}`);
-  };
+  }
 
   // Format due date
-  const formatDueDate = (dueDate: string) => {
+  function formatDueDate(dueDate: string) {
     const date = new Date(dueDate);
     const now = new Date();
 
@@ -61,15 +61,14 @@ function TaskCard({ task, workspaceId, subjectName }: TaskCardProps) {
         };
       }
     }
-  };
+  }
 
-  // Get type icon
-  const getTypeIcon = (type: string) => {
-    return type === "exam" ? HelpCircle : ClipboardList;
-  };
+  function getTypeIcon(type: string) {
+    return type === "quiz" ? HelpCircle : ClipboardList;
+  }
 
   const dueInfo = formatDueDate(task.dueDate);
-  const TypeIcon = getTypeIcon(task.type);
+  const TypeIcon = getTypeIcon(task.taskType);
 
   return (
     <div
@@ -96,10 +95,10 @@ function TaskCard({ task, workspaceId, subjectName }: TaskCardProps) {
               )}
               <div className="flex items-center space-x-2">
                 <span className="capitalize">
-                  {task.type === "exam" ? "Exam" : task.type}
+                  {task.taskType === "quiz" ? "Quiz" : task.taskType}
                 </span>
                 <span className="text-slate-400">•</span>
-                <span className="capitalize">{task.doneBy}</span>
+                <span className="capitalize">{task.completionType}</span>
               </div>
             </div>
           </div>
