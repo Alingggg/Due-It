@@ -1,3 +1,4 @@
+"use client";
 import useSemesterContext from "@/hooks/Semester";
 import { useGetUserWorkspace } from "@/hooks/Workspace";
 import { queryKeys } from "@/lib/queryKeys";

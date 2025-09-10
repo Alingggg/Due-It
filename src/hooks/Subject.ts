@@ -1,3 +1,4 @@
+"use client";
 import supabase from "@/lib/supabase";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toCamelCase, toSnakeCase } from "@/utils/caseConversion";

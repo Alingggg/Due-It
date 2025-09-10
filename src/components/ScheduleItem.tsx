@@ -1,3 +1,4 @@
+"use client";
 import { MoreVertical, Edit2, Trash2 } from "lucide-react";
 import { format, parse } from "date-fns";
 import { Button } from "@/components/ui/button";
