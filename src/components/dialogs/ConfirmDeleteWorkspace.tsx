@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { useDeleteWorkspace, useGetUserWorkspace } from "@/hooks/Workspace";
+import { useDeleteWorkspace } from "@/hooks/Workspace";
 import { useForm } from "react-hook-form";
 
 interface ConfirmDeleteWorkspaceProps {
@@ -23,7 +23,6 @@ function ConfirmDeleteWorkspace({
   onClose,
   workspaceName,
 }: ConfirmDeleteWorkspaceProps) {
-  const { data: workspace } = useGetUserWorkspace();
   const { register, watch } = useForm({
     defaultValues: { workspaceName, confirmWorkspaceName: "" },
   });
@@ -34,13 +33,11 @@ function ConfirmDeleteWorkspace({
   const isDeleteEnabled = workspaceName === inputWorkspace;
 
   function handleDeleteWorkspace() {
-    if (workspace?.id) {
-      deleteWorkspace(workspace.id, {
-        onSuccess: () => {
-          onClose();
-        },
-      });
-    }
+    deleteWorkspace(undefined, {
+      onSuccess: () => {
+        onClose();
+      },
+    });
   }
 
   return (

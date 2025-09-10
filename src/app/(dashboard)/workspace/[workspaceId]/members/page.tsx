@@ -3,26 +3,19 @@ import MemberCard from "@/components/MemberCard";
 import {
   useGetWorkspaceMembers,
   useGetUserWorkspaceRole,
-  useGetUserWorkspace,
 } from "@/hooks/Workspace";
 import LoadingPage from "@/components/LoadingPage";
 import { useGetProfile } from "@/hooks/Auth";
 
 function MembersPage() {
-  const { data: workspace, isLoading: isLoadingWorkspace } =
-    useGetUserWorkspace();
-  const workspaceId = workspace?.id!;
   const { data: members, isLoading: isLoadingMembers } =
-    useGetWorkspaceMembers(workspaceId);
+    useGetWorkspaceMembers();
   const { data: currentUser, isLoading: isLoadingCurrentUser } =
     useGetProfile();
   const { data: currentUserRole, isLoading: isLoadingCurrentUserRole } =
-    useGetUserWorkspaceRole(workspaceId);
+    useGetUserWorkspaceRole();
   const isPageLoading =
-    isLoadingWorkspace ||
-    isLoadingMembers ||
-    isLoadingCurrentUser ||
-    isLoadingCurrentUserRole;
+    isLoadingMembers || isLoadingCurrentUser || isLoadingCurrentUserRole;
 
   if (isPageLoading) {
     return <LoadingPage message="Loading members..." />;

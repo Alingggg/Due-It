@@ -9,20 +9,27 @@ import generateJoinCode from "@/utils/generateJoinCode";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 function useGetCode() {
-  const { data: workspace } = useGetUserWorkspace();
+  const { data: workspace, isLoading: isLoadingWorkspace } =
+    useGetUserWorkspace();
   const { semester } = useSemesterContext();
 
   return useQuery({
-    queryKey: queryKeys.code.detail(workspace?.id || "", semester),
+    queryKey: queryKeys.code.detail(workspace?.id!, semester),
     queryFn: async () => {
+      if (!workspace?.id || !semester) {
+        throw new Error("Workspace or semester is not available");
+      }
+
       const { data, error } = await supabase.from("codes").select("*").single();
 
       if (error) {
+        console.log(error);
         throw new Error(error.message);
       }
 
       return toCamelCase<Code>(data);
     },
+    enabled: !isLoadingWorkspace && !!workspace && !!semester,
   });
 }
 
@@ -32,12 +39,17 @@ function useRenewCode() {
   const { semester } = useSemesterContext();
 
   return useMutation({
-    mutationFn: async (workspaceId: string) => {
+    mutationFn: async () => {
+      if (!workspace?.id || !semester) {
+        throw new Error("Workspace or semester is not available");
+      }
+
       const newCode = generateJoinCode();
+
       const { error } = await supabase
         .from("codes")
         .update({ code: newCode, updated_at: new Date().toISOString() })
-        .eq("workspace_id", workspaceId);
+        .eq("workspace_id", workspace.id);
 
       if (error) {
         throw new Error(error.message);
@@ -45,11 +57,11 @@ function useRenewCode() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.code.detail(workspace?.id || "", semester),
+        queryKey: queryKeys.code.detail(workspace?.id!, semester),
       });
     },
     onError: (error) => {
-      console.error("Error renewing code:", error);
+      console.log("Error renewing code:", error);
     },
   });
 }
@@ -60,17 +72,15 @@ function useUpdateCodeStatus() {
   const { semester } = useSemesterContext();
 
   return useMutation({
-    mutationFn: async ({
-      workspaceId,
-      enable,
-    }: {
-      workspaceId: string;
-      enable: boolean;
-    }) => {
+    mutationFn: async (enable: boolean) => {
+      if (!workspace?.id || !semester) {
+        throw new Error("Workspace or semester is not available");
+      }
+
       const { error } = await supabase
         .from("codes")
         .update({ enabled: enable })
-        .eq("workspace_id", workspaceId);
+        .eq("workspace_id", workspace.id);
 
       if (error) {
         throw new Error(error.message);
@@ -78,11 +88,11 @@ function useUpdateCodeStatus() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.code.detail(workspace?.id || "", semester),
+        queryKey: queryKeys.code.detail(workspace?.id!, semester),
       });
     },
     onError: (error) => {
-      console.error("Error updating code status:", error);
+      console.log("Error updating code status:", error);
     },
   });
 }

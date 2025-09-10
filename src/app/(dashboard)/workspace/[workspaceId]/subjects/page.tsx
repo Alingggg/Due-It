@@ -65,12 +65,10 @@ function SubjectsPage() {
   const { semester } = useSemesterContext();
   const { openDialog } = useDialogContext();
   const { data: currentUserRole, isLoading: isLoadingUserRole } =
-    useGetUserWorkspaceRole(workspaceId);
-  const { data: schedules, isLoading: isLoadingSchedules } =
-    useGetSchedules(semester);
+    useGetUserWorkspaceRole();
+  const { data: schedules, isLoading: isLoadingSchedules } = useGetSchedules();
   const schedulesByDay = useGroupedSchedules(schedules ?? []);
-  const { data: subjects, isLoading: isLoadingSubjects } =
-    useGetSubjects(semester);
+  const { data: subjects, isLoading: isLoadingSubjects } = useGetSubjects();
   const canManageSubjects =
     currentUserRole === "admin" || currentUserRole === "co-admin";
 

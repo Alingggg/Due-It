@@ -29,12 +29,11 @@ function WorkspaceSettingsPage() {
   const [copied, setCopied] = useState(false);
   const { data: workspace, isLoading: isWorkspaceLoading } =
     useGetUserWorkspace();
-  const workspaceId = workspace?.id!;
   const { data: codeData, isLoading: isCodeLoading } = useGetCode();
   const { data: defaultSemester, isLoading: isDefaultSemesterLoading } =
     useGetDefaultSemester();
   const { data: currentUserRole, isLoading: isCurrentUserRoleLoading } =
-    useGetUserWorkspaceRole(workspaceId);
+    useGetUserWorkspaceRole();
   const { mutate: renewCode, isPending: isRenewingCode } = useRenewCode();
   const { mutate: updateCodeStatus, isPending: isUpdatingCodeStatus } =
     useUpdateCodeStatus();
@@ -59,16 +58,16 @@ function WorkspaceSettingsPage() {
   }
 
   function handleToggleInviteCode() {
-    updateCodeStatus({ workspaceId, enable: !codeData?.enabled });
+    updateCodeStatus(!codeData?.enabled);
   }
 
   function handleRenewCode() {
-    renewCode(workspaceId);
+    renewCode();
   }
 
   function handleDefaultSemesterChange(value: string) {
     const newSemester = Number(value) as 1 | 2;
-    updateDefaultSemester({ workspaceId, semester: newSemester });
+    updateDefaultSemester(newSemester);
   }
 
   if (isPageLoading) {

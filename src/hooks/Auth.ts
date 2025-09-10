@@ -34,9 +34,11 @@ function useRegister() {
       });
 
       if (error) {
-        console.log(error);
         throw new Error(error.message);
       }
+    },
+    onError: (error) => {
+      console.log("Error during registration:", error);
     },
   });
 }
@@ -57,12 +59,14 @@ function useLogin() {
       });
 
       if (error) {
-        console.log(error);
         throw new Error(error.message);
       }
     },
     onSuccess: () => {
       router.push("/get-started");
+    },
+    onError: (error) => {
+      console.log("Error during login:", error);
     },
   });
 }
@@ -75,12 +79,14 @@ function useLogout() {
       const { error } = await supabase.auth.signOut();
 
       if (error) {
-        console.log(error);
         throw new Error(error.message);
       }
     },
     onSuccess: () => {
       router.push("/sign-in");
+    },
+    onError: (error) => {
+      console.log("Error during logout:", error);
     },
   });
 }
@@ -149,7 +155,6 @@ function useUpdateProfile() {
         .single();
 
       if (error) {
-        console.log(error);
         throw new Error(error.message);
       }
     },
@@ -158,6 +163,9 @@ function useUpdateProfile() {
       queryClient.invalidateQueries({
         queryKey: queryKeys.members.list(workspace?.id || ""),
       });
+    },
+    onError: (error) => {
+      console.log("Error updating profile:", error);
     },
   });
 }

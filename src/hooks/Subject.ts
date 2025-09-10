@@ -7,12 +7,18 @@ import { queryKeys } from "@/lib/queryKeys";
 import { useGetUserWorkspace } from "@/hooks/Workspace";
 import useSemesterContext from "@/hooks/Semester";
 
-function useGetSubjects(semester: 1 | 2) {
-  const { data: workspace } = useGetUserWorkspace();
+function useGetSubjects() {
+  const { data: workspace, isLoading: isLoadingWorkspace } =
+    useGetUserWorkspace();
+  const { semester } = useSemesterContext();
 
   return useQuery({
-    queryKey: queryKeys.subjects.list(workspace?.id || "", semester),
+    queryKey: queryKeys.subjects.list(workspace?.id!, semester),
     queryFn: async () => {
+      if (!workspace?.id || !semester) {
+        throw new Error("Workspace or semester is not available");
+      }
+
       const { data, error } = await supabase
         .from("subjects")
         .select("*")
@@ -24,6 +30,7 @@ function useGetSubjects(semester: 1 | 2) {
 
       return data.map<Subject>(toCamelCase);
     },
+    enabled: !isLoadingWorkspace && !!workspace && !!semester,
   });
 }
 
@@ -32,8 +39,12 @@ function useAddSubject() {
   const { data: workspace } = useGetUserWorkspace();
   const { semester } = useSemesterContext();
 
-  const mutation = useMutation({
+  return useMutation({
     mutationFn: async (subject: Omit<Subject, "id">) => {
+      if (!workspace?.id || !semester) {
+        throw new Error("Workspace or semester is not available");
+      }
+
       const snakeCaseData = toSnakeCase(subject) as {
         instructor_name: string;
         name: string;
@@ -50,12 +61,13 @@ function useAddSubject() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.subjects.list(workspace?.id || "", semester),
+        queryKey: queryKeys.subjects.list(workspace?.id!, semester),
       });
     },
+    onError: (error) => {
+      console.log("Error adding subject:", error);
+    },
   });
-
-  return mutation;
 }
 
 function useUpdateSubject() {
@@ -63,8 +75,12 @@ function useUpdateSubject() {
   const { data: workspace } = useGetUserWorkspace();
   const { semester } = useSemesterContext();
 
-  const mutation = useMutation({
+  return useMutation({
     mutationFn: async (subject: Subject) => {
+      if (!workspace?.id || !semester) {
+        throw new Error("Workspace or semester is not available");
+      }
+
       const snakeCaseData = toSnakeCase(subject) as {
         id: string;
         instructor_name: string;
@@ -85,12 +101,13 @@ function useUpdateSubject() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.subjects.list(workspace?.id || "", semester),
+        queryKey: queryKeys.subjects.list(workspace?.id!, semester),
       });
     },
+    onError: (error) => {
+      console.log("Error updating subject:", error);
+    },
   });
-
-  return mutation;
 }
 
 function useDeleteSubject() {
@@ -98,8 +115,12 @@ function useDeleteSubject() {
   const { data: workspace } = useGetUserWorkspace();
   const { semester } = useSemesterContext();
 
-  const mutation = useMutation({
+  return useMutation({
     mutationFn: async (subjectId: string) => {
+      if (!workspace?.id || !semester) {
+        throw new Error("Workspace or semester is not available");
+      }
+
       const { error } = await supabase
         .from("subjects")
         .delete()
@@ -111,12 +132,13 @@ function useDeleteSubject() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.subjects.list(workspace?.id || "", semester),
+        queryKey: queryKeys.subjects.list(workspace?.id!, semester),
       });
     },
+    onError: (error) => {
+      console.log("Error deleting subject:", error);
+    },
   });
-
-  return mutation;
 }
 
 export { useGetSubjects, useAddSubject, useUpdateSubject, useDeleteSubject };
