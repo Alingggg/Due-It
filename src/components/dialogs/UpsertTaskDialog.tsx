@@ -27,7 +27,7 @@ interface UpsertTaskDialogProps {
 type TaskFormValues = z.infer<typeof TaskSchema>;
 
 const taskTypeOptions = [
-  { value: "quiz", label: "Quiz", icon: HelpCircle },
+  { value: "exam", label: "Exam", icon: HelpCircle },
   { value: "activity", label: "Activity", icon: ClipboardList },
 ];
 

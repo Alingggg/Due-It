@@ -35,7 +35,7 @@ const SORT_OPTIONS = [
 const TASK_TYPE_OPTIONS = [
   { value: "all", label: "All" },
   { value: "activity", label: "Activity" },
-  { value: "quiz", label: "Quiz" },
+  { value: "exam", label: "Exam" },
 ];
 
 const COMPLETION_TYPE_OPTIONS = [
