@@ -1,12 +1,5 @@
 "use client";
-import { use } from "react";
-import { notFound, useRouter } from "next/navigation";
-import {
-  mockTasks,
-  getSubjectById,
-  getCurrentUserRole,
-  getSubjectsByWorkspaceId,
-} from "@/data/mockData";
+import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Clock,
@@ -18,35 +11,51 @@ import {
   Trash2,
   HelpCircle,
 } from "lucide-react";
-import { format } from "date-fns";
+import { format, parse } from "date-fns";
 import useDialogContext from "@/hooks/Dialog";
-import useSemesterContext from "@/hooks/Semester";
+import { useGetSubjects } from "@/hooks/Subject";
+import {
+  useGetUserWorkspace,
+  useGetUserWorkspaceRole,
+} from "@/hooks/Workspace";
+import { useDeleteTask, useGetTask } from "@/hooks/Task";
+import LoadingPage from "@/components/LoadingPage";
 
-interface TaskDetailPageProps {
-  params: Promise<{ workspaceId: string; taskId: string }>;
-}
-
-function TaskDetailPage({ params }: TaskDetailPageProps) {
-  const { workspaceId, taskId } = use(params);
+function TaskDetailPage() {
+  const { taskId } = useParams();
   const router = useRouter();
-  const task = mockTasks.find((t) => t.id === taskId);
+  const { data: workspace } = useGetUserWorkspace();
+  const { data: task, isLoading: isLoadingTask } = useGetTask(taskId as string);
   const { openDialog, closeDialog } = useDialogContext();
-  const { semester } = useSemesterContext();
-  const subjects = getSubjectsByWorkspaceId(workspaceId, semester);
+  const { data: subjects, isLoading: isLoadingSubjects } = useGetSubjects();
+  const { data: currentUserRole, isLoading: isLoadingUserRole } =
+    useGetUserWorkspaceRole();
+  const { mutate: deleteTask } = useDeleteTask();
+  const canManageTask =
+    currentUserRole === "admin" || currentUserRole === "co-admin";
+  const isPageLoading = isLoadingTask || isLoadingSubjects || isLoadingUserRole;
 
-  // Get current user's role in this workspace
-  const currentUserRole = getCurrentUserRole(workspaceId);
-  const canManageTask = currentUserRole === "admin" || currentUserRole === "co";
-
-  if (!task) {
-    notFound();
+  function handleDeleteTask() {
+    openDialog("CONFIRM_ACTION", {
+      title: `Delete "${task?.title}"?`,
+      description: `Are you sure you want to delete "${task?.title}"? This action cannot be undone.`,
+      actionButtonVariant: "destructive",
+      actionButtonText: "Delete",
+      handleAction: () => {
+        if (task?.id) {
+          deleteTask(task.id, {
+            onSuccess: () => {
+              closeDialog();
+              router.replace(`/workspace/${workspace?.id}/tasks`);
+            },
+          });
+        }
+      },
+    });
   }
 
-  const subject = getSubjectById(task.subjectId);
-
-  // Get done by info
-  const getDoneByInfo = (doneBy: string) => {
-    switch (doneBy) {
+  function getCompletionTypeInfo(completionType: string) {
+    switch (completionType) {
       case "individual":
         return { icon: User, text: "Individual" };
       case "pair":
@@ -56,15 +65,30 @@ function TaskDetailPage({ params }: TaskDetailPageProps) {
       default:
         return { icon: User, text: "Individual" };
     }
-  };
+  }
 
-  const doneByInfo = getDoneByInfo(task.doneBy);
-  const TypeIcon = task.type === "exam" ? HelpCircle : ClipboardList;
-  const DoneByIcon = doneByInfo.icon;
+  const completionTypeInfo = getCompletionTypeInfo(task?.completionType!);
+  const TaskTypeIcon = task?.taskType === "exam" ? HelpCircle : ClipboardList;
+  const CompletionTypeIcon = completionTypeInfo.icon;
+
+  const formattedDueDateTime =
+    task?.dueDate && task?.dueTime
+      ? format(
+          parse(
+            `${task.dueDate} ${task.dueTime}`,
+            "yyyy-MM-dd HH:mm:ss",
+            new Date()
+          ),
+          "MMM d, yyyy hh:mm a"
+        )
+      : "";
+
+  if (isPageLoading) {
+    return <LoadingPage message="Loading task details..." />;
+  }
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      {/* Back Button Row */}
       <div>
         <Button
           onClick={() => router.back()}
@@ -90,18 +114,7 @@ function TaskDetailPage({ params }: TaskDetailPageProps) {
               <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
               Edit
             </Button>
-            <Button
-              onClick={() =>
-                openDialog("CONFIRM_ACTION", {
-                  title: `Delete "${task.title}"?`,
-                  description: `Are you sure you want to delete "${task.title}"? This action cannot be undone.`,
-                  actionButtonVariant: "destructive",
-                  actionButtonText: "Delete",
-                  handleAction: closeDialog,
-                })
-              }
-              variant="destructive"
-            >
+            <Button onClick={handleDeleteTask} variant="destructive">
               <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
               Delete
             </Button>
@@ -109,52 +122,46 @@ function TaskDetailPage({ params }: TaskDetailPageProps) {
         )}
       </div>
 
-      {/* Single Container for Everything */}
       <div className="bg-white rounded-lg border border-slate-200 p-4 sm:p-6">
-        {/* Task Header - Mobile responsive layout */}
         <div className="flex flex-col sm:flex-row sm:items-start sm:space-x-4 space-y-4 sm:space-y-0">
-          {/* Icon - smaller on mobile */}
           <div className="p-3 sm:p-4 bg-blue-50 rounded-xl self-start">
-            <TypeIcon className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600" />
+            <TaskTypeIcon className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600" />
           </div>
 
           <div className="flex-1 min-w-0">
             <h2 className="text-xl sm:text-2xl font-bold text-slate-800 mb-2 break-words">
-              {task.title}
+              {task?.title}
             </h2>
-            <div className="text-sm text-blue-600 mb-4">{subject?.name}</div>
+            <div className="text-sm text-blue-600 mb-4">
+              {task?.subjectName}
+            </div>
 
-            {/* Task Meta - Stack on mobile */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-6 space-y-2 sm:space-y-0 text-sm text-slate-600 mb-4">
               <div className="flex items-center">
-                <TypeIcon className="w-4 h-4 mr-2 flex-shrink-0" />
+                <TaskTypeIcon className="w-4 h-4 mr-2 flex-shrink-0" />
                 <span className="capitalize">
-                  {task.type === "exam" ? "Exam" : task.type}
+                  {task?.taskType === "exam" ? "Exam" : task?.taskType}
                 </span>
               </div>
               <div className="flex items-center">
-                <DoneByIcon className="w-4 h-4 mr-2 flex-shrink-0" />
-                <span>{doneByInfo.text}</span>
+                <CompletionTypeIcon className="w-4 h-4 mr-2 flex-shrink-0" />
+                <span>{completionTypeInfo.text}</span>
               </div>
               <div className="flex items-center">
                 <Clock className="w-4 h-4 mr-2 flex-shrink-0" />
-                <span className="break-all">
-                  {format(new Date(task.dueDate), "MMM d, yyyy, hh:mm a")}
-                </span>
+                <span className="break-all">{formattedDueDateTime}</span>
               </div>
             </div>
 
-            {/* Description */}
             <div className="mb-6">
               <h3 className="text-lg font-semibold text-slate-800 mb-3">
                 Description
               </h3>
               <p className="text-slate-600 leading-relaxed break-words">
-                {task.description}
+                {task?.description || "No description provided."}
               </p>
             </div>
 
-            {/* Action Button */}
             <div className="pt-4 border-t border-slate-100">
               <Button>Mark as Done</Button>
             </div>

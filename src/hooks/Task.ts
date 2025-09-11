@@ -36,6 +36,45 @@ function useGetTasks() {
   });
 }
 
+function useGetTask(taskId: string) {
+  const queryClient = useQueryClient();
+  const { data: workspace, isLoading: isLoadingWorkspace } =
+    useGetUserWorkspace();
+  const { semester } = useSemesterContext();
+
+  return useQuery({
+    queryKey: queryKeys.tasks.detail(workspace?.id!, semester, taskId),
+    queryFn: async () => {
+      if (!workspace?.id || !semester) {
+        throw new Error("Workspace or semester is not available");
+      }
+
+      if (!taskId) {
+        throw new Error("Task ID is not provided");
+      }
+
+      const { data, error } = await supabase
+        .from("semester_tasks")
+        .select("*")
+        .eq("id", taskId)
+        .single();
+
+      if (error) {
+        console.log(error);
+        throw new Error(error.message);
+      }
+
+      return toCamelCase<SemesterTask>(data);
+    },
+    initialData: queryClient
+      .getQueryData<SemesterTask[]>(
+        queryKeys.tasks.list(workspace?.id!, semester)
+      )
+      ?.find((task) => task.id === taskId),
+    enabled: !isLoadingWorkspace && !!workspace && !!semester && !!taskId,
+  });
+}
+
 function useAddTask() {
   const queryClient = useQueryClient();
   const { data: workspace } = useGetUserWorkspace();
@@ -74,8 +113,8 @@ function useUpdateTask() {
   const { semester } = useSemesterContext();
 
   return useMutation({
-    mutationFn: async (newTask: Task) => {
-      const snakeCaseData = toSnakeCase(newTask) as {
+    mutationFn: async (task: Task) => {
+      const snakeCaseData = toSnakeCase(task) as {
         id: string;
         subject_id: string;
         title: string;
@@ -89,13 +128,16 @@ function useUpdateTask() {
       const { error } = await supabase
         .from("tasks")
         .update(snakeCaseData)
-        .eq("id", newTask.id);
+        .eq("id", task.id);
 
       if (error) throw new Error(error.message);
     },
-    onSuccess: () => {
+    onSuccess: (_, task) => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.tasks.list(workspace?.id!, semester),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.tasks.detail(workspace?.id!, semester, task.id),
       });
     },
     onError: (error) => {
@@ -104,4 +146,29 @@ function useUpdateTask() {
   });
 }
 
-export { useGetTasks, useAddTask, useUpdateTask };
+function useDeleteTask() {
+  const queryClient = useQueryClient();
+  const { data: workspace } = useGetUserWorkspace();
+  const { semester } = useSemesterContext();
+
+  return useMutation({
+    mutationFn: async (taskId: string) => {
+      const { error } = await supabase.from("tasks").delete().eq("id", taskId);
+
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: (_, taskId) => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.tasks.list(workspace?.id!, semester),
+      });
+      queryClient.removeQueries({
+        queryKey: queryKeys.tasks.detail(workspace?.id!, semester, taskId),
+      });
+    },
+    onError: (error) => {
+      console.log("Error deleting task:", error);
+    },
+  });
+}
+
+export { useGetTasks, useGetTask, useAddTask, useUpdateTask, useDeleteTask };
