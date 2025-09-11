@@ -41,6 +41,5 @@ yarn-error.log*
 next-env.d.ts
 
 .vscode
-src/data/mockData.ts
 schema-copy.sql
 whole-db-copy.sql
