@@ -1,52 +1,37 @@
 "use client";
-import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-  HelpCircle,
-  ClipboardList,
-  User,
-  Users,
-  ChevronDownIcon,
-} from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { HelpCircle, ClipboardList, User, Users } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
+import { Form } from "@/components/ui/form";
+import { Subject } from "@/types/Subject";
+import { useAddTask, useUpdateTask } from "@/hooks/Task";
+import { useForm } from "react-hook-form";
+import { SelectField } from "@/components/SelectField";
+import { CalendarField } from "@/components/form/CalendarField";
+import { ToggleGroupField } from "@/components/form/ToggleGroupField";
+import { SemesterTask } from "@/types/Task";
+import { TaskSchema } from "@/zod-schema/Task";
+import * as z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 interface UpsertTaskDialogProps {
-  initialData?: {
-    title?: string;
-    description?: string;
-    type?: "exam" | "activity";
-    doneBy?: "individual" | "pair" | "group";
-    dueDate?: string;
-    subjectId?: string;
-  };
-  subjects: { id: string; name: string }[];
+  initialData?: Partial<SemesterTask>;
+  subjects: Subject[];
   onClose: () => void;
-  onSubmit: (data: any) => void;
   isLoading?: boolean;
 }
 
-const typeOptions = [
-  { value: "exam", label: "Exam", icon: HelpCircle },
+type TaskFormValues = z.infer<typeof TaskSchema>;
+
+const taskTypeOptions = [
+  { value: "quiz", label: "Quiz", icon: HelpCircle },
   { value: "activity", label: "Activity", icon: ClipboardList },
 ];
 
-const doneByOptions = [
+const completionTypeOptions = [
   { value: "individual", label: "Individual", icon: User },
   { value: "pair", label: "Pair", icon: Users },
   { value: "group", label: "Group", icon: Users },
@@ -56,32 +41,31 @@ function UpsertTaskDialog({
   initialData = {},
   subjects,
   onClose,
-  onSubmit,
   isLoading = false,
 }: UpsertTaskDialogProps) {
-  const [title, setTitle] = useState(initialData.title || "");
-  const [description, setDescription] = useState(initialData.description || "");
-  const [type, setType] = useState<"exam" | "activity">(
-    initialData.type || "activity"
-  );
-  const [doneBy, setDoneBy] = useState<"individual" | "pair" | "group">(
-    initialData.doneBy || "individual"
-  );
-  const [dueDate, setDueDate] = useState(initialData.dueDate || "");
-  const [subjectId, setSubjectId] = useState(initialData.subjectId || "");
-  const [open, setOpen] = useState(false);
-  const [date, setDate] = useState<Date | undefined>(undefined);
+  const form = useForm<TaskFormValues>({
+    defaultValues: {
+      title: initialData.title || "",
+      description: initialData.description || "",
+      subjectId: initialData.subjectId || "",
+      taskType: initialData.taskType || "activity",
+      completionType: initialData.completionType || "individual",
+      dueDate: initialData.dueDate ? initialData.dueDate : "",
+      dueTime: initialData.dueTime ? initialData.dueTime : "00:00",
+    },
+    resolver: zodResolver(TaskSchema),
+  });
+  const { mutate: addTask, isPending: isAddingTask } = useAddTask();
+  const { mutate: updateTask, isPending: isUpdatingTask } = useUpdateTask();
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    onSubmit({
-      title,
-      description,
-      type,
-      doneBy,
-      dueDate,
-      subjectId,
-    });
+  const isPending = isAddingTask || isUpdatingTask || isLoading;
+
+  function onSubmit(data: TaskFormValues) {
+    if (initialData.id) {
+      updateTask({ id: initialData.id, ...data }, { onSuccess: onClose });
+    } else {
+      addTask(data, { onSuccess: onClose });
+    }
   }
 
   return (
@@ -91,180 +75,135 @@ function UpsertTaskDialog({
           {initialData.title ? "Edit Task" : "Add New Task"}
         </DialogTitle>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Title */}
-          <div className="space-y-2">
-            <Label htmlFor="task-title">
-              Task Title{" "}
-              <span className="text-red-500" title="Required">
-                *
-              </span>
-            </Label>
-            <Input
-              id="task-title"
-              type="text"
-              placeholder="Enter task title..."
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              disabled={isLoading}
-            />
-          </div>
-
-          {/* Description */}
-          <div className="space-y-2">
-            <Label htmlFor="task-description">Description</Label>
-            <Textarea
-              id="task-description"
-              placeholder="Add task description (optional)..."
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              disabled={isLoading}
-              className="break-all"
-            />
-          </div>
-
-          {/* Type and Done By - Stacked on mobile */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Type */}
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
-              <Label>Task Type</Label>
-              <div className="grid grid-cols-2 gap-2">
-                {typeOptions.map((opt) => (
-                  <Button
-                    key={opt.value}
-                    onClick={() => setType(opt.value as "exam" | "activity")}
-                    variant="outline"
-                    className={`transition-all duration-200 ${
-                      type === opt.value ? "" : "border-gray-200 text-gray-600"
-                    }`}
-                    disabled={isLoading}
-                  >
-                    <opt.icon className="w-4 h-4" />
-                    <span className="text-xs">{opt.label}</span>
-                  </Button>
-                ))}
-              </div>
+              <Label htmlFor="task-title">
+                Task Title{" "}
+                <span className="text-red-500" title="Required">
+                  *
+                </span>
+              </Label>
+              <Input
+                {...form.register("title")}
+                id="task-title"
+                type="text"
+                placeholder="Enter task title..."
+                disabled={isPending}
+              />
+              {form.formState.errors.title && (
+                <p className="text-red-500 text-xs">
+                  {form.formState.errors.title.message}
+                </p>
+              )}
             </div>
 
-            {/* Done By */}
             <div className="space-y-2">
-              <Label>Completion Type</Label>
-              <div className="grid grid-cols-3 gap-1">
-                {doneByOptions.map((opt) => (
-                  <Button
-                    key={opt.value}
-                    onClick={() =>
-                      setDoneBy(opt.value as "individual" | "pair" | "group")
-                    }
-                    variant="outline"
-                    className={`flex flex-col gap-0.5 transition-all duration-200 h-12 ${
-                      doneBy === opt.value
-                        ? ""
-                        : "border-gray-200 text-gray-600"
-                    }`}
-                    disabled={isLoading}
-                  >
-                    <opt.icon className="w-4 h-4" />
-                    <span className="text-xs">{opt.label}</span>
-                  </Button>
-                ))}
-              </div>
+              <Label htmlFor="task-description">Description</Label>
+              <Textarea
+                {...form.register("description")}
+                id="task-description"
+                placeholder="Add task description (optional)..."
+                disabled={isPending}
+                className="break-all"
+              />
             </div>
-          </div>
 
-          {/* Due Date */}
-          <div className="space-y-2">
-            <Label htmlFor="date-picker">
-              Due Date{" "}
-              <span className="text-red-500" title="Required">
-                *
-              </span>
-            </Label>
-            <div className="flex gap-2">
-              <div className="flex-1">
-                <Popover open={open} onOpenChange={setOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      id="date-picker"
-                      className="w-full justify-between font-normal"
-                    >
-                      {date ? date.toLocaleDateString() : "Select date"}
-                      <ChevronDownIcon />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent
-                    className="w-auto overflow-hidden p-0"
-                    align="start"
-                  >
-                    <Calendar
-                      mode="single"
-                      selected={date}
-                      captionLayout="dropdown"
-                      onSelect={(date) => {
-                        setDate(date);
-                        setOpen(false);
-                      }}
-                    />
-                  </PopoverContent>
-                </Popover>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex-1 w-full">
+                <ToggleGroupField
+                  control={form.control}
+                  variant="outline"
+                  name="taskType"
+                  label="Task Type"
+                  options={taskTypeOptions}
+                  required
+                  disabled={isPending}
+                  className="w-full"
+                  toggleItemClassName="px-3"
+                />
               </div>
-              <div className="flex-1">
-                <Input
-                  type="time"
-                  id="time-picker"
-                  step="1"
-                  defaultValue="10:30:00"
-                  className="w-full leading-none bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
-                  disabled={isLoading}
+
+              <div className="flex-1 w-full">
+                <ToggleGroupField
+                  control={form.control}
+                  variant="outline"
+                  name="completionType"
+                  label="Completion Type"
+                  options={completionTypeOptions}
+                  required
+                  disabled={isPending}
+                  className="w-full"
+                  toggleItemClassName="px-4"
                 />
               </div>
             </div>
-          </div>
 
-          {/* Subject */}
-          <div className="space-y-2">
-            <Label htmlFor="subject-select">
-              Subject{" "}
-              <span className="text-red-500" title="Required">
-                *
-              </span>
-            </Label>
-            <Select
-              value={subjectId}
-              onValueChange={setSubjectId}
-              disabled={isLoading}
-            >
-              <SelectTrigger id="subject-select" className="w-full">
-                <SelectValue placeholder="Select an option" />
-              </SelectTrigger>
-              <SelectContent>
-                {subjects.map((subject) => (
-                  <SelectItem key={subject.id} value={subject.id}>
-                    {subject.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="pt-4 border-t border-gray-200">
-            <Button disabled={isLoading || !title.trim()} type="submit">
-              {isLoading ? (
-                <div className="flex items-center justify-center gap-2">
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  Saving...
+            <div className="flex justify-between gap-2">
+              <div className="flex-1">
+                <CalendarField
+                  control={form.control}
+                  name="dueDate"
+                  label="Due Date"
+                  placeholder="Select date"
+                  required
+                  disabled={isPending}
+                />
+              </div>
+              <div className="flex-1">
+                <div className="space-y-2">
+                  <Label htmlFor="time-picker">
+                    Time{" "}
+                    <span className="text-red-500" title="Required">
+                      *
+                    </span>
+                  </Label>
+                  <Input
+                    {...form.register("dueTime")}
+                    type="time"
+                    id="time-picker"
+                    className="w-full leading-none bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+                    disabled={isPending}
+                  />
+                  {form.formState.errors.dueTime && (
+                    <p className="text-red-500 text-xs">
+                      {form.formState.errors.dueTime.message}
+                    </p>
+                  )}
                 </div>
-              ) : initialData.title ? (
-                "Save Changes"
-              ) : (
-                "Create Task"
-              )}
-            </Button>
-          </div>
-        </form>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <SelectField
+                control={form.control}
+                name="subjectId"
+                label="Subject"
+                options={subjects.map((subject) => ({
+                  label: subject.name,
+                  value: subject.id,
+                }))}
+                required
+                disabled={isPending}
+              />
+            </div>
+
+            <div className="pt-4 border-t border-gray-200">
+              <Button disabled={isPending} type="submit">
+                {isPending ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Saving...
+                  </div>
+                ) : initialData.title ? (
+                  "Save Changes"
+                ) : (
+                  "Create Task"
+                )}
+              </Button>
+            </div>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
