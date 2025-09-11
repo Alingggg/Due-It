@@ -19,17 +19,19 @@ const ScheduleSchema = z.object({
   ),
   startTime: z.string().refine(
     (val) => {
-      const parsed = parse(val, "HH:mm", new Date());
-      return isValid(parsed);
+      const parsedWithSeconds = parse(val, "HH:mm:ss", new Date());
+      const parsedWithoutSeconds = parse(val, "HH:mm", new Date());
+      return isValid(parsedWithSeconds) || isValid(parsedWithoutSeconds);
     },
-    { error: "Invalid time format (expected HH:mm)" }
+    { error: "Invalid time format (expected HH:mm or HH:mm:ss)" }
   ),
   endTime: z.string().refine(
     (val) => {
-      const parsed = parse(val, "HH:mm", new Date());
-      return isValid(parsed);
+      const parsedWithSeconds = parse(val, "HH:mm:ss", new Date());
+      const parsedWithoutSeconds = parse(val, "HH:mm", new Date());
+      return isValid(parsedWithSeconds) || isValid(parsedWithoutSeconds);
     },
-    { error: "Invalid time format (expected HH:mm)" }
+    { error: "Invalid time format (expected HH:mm or HH:mm:ss)" }
   ),
 });
 
