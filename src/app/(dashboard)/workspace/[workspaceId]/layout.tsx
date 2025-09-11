@@ -1,4 +1,6 @@
 "use client";
+import { useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 import WorkspaceHeader from "@/components/WorkspaceHeader";
 import { useGetUserWorkspace } from "@/hooks/Workspace";
@@ -9,6 +11,16 @@ type WorkspaceLayoutProps = {
 
 function WorkspaceLayout({ children }: WorkspaceLayoutProps) {
   const { data: workspace } = useGetUserWorkspace();
+  const router = useRouter();
+  const params = useParams();
+
+  useEffect(() => {
+    if (!workspace?.id) return;
+    const currentWorkspaceId = params?.workspaceId?.toString();
+    if (currentWorkspaceId && currentWorkspaceId !== workspace.id) {
+      router.replace(`/workspace/${workspace.id}/tasks`);
+    }
+  }, [workspace?.id, params?.workspaceId, router]);
 
   return (
     <div className="flex h-screen bg-slate-50">
