@@ -1,26 +1,23 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { MaterialGroup, getMaterialsByGroupId } from "@/data/mockData";
 import { Folder, Paperclip } from "lucide-react";
 import { format } from "date-fns";
+import { SemesterMaterials } from "@/types/Material";
 
 interface MaterialGroupCardProps {
-  materialGroup: MaterialGroup;
+  materialGroup: SemesterMaterials;
   workspaceId: string;
-  subjectName?: string;
 }
 
 function MaterialGroupCard({
   materialGroup,
   workspaceId,
-  subjectName,
 }: MaterialGroupCardProps) {
   const router = useRouter();
-  const materials = getMaterialsByGroupId(materialGroup.id);
 
-  const handleCardClick = () => {
+  function handleCardClick() {
     router.push(`/workspace/${workspaceId}/materials/${materialGroup.id}`);
-  };
+  }
 
   return (
     <div
@@ -39,16 +36,19 @@ function MaterialGroupCard({
             </h3>
 
             <div className="text-xs sm:text-sm text-slate-600 flex flex-col sm:flex-row sm:items-center space-y-0.5 sm:space-y-0 sm:space-x-4">
-              {subjectName && (
+              {materialGroup.subjectName && (
                 <>
-                  <span className="truncate text-blue-600">{subjectName}</span>
+                  <span className="truncate text-blue-600">
+                    {materialGroup.subjectName}
+                  </span>
                   <span className="text-slate-400 hidden sm:inline">•</span>
                 </>
               )}
               <div className="flex items-center space-x-2">
                 <Paperclip className="w-3 h-3" />
                 <span>
-                  {materials.length} file{materials.length !== 1 ? "s" : ""}
+                  {materialGroup.materialCount} file
+                  {materialGroup.materialCount !== 1 ? "s" : ""}
                 </span>
               </div>
             </div>
@@ -62,7 +62,7 @@ function MaterialGroupCard({
         {/* Date Section */}
         <div className="flex flex-col justify-center items-end min-w-[100px]">
           <div className="text-xs sm:text-sm text-slate-500 sm:mb-0 sm:text-right">
-            {format(new Date(materialGroup.createdDate), "MMM d, yyyy")}
+            {format(new Date(materialGroup.createdAt), "MMM d, yyyy")}
           </div>
         </div>
       </div>

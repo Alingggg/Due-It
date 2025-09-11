@@ -1,14 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import MaterialGroupCard from "@/components/MaterialGroupCard";
 import { Button } from "@/components/ui/button";
-import {
-  getMaterialGroupsByWorkspaceId,
-  getSubjectsByWorkspaceId,
-  getSubjectById,
-  getCurrentUserRole,
-} from "@/data/mockData";
 import { FolderOpen, Filter, Plus } from "lucide-react";
 import useDialogContext from "@/hooks/Dialog";
 import {
@@ -25,29 +19,37 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Label } from "@/components/ui/label";
-import useSemesterContext from "@/hooks/Semester";
+import {
+  useGetUserWorkspace,
+  useGetUserWorkspaceRole,
+} from "@/hooks/Workspace";
+import { useGetSubjects } from "@/hooks/Subject";
+import { useGetMaterialGroups } from "@/hooks/Material";
+import LoadingPage from "@/components/LoadingPage";
 
 function MaterialsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { workspaceId } = useParams<{ workspaceId: string }>();
-  const { semester } = useSemesterContext();
-
-  const materialGroups = getMaterialGroupsByWorkspaceId(workspaceId, semester);
-  const { openDialog } = useDialogContext();
-
-  // Get current user's role in this workspace
-  const currentUserRole = getCurrentUserRole(workspaceId);
-
-  const subjects = getSubjectsByWorkspaceId(workspaceId, semester);
-
-  // Initialize states from URL params or defaults
   const [sortBy, setSortBy] = useState(
     searchParams.get("sort") || "createdDate"
   );
   const [filterSubject, setFilterSubject] = useState(
     searchParams.get("subject") || "all"
   );
+  const { data: workspace, isLoading: isLoadingWorkspace } =
+    useGetUserWorkspace();
+  const workspaceId = workspace?.id!;
+  const { data: materialGroups, isLoading: isLoadingMaterialGroups } =
+    useGetMaterialGroups();
+  const { data: currentUserRole, isLoading: isLoadingUserRole } =
+    useGetUserWorkspaceRole();
+  const { data: subjects, isLoading: isLoadingSubject } = useGetSubjects();
+  const { openDialog } = useDialogContext();
+  const isPageLoading =
+    isLoadingWorkspace ||
+    isLoadingMaterialGroups ||
+    isLoadingUserRole ||
+    isLoadingSubject;
 
   // Update URL when filters change
   useEffect(() => {
@@ -66,21 +68,20 @@ function MaterialsPage() {
   }, [sortBy, filterSubject, router]);
 
   // Filter material groups
-  const filteredMaterialGroups = materialGroups.filter((group) => {
-    const subjectMatch =
-      filterSubject === "all" || group.subjectId === filterSubject;
-    return subjectMatch;
-  });
+  const filteredMaterialGroups =
+    materialGroups?.filter((group) => {
+      const subjectMatch =
+        filterSubject === "all" || group.subjectId === filterSubject;
+      return subjectMatch;
+    }) ?? [];
 
   // Sort material groups
   const sortedMaterialGroups = [...filteredMaterialGroups].sort((a, b) => {
-    if (sortBy === "createdDate") {
-      return (
-        new Date(b.createdDate).getTime() - new Date(a.createdDate).getTime()
-      ); // Latest first
+    if (sortBy === "createdAt") {
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(); // Latest first
     } else if (sortBy === "subject") {
-      const subjectA = subjects.find((s) => s.id === a.subjectId)?.name || "";
-      const subjectB = subjects.find((s) => s.id === b.subjectId)?.name || "";
+      const subjectA = subjects?.find((s) => s.id === a.subjectId)?.name || "";
+      const subjectB = subjects?.find((s) => s.id === b.subjectId)?.name || "";
       return subjectA.localeCompare(subjectB);
     }
     return 0;
@@ -90,8 +91,7 @@ function MaterialsPage() {
   const groupedMaterialGroups =
     sortBy === "subject"
       ? sortedMaterialGroups.reduce((groups, materialGroup) => {
-          const subject = getSubjectById(materialGroup.subjectId);
-          const subjectName = subject?.name || "Unknown Subject";
+          const subjectName = materialGroup.subjectName || "Unknown Subject";
           if (!groups[subjectName]) {
             groups[subjectName] = [];
           }
@@ -103,14 +103,14 @@ function MaterialsPage() {
   // Sort material groups within each subject by created date (latest first)
   if (groupedMaterialGroups) {
     Object.keys(groupedMaterialGroups).forEach((subjectName) => {
-      groupedMaterialGroups[subjectName].sort(
+      groupedMaterialGroups[subjectName]?.sort(
         (a, b) =>
-          new Date(b.createdDate).getTime() - new Date(a.createdDate).getTime()
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
     });
   }
 
-  const renderMaterialGroups = () => {
+  function renderMaterialGroups() {
     if (sortBy === "subject" && groupedMaterialGroups) {
       return (
         <Accordion
@@ -127,7 +127,7 @@ function MaterialsPage() {
                 </AccordionTrigger>
                 <AccordionContent>
                   <div className="space-y-4">
-                    {subjectMaterialGroups.map((materialGroup) => (
+                    {subjectMaterialGroups?.map((materialGroup) => (
                       <MaterialGroupCard
                         key={materialGroup.id}
                         materialGroup={materialGroup}
@@ -145,34 +145,37 @@ function MaterialsPage() {
       return sortedMaterialGroups.map((materialGroup) => (
         <MaterialGroupCard
           key={materialGroup.id}
-          workspaceId={workspaceId}
           materialGroup={materialGroup}
-          subjectName={materialGroup.subjectName}
+          workspaceId={workspaceId}
         />
       ));
     }
-  };
+  }
 
   // Dropdown options
-  const sortOptions = [
+  const SORT_OPTIONS = [
     { value: "createdDate", label: "Created Date" },
     { value: "subject", label: "Subject" },
   ];
 
-  const subjectOptions = [
+  const SUBJECT_OPTIONS = [
     { value: "all", label: "All Subjects" },
-    ...subjects.map((subject) => ({
+    ...(subjects ?? []).map((subject) => ({
       value: subject.id,
       label: subject.name,
     })),
   ];
+
+  if (isPageLoading) {
+    return <LoadingPage message="Loading materials..." />;
+  }
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-slate-800">Materials</h1>
-        {(currentUserRole === "admin" || currentUserRole === "co") && (
+        {(currentUserRole === "admin" || currentUserRole === "co-admin") && (
           <Button onClick={() => openDialog("UPSERT_MATERIAL", { subjects })}>
             <Plus className="w-4 h-4" />
             Create
@@ -195,7 +198,7 @@ function MaterialsPage() {
               <SelectValue placeholder="Select an option" />
             </SelectTrigger>
             <SelectContent>
-              {sortOptions.map((option) => (
+              {SORT_OPTIONS.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
                 </SelectItem>
@@ -212,7 +215,7 @@ function MaterialsPage() {
               <SelectValue placeholder="Select an option" />
             </SelectTrigger>
             <SelectContent>
-              {subjectOptions.map((option) => (
+              {SUBJECT_OPTIONS.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
                 </SelectItem>
@@ -239,12 +242,6 @@ function MaterialsPage() {
               ? "Try selecting a different subject to see more materials."
               : "No materials have been created yet."}
           </p>
-          {(currentUserRole === "admin" || currentUserRole === "co") && (
-            <Button>
-              <Plus className="w-4 h-4" />
-              <span>Create First Material</span>
-            </Button>
-          )}
         </div>
       )}
     </div>
