@@ -48,7 +48,7 @@ function useRenewCode() {
 
       const { error } = await supabase
         .from("codes")
-        .update({ code: newCode, updated_at: new Date().toISOString() })
+        .update({ code: newCode, updated_at: new Date().toLocaleString() })
         .eq("workspace_id", workspace.id);
 
       if (error) {
