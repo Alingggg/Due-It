@@ -1,13 +1,5 @@
 "use client";
-import { use } from "react";
-import { notFound, useRouter } from "next/navigation";
-import {
-  getMaterialGroupById,
-  getMaterialsByGroupId,
-  getSubjectById,
-  canManageWorkspace,
-  getSubjectsByWorkspaceId,
-} from "@/data/mockData";
+import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   ArrowLeft,
@@ -20,47 +12,43 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import useDialogContext from "@/hooks/Dialog";
-import useSemesterContext from "@/hooks/Semester";
+import { useGetSubjects } from "@/hooks/Subject";
+import { useGetMaterialGroup, useGetMaterials } from "@/hooks/Material";
+import { useGetUserWorkspaceRole } from "@/hooks/Workspace";
+import LoadingPage from "@/components/LoadingPage";
+import formatFileSize from "@/utils/formatFileSize";
 
-interface MaterialGroupDetailsPageProps {
-  params: Promise<{
-    workspaceId: string;
-    materialGroupId: string;
-  }>;
-}
-
-const formatFileSize = (bytes: number): string => {
-  if (bytes === 0) return "0 Bytes";
-  const k = 1024;
-  const sizes = ["Bytes", "KB", "MB", "GB"];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
-};
-
-function MaterialGroupDetailsPage({ params }: MaterialGroupDetailsPageProps) {
-  const { workspaceId, materialGroupId } = use(params);
+function MaterialGroupDetailsPage() {
   const router = useRouter();
-  const materialGroup = getMaterialGroupById(materialGroupId);
-  const materials = getMaterialsByGroupId(materialGroupId);
+  const params = useParams();
+  const materialGroupId = params.materialGroupId as string;
   const { openDialog, closeDialog } = useDialogContext();
-  const { semester } = useSemesterContext();
-  const subjects = getSubjectsByWorkspaceId(workspaceId, semester);
+  const { data: materialGroup, isLoading: isLoadingMaterialGroup } =
+    useGetMaterialGroup(materialGroupId);
+  const { data: materials, isLoading: isLoadingMaterials } =
+    useGetMaterials(materialGroupId);
+  const { data: subjects, isLoading: isLoadingSubject } = useGetSubjects();
+  const { data: currentUserRole, isLoading: isLoadingUserRole } =
+    useGetUserWorkspaceRole();
+  const canManage =
+    currentUserRole === "admin" || currentUserRole === "co-admin";
+  const isPageLoading =
+    isLoadingMaterialGroup ||
+    isLoadingMaterials ||
+    isLoadingSubject ||
+    isLoadingUserRole;
 
-  if (!materialGroup) {
-    notFound();
-  }
-
-  const subject = getSubjectById(materialGroup.subjectId);
-  const canManage = canManageWorkspace(workspaceId);
-
-  const handleOpenMaterial = (material: any) => {
+  function handleOpenMaterial(material: any) {
     // For both files and links, open in new tab
     window.open(material.downloadUrl, "_blank");
-  };
+  }
+
+  if (isPageLoading) {
+    return <LoadingPage message="Loading material details..." />;
+  }
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      {/* Back Button Row */}
       <div>
         <Button
           onClick={() => router.back()}
@@ -72,7 +60,6 @@ function MaterialGroupDetailsPage({ params }: MaterialGroupDetailsPageProps) {
         </Button>
       </div>
 
-      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0">
         <h1 className="text-xl sm:text-2xl font-bold text-slate-800">
           Material Details
@@ -91,8 +78,8 @@ function MaterialGroupDetailsPage({ params }: MaterialGroupDetailsPageProps) {
             <Button
               onClick={() =>
                 openDialog("CONFIRM_ACTION", {
-                  title: `Delete "${materialGroup.title}"?`,
-                  description: `Are you sure you want to delete "${materialGroup.title}"? This will also delete all ${materials.length} materials in this group. This action cannot be undone.`,
+                  title: `Delete "${materialGroup?.title}"?`,
+                  description: `Are you sure you want to delete "${materialGroup?.title}"? This will also delete all ${materialGroup?.materialCount} materials in this group. This action cannot be undone.`,
                   actionButtonVariant: "destructive",
                   actionButtonText: "Delete",
                   handleAction: closeDialog,
@@ -107,7 +94,6 @@ function MaterialGroupDetailsPage({ params }: MaterialGroupDetailsPageProps) {
         )}
       </div>
 
-      {/* Material Group Info */}
       <div className="bg-white rounded-lg border border-slate-200 p-4 sm:p-6">
         <div className="flex flex-col sm:flex-row sm:items-start space-y-3 sm:space-y-0 sm:space-x-4">
           <div className="p-3 sm:p-4 bg-blue-50 rounded-xl w-fit">
@@ -115,26 +101,25 @@ function MaterialGroupDetailsPage({ params }: MaterialGroupDetailsPageProps) {
           </div>
           <div className="flex-1">
             <h2 className="text-xl sm:text-2xl font-bold text-slate-800 mb-2">
-              {materialGroup.title}
+              {materialGroup?.title}
             </h2>
             <div className="text-sm text-blue-600 mb-3 sm:mb-4">
-              {subject?.name}
+              {materialGroup?.subjectName}
             </div>
             <p className="text-sm sm:text-base text-slate-600 leading-relaxed mb-3 sm:mb-4">
-              {materialGroup.description}
+              {materialGroup?.description}
             </p>
             <div className="flex items-center text-xs sm:text-sm text-slate-500">
-              {format(new Date(materialGroup.createdDate), "MMMM d, yyyy")}
+              {format(new Date(materialGroup?.createdAt), "MMMM d, yyyy")}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Materials Section */}
       <div className="bg-white rounded-lg border border-slate-200">
         <div className="p-4 sm:p-6 border-b border-slate-200 flex items-center justify-between">
           <h3 className="text-base sm:text-lg font-semibold text-slate-800">
-            Materials ({materials.length})
+            Materials ({materials?.length})
           </h3>
           {canManage && (
             <Button
@@ -147,9 +132,8 @@ function MaterialGroupDetailsPage({ params }: MaterialGroupDetailsPageProps) {
           )}
         </div>
 
-        {/* Materials List */}
         <div className="divide-y divide-slate-100">
-          {materials.map((material) => (
+          {materials?.map((material) => (
             <div
               key={material.id}
               className="p-4 sm:p-6 hover:bg-slate-50 transition-colors"
@@ -157,23 +141,23 @@ function MaterialGroupDetailsPage({ params }: MaterialGroupDetailsPageProps) {
               <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
                 <div className="flex-1 min-w-0">
                   <h4 className="text-sm sm:text-base font-medium text-slate-800 mb-2">
-                    {material.fileName}
+                    {material.name}
                   </h4>
 
                   <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs text-slate-500">
                     {material.isLink ? (
                       <>
                         <span className="capitalize">
-                          {material.fileType.replace("link/", "")}
+                          {material?.type?.replace("link/", "")}
                         </span>
                         <span>External Link</span>
                       </>
                     ) : (
                       <>
-                        <span>{formatFileSize(material.fileSize || 0)}</span>
+                        <span>{formatFileSize(material.size || 0)}</span>
                         <span className="capitalize">
-                          {material.fileType
-                            .split("/")[1]
+                          {material?.type
+                            ?.split("/")[1]
                             ?.replace(
                               "vnd.openxmlformats-officedocument.",
                               ""
@@ -184,7 +168,6 @@ function MaterialGroupDetailsPage({ params }: MaterialGroupDetailsPageProps) {
                   </div>
                 </div>
 
-                {/* Action buttons: Open/Download and Trash */}
                 <div className="flex justify-between sm:justify-start sm:gap-3 w-full sm:w-auto">
                   <Button
                     onClick={() => handleOpenMaterial(material)}
@@ -206,7 +189,7 @@ function MaterialGroupDetailsPage({ params }: MaterialGroupDetailsPageProps) {
                     <Button
                       onClick={() =>
                         openDialog("CONFIRM_ACTION", {
-                          title: `Delete "${material.fileName}"?`,
+                          title: `Delete "${material.name}"?`,
                           description: `Are you sure you want to delete this material? This action cannot be undone.`,
                           actionButtonVariant: "destructive",
                           actionButtonText: "Delete",
@@ -228,7 +211,7 @@ function MaterialGroupDetailsPage({ params }: MaterialGroupDetailsPageProps) {
         </div>
 
         {/* Empty Materials State */}
-        {materials.length === 0 && (
+        {materials?.length === 0 && (
           <div className="p-8 sm:p-12 text-center">
             <div className="text-slate-400 mb-4">
               <Folder className="w-10 h-10 sm:w-12 sm:h-12 mx-auto" />

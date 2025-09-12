@@ -2,10 +2,10 @@
 import { useRouter } from "next/navigation";
 import { Folder, Paperclip } from "lucide-react";
 import { format } from "date-fns";
-import { SemesterMaterials } from "@/types/Material";
+import { SemesterMaterialGroup } from "@/types/Material";
 
 interface MaterialGroupCardProps {
-  materialGroup: SemesterMaterials;
+  materialGroup: SemesterMaterialGroup;
   workspaceId: string;
 }
 

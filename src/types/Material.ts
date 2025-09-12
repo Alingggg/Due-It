@@ -1,4 +1,4 @@
-interface SemesterMaterials {
+interface SemesterMaterialGroup {
   id: string;
   semester: 1 | 2;
   title: string;
@@ -9,4 +9,14 @@ interface SemesterMaterials {
   subjectName: string;
 }
 
-export type { SemesterMaterials };
+interface Material {
+  id: string;
+  materialGroupId: string;
+  isLink: boolean;
+  name: string;
+  url: string;
+  size: number | null;
+  type: string | null;
+}
+
+export type { SemesterMaterialGroup, Material };
