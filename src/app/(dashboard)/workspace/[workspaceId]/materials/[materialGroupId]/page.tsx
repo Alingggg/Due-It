@@ -13,7 +13,11 @@ import {
 import { format } from "date-fns";
 import useDialogContext from "@/hooks/Dialog";
 import { useGetSubjects } from "@/hooks/Subject";
-import { useGetMaterialGroup, useGetMaterials } from "@/hooks/Material";
+import {
+  useDeleteMaterialGroup,
+  useGetMaterialGroup,
+  useGetMaterials,
+} from "@/hooks/Material";
 import { useGetUserWorkspaceRole } from "@/hooks/Workspace";
 import LoadingPage from "@/components/LoadingPage";
 import formatFileSize from "@/utils/formatFileSize";
@@ -30,6 +34,7 @@ function MaterialGroupDetailsPage() {
   const { data: subjects, isLoading: isLoadingSubject } = useGetSubjects();
   const { data: currentUserRole, isLoading: isLoadingUserRole } =
     useGetUserWorkspaceRole();
+  const { mutate: deleteMaterialGroup } = useDeleteMaterialGroup();
   const canManage =
     currentUserRole === "admin" || currentUserRole === "co-admin";
   const isPageLoading =
@@ -37,6 +42,14 @@ function MaterialGroupDetailsPage() {
     isLoadingMaterials ||
     isLoadingSubject ||
     isLoadingUserRole;
+
+  function handleDeleteMaterialGroup() {
+    deleteMaterialGroup(materialGroupId, {
+      onSuccess: () => {
+        closeDialog();
+      },
+    });
+  }
 
   function handleOpenMaterial(material: any) {
     // For both files and links, open in new tab
@@ -82,7 +95,7 @@ function MaterialGroupDetailsPage() {
                   description: `Are you sure you want to delete "${materialGroup?.title}"? This will also delete all ${materialGroup?.materialCount} materials in this group. This action cannot be undone.`,
                   actionButtonVariant: "destructive",
                   actionButtonText: "Delete",
-                  handleAction: closeDialog,
+                  handleAction: handleDeleteMaterialGroup,
                 })
               }
               variant="destructive"
@@ -110,7 +123,11 @@ function MaterialGroupDetailsPage() {
               {materialGroup?.description}
             </p>
             <div className="flex items-center text-xs sm:text-sm text-slate-500">
-              {format(new Date(materialGroup?.createdAt), "MMMM d, yyyy")}
+              {materialGroup?.createdAt &&
+                format(
+                  new Date(materialGroup.createdAt.split(".")[0] + "Z"),
+                  "MMMM d, yyyy"
+                )}
             </div>
           </div>
         </div>

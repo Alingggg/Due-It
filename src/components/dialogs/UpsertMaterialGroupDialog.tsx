@@ -12,7 +12,7 @@ import { Form } from "@/components/ui/form";
 import { SelectField } from "@/components/SelectField";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useAddMaterialGroup } from "@/hooks/Material";
+import { useAddMaterialGroup, useUpdateMaterialGroup } from "@/hooks/Material";
 import { MaterialGroupSchema } from "@/zod-schema/Material";
 
 type FormValues = z.infer<typeof MaterialGroupSchema>;
@@ -30,6 +30,8 @@ function UpsertMaterialDialog({
 }: UpsertMaterialDialogProps) {
   const { mutate: addMaterialGroup, isPending: isAddingMaterialGroup } =
     useAddMaterialGroup();
+  const { mutate: updateMaterialGroup, isPending: isUpdatingMaterialGroup } =
+    useUpdateMaterialGroup();
   const form = useForm<FormValues>({
     defaultValues: {
       title: materialGroup?.title || "",
@@ -40,14 +42,19 @@ function UpsertMaterialDialog({
   });
 
   const isEditing = !!materialGroup;
-  const isSubmitting = isAddingMaterialGroup;
+  const isSubmitting = isAddingMaterialGroup || isUpdatingMaterialGroup;
 
   function onSubmit(data: FormValues) {
-    addMaterialGroup(data, {
-      onSuccess: () => {
-        onClose();
-      },
-    });
+    if (isEditing && materialGroup?.id) {
+      updateMaterialGroup(
+        { id: materialGroup.id, ...data },
+        { onSuccess: () => onClose() }
+      );
+    } else {
+      addMaterialGroup(data, {
+        onSuccess: () => onClose(),
+      });
+    }
   }
 
   return (

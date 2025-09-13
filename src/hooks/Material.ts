@@ -3,8 +3,6 @@ import { useGetUserWorkspace } from "@/hooks/Workspace";
 import { queryKeys } from "@/lib/queryKeys";
 import supabase from "@/lib/supabase";
 import { Material, SemesterMaterialGroup } from "@/types/Material";
-import { toCamelCase } from "@/utils/caseConversion";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toCamelCase, toSnakeCase } from "@/utils/caseConversion";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
@@ -57,8 +55,8 @@ function useGetMaterialGroup(materialGroupId: string) {
       const { data, error } = await supabase
         .from("semester_materials")
         .select("*")
-        .eq("semester", semester)
-        .eq("id", materialGroupId);
+        .eq("id", materialGroupId)
+        .single();
 
       if (error) {
         console.log(error);
@@ -72,7 +70,8 @@ function useGetMaterialGroup(materialGroupId: string) {
         queryKeys.materialGroups.list(workspace?.id!, semester)
       )
       ?.find((mg) => mg.id === materialGroupId),
-    enabled: !!workspace && !!semester && !isLoadingWorkspace,
+    enabled:
+      !!workspace && !!semester && !isLoadingWorkspace && !!materialGroupId,
   });
 }
 
@@ -91,8 +90,7 @@ function useGetMaterials(materialGroupId: string) {
       const { data, error } = await supabase
         .from("materials")
         .select("*")
-        .eq("group_id", materialGroupId);
-
+        .eq("material_group_id", materialGroupId);
       if (error) {
         console.log(error);
         throw new Error(error.message);
@@ -104,7 +102,6 @@ function useGetMaterials(materialGroupId: string) {
   });
 }
 
-export { useGetMaterialGroups, useGetMaterialGroup, useGetMaterials };
 function useAddMaterialGroup() {
   const queryClient = useQueryClient();
   const { data: workspace } = useGetUserWorkspace();
@@ -147,9 +144,86 @@ function useAddMaterialGroup() {
   });
 }
 
+function useUpdateMaterialGroup() {
+  const queryClient = useQueryClient();
+  const { data: workspace } = useGetUserWorkspace();
+  const { semester } = useSemesterContext();
+
+  return useMutation({
+    mutationFn: async (updatedMaterialGroup: {
+      id: string;
+      subjectId: string;
+      title: string;
+      description?: string | undefined;
+    }) => {
+      const snakeCaseData = toSnakeCase(updatedMaterialGroup) as {
+        id: string;
+        subject_id: string;
+        title: string;
+        description?: string | undefined;
+      };
+
+      const { error } = await supabase
+        .from("material_groups")
+        .update(snakeCaseData)
+        .eq("id", updatedMaterialGroup.id);
+
+      if (error) {
+        throw new Error(error.message);
+      }
+    },
+    onSuccess: (_, updatedMaterialGroup) => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.materialGroups.list(workspace?.id!, semester),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.materialGroups.detail(
+          workspace?.id!,
+          semester,
+          updatedMaterialGroup.id
+        ),
+      });
+    },
+    onError: (error) => {
+      console.log("Error updating material group:", error);
+    },
+  });
+}
+
+function useDeleteMaterialGroup() {
+  const queryClient = useQueryClient();
+  const { data: workspace } = useGetUserWorkspace();
+  const { semester } = useSemesterContext();
+  const router = useRouter();
+
+  return useMutation({
+    mutationFn: async (materialGroupId: string) => {
+      const { error } = await supabase
+        .from("material_groups")
+        .delete()
+        .eq("id", materialGroupId);
+
+      if (error) {
+        throw new Error(error.message);
+      }
+    },
+    onSuccess: () => {
+      router.push(`/workspace/${workspace?.id}/materials`);
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.materialGroups.list(workspace?.id!, semester),
+      });
+    },
+    onError: (error) => {
+      console.log("Error deleting material group:", error);
+    },
+  });
+}
+
 export {
   useGetMaterialGroups,
   useGetMaterialGroup,
   useGetMaterials,
   useAddMaterialGroup,
+  useUpdateMaterialGroup,
+  useDeleteMaterialGroup,
 };
