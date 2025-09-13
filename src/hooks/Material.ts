@@ -5,6 +5,9 @@ import supabase from "@/lib/supabase";
 import { Material, SemesterMaterialGroup } from "@/types/Material";
 import { toCamelCase } from "@/utils/caseConversion";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { toCamelCase, toSnakeCase } from "@/utils/caseConversion";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 
 function useGetMaterialGroups() {
   const { data: workspace, isLoading: isLoadingWorkspace } =
@@ -102,3 +105,51 @@ function useGetMaterials(materialGroupId: string) {
 }
 
 export { useGetMaterialGroups, useGetMaterialGroup, useGetMaterials };
+function useAddMaterialGroup() {
+  const queryClient = useQueryClient();
+  const { data: workspace } = useGetUserWorkspace();
+  const { semester } = useSemesterContext();
+  const router = useRouter();
+
+  return useMutation({
+    mutationFn: async (newMaterialGroup: {
+      subjectId: string;
+      title: string;
+      description?: string | undefined;
+    }) => {
+      const snakeCaseData = toSnakeCase(newMaterialGroup) as {
+        subject_id: string;
+        title: string;
+        description?: string | undefined;
+      };
+
+      const { data, error } = await supabase
+        .from("material_groups")
+        .insert(snakeCaseData)
+        .select()
+        .single();
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      return toCamelCase(data);
+    },
+    onSuccess: (materialGroup) => {
+      router.push(`/workspace/${workspace?.id}/materials/${materialGroup.id}`);
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.materialGroups.list(workspace?.id!, semester),
+      });
+    },
+    onError: (error) => {
+      console.log("Error adding material group:", error);
+    },
+  });
+}
+
+export {
+  useGetMaterialGroups,
+  useGetMaterialGroup,
+  useGetMaterials,
+  useAddMaterialGroup,
+};
