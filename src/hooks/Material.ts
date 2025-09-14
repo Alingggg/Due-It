@@ -363,6 +363,46 @@ function useDownloadMaterial() {
   });
 }
 
+function useDeleteMaterial() {
+  const queryClient = useQueryClient();
+  const { data: workspace } = useGetUserWorkspace();
+  const { semester } = useSemesterContext();
+
+  return useMutation({
+    mutationFn: async (material: Material) => {
+      const { error: deleteError } = await supabase
+        .from("materials")
+        .delete()
+        .eq("id", material.id);
+
+      if (deleteError) throw new Error(deleteError.message);
+
+      if (!material.isLink) {
+        const { error: removeError } = await supabase.storage
+          .from("Materials")
+          .remove([material.url]);
+
+        if (removeError) throw new Error(removeError.message);
+      }
+    },
+    onSuccess: (_, material) => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.materialGroups.list(workspace?.id!, semester),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.materials.list(
+          workspace?.id!,
+          semester,
+          material.materialGroupId
+        ),
+      });
+    },
+    onError: (error) => {
+      console.log("Error deleting material:", error);
+    },
+  });
+}
+
 export {
   useGetMaterialGroups,
   useGetMaterialGroup,
@@ -372,4 +412,5 @@ export {
   useDeleteMaterialGroup,
   useAddMaterials,
   useDownloadMaterial,
+  useDeleteMaterial,
 };

@@ -14,6 +14,7 @@ import { format } from "date-fns";
 import useDialogContext from "@/hooks/Dialog";
 import { useGetSubjects } from "@/hooks/Subject";
 import {
+  useDeleteMaterial,
   useDeleteMaterialGroup,
   useDownloadMaterial,
   useGetMaterialGroup,
@@ -37,7 +38,8 @@ function MaterialGroupDetailsPage() {
   const { data: currentUserRole, isLoading: isLoadingUserRole } =
     useGetUserWorkspaceRole();
   const { mutate: deleteMaterialGroup } = useDeleteMaterialGroup();
-  const { mutate: download } = useDownloadMaterial();
+  const { mutate: downloadMaterial } = useDownloadMaterial();
+  const { mutate: deleteMaterial } = useDeleteMaterial();
   const canManage =
     currentUserRole === "admin" || currentUserRole === "co-admin";
   const isPageLoading =
@@ -56,7 +58,17 @@ function MaterialGroupDetailsPage() {
 
   function handleOpenMaterial(material: Material) {
     if (material.isLink) window.open(material.url);
-    else download(material);
+    else downloadMaterial(material);
+  }
+
+  function handleDeleteMaterial(material: Material) {
+    openDialog("CONFIRM_ACTION", {
+      title: `Delete "${material.name}"?`,
+      description: `Are you sure you want to delete this material? This action cannot be undone.`,
+      actionButtonVariant: "destructive",
+      actionButtonText: "Delete",
+      handleAction: () => deleteMaterial(material, { onSuccess: closeDialog }),
+    });
   }
 
   if (isPageLoading)
@@ -201,15 +213,7 @@ function MaterialGroupDetailsPage() {
                   </Button>
                   {canManage && (
                     <Button
-                      onClick={() =>
-                        openDialog("CONFIRM_ACTION", {
-                          title: `Delete "${material.name}"?`,
-                          description: `Are you sure you want to delete this material? This action cannot be undone.`,
-                          actionButtonVariant: "destructive",
-                          actionButtonText: "Delete",
-                          handleAction: closeDialog,
-                        })
-                      }
+                      onClick={() => handleDeleteMaterial(material)}
                       variant="ghost"
                       size="icon"
                       className="text-red-600 hover:text-red-600 hover:bg-red-50"
