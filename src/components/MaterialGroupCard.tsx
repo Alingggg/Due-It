@@ -62,7 +62,10 @@ function MaterialGroupCard({
         {/* Date Section */}
         <div className="flex flex-col justify-center items-end min-w-[100px]">
           <div className="text-xs sm:text-sm text-slate-500 sm:mb-0 sm:text-right">
-            {format(new Date(materialGroup.createdAt), "MMM d, yyyy")}
+            {format(
+              new Date(materialGroup.createdAt.split(".")[0] + "Z"),
+              "MMM d, yyyy"
+            )}
           </div>
         </div>
       </div>
