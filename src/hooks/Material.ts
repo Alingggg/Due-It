@@ -200,14 +200,28 @@ function useDeleteMaterialGroup() {
 
   return useMutation({
     mutationFn: async (materialGroupId: string) => {
-      const { error } = await supabase
+      const { error: deleteError } = await supabase
         .from("material_groups")
         .delete()
         .eq("id", materialGroupId);
 
-      if (error) {
-        throw new Error(error.message);
-      }
+      if (deleteError) throw new Error(deleteError.message);
+
+      const storagePrefix = `${workspace?.id}/${materialGroupId}/`;
+
+      const { data: files, error: listError } = await supabase.storage
+        .from("Materials")
+        .list(storagePrefix);
+
+      if (listError) throw new Error(listError.message);
+
+      const paths = files.map((file) => `${storagePrefix}${file.name}`);
+
+      const { error: removeError } = await supabase.storage
+        .from("Materials")
+        .remove(paths);
+
+      if (removeError) throw new Error(removeError.message);
     },
     onSuccess: () => {
       router.push(`/workspace/${workspace?.id}/materials`);
