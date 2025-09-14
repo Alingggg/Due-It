@@ -4,8 +4,10 @@ import { queryKeys } from "@/lib/queryKeys";
 import supabase from "@/lib/supabase";
 import { Material, SemesterMaterialGroup } from "@/types/Material";
 import { toCamelCase, toSnakeCase } from "@/utils/caseConversion";
+import { MaterialSchema } from "@/zod-schema/Material";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import * as z from "zod";
 
 function useGetMaterialGroups() {
   const { data: workspace, isLoading: isLoadingWorkspace } =
@@ -219,6 +221,110 @@ function useDeleteMaterialGroup() {
   });
 }
 
+function useAddMaterials() {
+  const queryClient = useQueryClient();
+  const { data: workspace } = useGetUserWorkspace();
+  const { semester } = useSemesterContext();
+
+  return useMutation({
+    mutationFn: async ({
+      files,
+      links,
+      materialGroupId,
+    }: {
+      files: (z.infer<typeof MaterialSchema> & { originalFile: File })[];
+      links: z.infer<typeof MaterialSchema>[];
+      materialGroupId: string;
+    }) => {
+      const materialsToInsert = [
+        ...files.map((file) => ({ ...file, materialGroupId })),
+        ...links.map((link) => ({ ...link, materialGroupId })),
+      ];
+
+      const snakeCaseData = materialsToInsert.map(toSnakeCase) as {
+        material_group_id: string;
+        is_link: boolean;
+        name: string;
+        url: string;
+        size?: number | undefined;
+        type?: string | undefined;
+        original_file?: File | undefined;
+      }[];
+
+      const { data: insertedMaterials, error: insertError } = await supabase
+        .from("materials")
+        .insert(
+          snakeCaseData.map((material) => {
+            const { original_file, ...rest } = material;
+            return rest;
+          })
+        )
+        .select();
+
+      if (insertError) throw new Error(insertError.message);
+
+      const fileMaterials = insertedMaterials.filter(
+        (material) => !material.is_link
+      );
+
+      const failedUploads = [];
+
+      for (let i = 0; i < fileMaterials.length; i++) {
+        const material = fileMaterials[i];
+        const file = files[i].originalFile;
+
+        try {
+          const fileExt = file.name.split(".").pop();
+          const fileName = `${material.id}.${fileExt}`;
+          const storagePath = `${workspace?.id}/${materialGroupId}/${fileName}`;
+
+          const { error: uploadError } = await supabase.storage
+            .from("Materials")
+            .upload(storagePath, file, {
+              upsert: true,
+            });
+
+          if (uploadError)
+            throw new Error(`Storage upload failed: ${uploadError.message}`);
+
+          // Update material record with actual storage URL
+          await supabase
+            .from("materials")
+            .update({ url: storagePath })
+            .eq("id", material.id);
+        } catch (error) {
+          console.error(`Upload failed for material ${material.id}:`, error);
+          failedUploads.push({
+            materialId: material.id,
+            fileName: file.name,
+          });
+        }
+      }
+
+      if (failedUploads.length > 0) {
+        const failedMaterialIds = failedUploads.map((f) => f.materialId);
+
+        await supabase.from("materials").delete().in("id", failedMaterialIds);
+      }
+    },
+    onSuccess: (_, newMaterials) => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.materialGroups.list(workspace?.id!, semester),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.materials.list(
+          workspace?.id!,
+          semester,
+          newMaterials.materialGroupId
+        ),
+      });
+    },
+    onError: (error) => {
+      console.log("Error adding material:", error);
+    },
+  });
+}
+
 export {
   useGetMaterialGroups,
   useGetMaterialGroup,
@@ -226,4 +332,5 @@ export {
   useAddMaterialGroup,
   useUpdateMaterialGroup,
   useDeleteMaterialGroup,
+  useAddMaterials,
 };
