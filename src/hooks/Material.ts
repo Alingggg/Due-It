@@ -339,6 +339,30 @@ function useAddMaterials() {
   });
 }
 
+function useDownloadMaterial() {
+  return useMutation({
+    mutationFn: async (material: Material) => {
+      const { data, error } = await supabase.storage
+        .from("Materials")
+        .download(material.url);
+
+      if (error) throw new Error(error.message);
+
+      const url = URL.createObjectURL(data);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = material.name;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    },
+    onError: (error) => {
+      console.log("Error downloading material:", error);
+    },
+  });
+}
+
 export {
   useGetMaterialGroups,
   useGetMaterialGroup,
@@ -347,4 +371,5 @@ export {
   useUpdateMaterialGroup,
   useDeleteMaterialGroup,
   useAddMaterials,
+  useDownloadMaterial,
 };

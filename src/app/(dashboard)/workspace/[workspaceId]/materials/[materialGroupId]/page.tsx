@@ -15,12 +15,14 @@ import useDialogContext from "@/hooks/Dialog";
 import { useGetSubjects } from "@/hooks/Subject";
 import {
   useDeleteMaterialGroup,
+  useDownloadMaterial,
   useGetMaterialGroup,
   useGetMaterials,
 } from "@/hooks/Material";
 import { useGetUserWorkspaceRole } from "@/hooks/Workspace";
 import LoadingPage from "@/components/LoadingPage";
 import formatFileSize from "@/utils/formatFileSize";
+import { Material } from "@/types/Material";
 
 function MaterialGroupDetailsPage() {
   const router = useRouter();
@@ -35,6 +37,7 @@ function MaterialGroupDetailsPage() {
   const { data: currentUserRole, isLoading: isLoadingUserRole } =
     useGetUserWorkspaceRole();
   const { mutate: deleteMaterialGroup } = useDeleteMaterialGroup();
+  const { mutate: download } = useDownloadMaterial();
   const canManage =
     currentUserRole === "admin" || currentUserRole === "co-admin";
   const isPageLoading =
@@ -51,14 +54,13 @@ function MaterialGroupDetailsPage() {
     });
   }
 
-  function handleOpenMaterial(material: any) {
-    // For both files and links, open in new tab
-    window.open(material.downloadUrl, "_blank");
+  function handleOpenMaterial(material: Material) {
+    if (material.isLink) window.open(material.url);
+    else download(material);
   }
 
-  if (isPageLoading) {
+  if (isPageLoading)
     return <LoadingPage message="Loading material details..." />;
-  }
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -163,12 +165,7 @@ function MaterialGroupDetailsPage() {
 
                   <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs text-slate-500">
                     {material.isLink ? (
-                      <>
-                        <span className="capitalize">
-                          {material?.type?.replace("link/", "")}
-                        </span>
-                        <span>External Link</span>
-                      </>
+                      <span>External Link</span>
                     ) : (
                       <>
                         <span>{formatFileSize(material.size || 0)}</span>
