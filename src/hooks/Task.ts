@@ -16,9 +16,8 @@ function useGetTasks() {
   return useQuery({
     queryKey: queryKeys.tasks.list(workspace?.id!, semester),
     queryFn: async () => {
-      if (!workspace?.id || !semester) {
+      if (!workspace?.id || !semester)
         throw new Error("Workspace or semester is not available");
-      }
 
       const { data, error } = await supabase
         .from("semester_tasks")
@@ -45,13 +44,10 @@ function useGetTask(taskId: string) {
   return useQuery({
     queryKey: queryKeys.tasks.detail(workspace?.id!, semester, taskId),
     queryFn: async () => {
-      if (!workspace?.id || !semester) {
+      if (!workspace?.id || !semester)
         throw new Error("Workspace or semester is not available");
-      }
 
-      if (!taskId) {
-        throw new Error("Task ID is not provided");
-      }
+      if (!taskId) throw new Error("Task ID is not provided");
 
       const { data, error } = await supabase
         .from("semester_tasks")

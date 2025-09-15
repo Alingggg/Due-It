@@ -11,16 +11,11 @@ import { useRouter } from "next/navigation";
 function useJoinWorkspace() {
   const queryClient = useQueryClient();
   const router = useRouter();
+  const { user } = useGetSession();
 
   return useMutation({
     mutationFn: async (code: string) => {
-      const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser();
-
-      if (userError || !user)
-        throw new Error("You must be logged in to join a workspace");
+      if (!user) throw new Error("You must be logged in to join a workspace");
 
       const { data: codeData, error: fetchError } = await supabase
         .from("codes")
@@ -85,9 +80,7 @@ function useGetUserWorkspace(isAuthenticated: boolean = true) {
   return useQuery({
     queryKey: ["userWorkspace"],
     queryFn: async () => {
-      if (!user?.id) {
-        throw new Error("User is not authenticated");
-      }
+      if (!user?.id) throw new Error("User is not authenticated");
 
       const { data, error } = await supabase
         .from("workspace_members")
@@ -113,9 +106,7 @@ function useGetWorkspaceMembers() {
   return useQuery({
     queryKey: queryKeys.members.list(workspace?.id!),
     queryFn: async () => {
-      if (!workspace?.id) {
-        throw new Error("Workspace is not available");
-      }
+      if (!workspace?.id) throw new Error("Workspace is not available");
 
       const { data, error } = await supabase
         .from("workspace_members_with_profile")
@@ -136,21 +127,14 @@ function useGetWorkspaceMembers() {
 function useGetUserWorkspaceRole() {
   const { data: workspace, isLoading: isLoadingWorkspace } =
     useGetUserWorkspace();
+  const { user } = useGetSession();
 
   return useQuery({
     queryKey: queryKeys.roles.detail(workspace?.id!),
     queryFn: async () => {
-      if (!workspace?.id) {
-        throw new Error("Workspace is not available");
-      }
+      if (!workspace?.id) throw new Error("Workspace is not available");
 
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user) {
-        throw new Error("User is not authenticated");
-      }
+      if (!user) throw new Error("User is not authenticated");
 
       const { data, error } = await supabase
         .from("workspace_members")
@@ -199,9 +183,7 @@ function useUpdateDefaultSemester() {
 
   return useMutation({
     mutationFn: async (semester: 1 | 2) => {
-      if (!workspace?.id) {
-        throw new Error("Workspace is not available");
-      }
+      if (!workspace?.id) throw new Error("Workspace is not available");
 
       const { error } = await supabase
         .from("default_semester")
@@ -228,9 +210,7 @@ function useDeleteWorkspace() {
 
   return useMutation({
     mutationFn: async () => {
-      if (!workspace?.id) {
-        throw new Error("Workspace is not available");
-      }
+      if (!workspace?.id) throw new Error("Workspace is not available");
 
       const { error } = await supabase
         .from("workspaces")
@@ -257,9 +237,7 @@ function useUpdateWorkspaceName() {
 
   return useMutation({
     mutationFn: async (name: string) => {
-      if (!workspace?.id) {
-        throw new Error("Workspace is not available");
-      }
+      if (!workspace?.id) throw new Error("Workspace is not available");
 
       const { error } = await supabase
         .from("workspaces")

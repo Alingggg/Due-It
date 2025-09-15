@@ -33,9 +33,7 @@ function useRegister() {
         },
       });
 
-      if (error) {
-        throw new Error(error.message);
-      }
+      if (error) throw new Error(error.message);
     },
     onError: (error) => {
       console.log("Error during registration:", error);
@@ -58,9 +56,7 @@ function useLogin() {
         password,
       });
 
-      if (error) {
-        throw new Error(error.message);
-      }
+      if (error) throw new Error(error.message);
     },
     onSuccess: () => {
       router.push("/get-started");
@@ -79,9 +75,7 @@ function useLogout() {
     mutationFn: async () => {
       const { error } = await supabase.auth.signOut();
 
-      if (error) {
-        throw new Error(error.message);
-      }
+      if (error) throw new Error(error.message);
     },
     onSuccess: () => {
       router.push("/sign-in");
@@ -119,6 +113,8 @@ function useGetProfile() {
   return useQuery({
     queryKey: queryKeys.profile.detail(),
     queryFn: async () => {
+      if (!user) throw new Error("User not authenticated");
+
       const { data, error } = await supabase
         .from("profiles")
         .select("*")
@@ -139,6 +135,7 @@ function useGetProfile() {
 function useUpdateProfile() {
   const queryClient = useQueryClient();
   const { data: workspace } = useGetUserWorkspace();
+  const { user } = useGetSession();
 
   return useMutation({
     mutationFn: async (profileData: {
@@ -147,14 +144,7 @@ function useUpdateProfile() {
     }) => {
       const snakeCaseData = toSnakeCase(profileData);
 
-      const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser();
-
-      if (userError || !user) {
-        throw new Error("User not authenticated");
-      }
+      if (!user) throw new Error("User not authenticated");
 
       const { error } = await supabase
         .from("profiles")
@@ -162,9 +152,7 @@ function useUpdateProfile() {
         .eq("id", user.id)
         .single();
 
-      if (error) {
-        throw new Error(error.message);
-      }
+      if (error) throw new Error(error.message);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.profile.detail() });

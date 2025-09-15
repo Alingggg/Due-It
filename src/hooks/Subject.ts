@@ -15,9 +15,8 @@ function useGetSubjects() {
   return useQuery({
     queryKey: queryKeys.subjects.list(workspace?.id!, semester),
     queryFn: async () => {
-      if (!workspace?.id || !semester) {
+      if (!workspace?.id || !semester)
         throw new Error("Workspace or semester is not available");
-      }
 
       const { data, error } = await supabase
         .from("subjects")
@@ -25,6 +24,7 @@ function useGetSubjects() {
         .eq("semester", semester);
 
       if (error) {
+        console.log(error);
         throw new Error(error.message);
       }
 
@@ -41,10 +41,6 @@ function useAddSubject() {
 
   return useMutation({
     mutationFn: async (subject: Omit<Subject, "id">) => {
-      if (!workspace?.id || !semester) {
-        throw new Error("Workspace or semester is not available");
-      }
-
       const snakeCaseData = toSnakeCase(subject) as {
         instructor_name: string;
         name: string;
@@ -55,9 +51,7 @@ function useAddSubject() {
 
       const { error } = await supabase.from("subjects").insert(snakeCaseData);
 
-      if (error) {
-        throw new Error(error.message);
-      }
+      if (error) throw new Error(error.message);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -77,10 +71,6 @@ function useUpdateSubject() {
 
   return useMutation({
     mutationFn: async (subject: Subject) => {
-      if (!workspace?.id || !semester) {
-        throw new Error("Workspace or semester is not available");
-      }
-
       const snakeCaseData = toSnakeCase(subject) as {
         id: string;
         instructor_name: string;
@@ -95,9 +85,7 @@ function useUpdateSubject() {
         .update(snakeCaseData)
         .eq("id", subject.id);
 
-      if (error) {
-        throw new Error(error.message);
-      }
+      if (error) throw new Error(error.message);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -117,18 +105,12 @@ function useDeleteSubject() {
 
   return useMutation({
     mutationFn: async (subjectId: string) => {
-      if (!workspace?.id || !semester) {
-        throw new Error("Workspace or semester is not available");
-      }
-
       const { error } = await supabase
         .from("subjects")
         .delete()
         .eq("id", subjectId);
 
-      if (error) {
-        throw new Error(error.message);
-      }
+      if (error) throw new Error(error.message);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({

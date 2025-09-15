@@ -18,9 +18,8 @@ function useGetMaterialGroups() {
   return useQuery({
     queryKey: queryKeys.materialGroups.list(workspace?.id!, semester),
     queryFn: async () => {
-      if (!workspace?.id || !semester) {
+      if (!workspace?.id || !semester)
         throw new Error("Workspace or semester is not available");
-      }
 
       const { data, error } = await supabase
         .from("semester_materials")
@@ -51,10 +50,6 @@ function useGetMaterialGroup(materialGroupId: string) {
       materialGroupId
     ),
     queryFn: async () => {
-      if (!workspace?.id || !semester) {
-        throw new Error("Workspace or semester is not available");
-      }
-
       const { data, error } = await supabase
         .from("semester_materials")
         .select("*")
@@ -94,6 +89,7 @@ function useGetMaterials(materialGroupId: string) {
         .from("materials")
         .select("*")
         .eq("material_group_id", materialGroupId);
+
       if (error) {
         console.log(error);
         throw new Error(error.message);
@@ -129,9 +125,7 @@ function useAddMaterialGroup() {
         .select()
         .single();
 
-      if (error) {
-        throw new Error(error.message);
-      }
+      if (error) throw new Error(error.message);
 
       return toCamelCase(data);
     },
@@ -171,9 +165,7 @@ function useUpdateMaterialGroup() {
         .update(snakeCaseData)
         .eq("id", updatedMaterialGroup.id);
 
-      if (error) {
-        throw new Error(error.message);
-      }
+      if (error) throw new Error(error.message);
     },
     onSuccess: (_, updatedMaterialGroup) => {
       queryClient.invalidateQueries({
