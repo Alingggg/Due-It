@@ -72,6 +72,7 @@ function useLogin() {
 }
 
 function useLogout() {
+  const queryClient = useQueryClient();
   const router = useRouter();
 
   return useMutation({
@@ -84,6 +85,9 @@ function useLogout() {
     },
     onSuccess: () => {
       router.push("/sign-in");
+      queryClient.invalidateQueries({
+        queryKey: ["userWorkspace"],
+      });
     },
     onError: (error) => {
       console.log("Error during logout:", error);
