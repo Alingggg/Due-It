@@ -103,7 +103,6 @@ function useGetUserWorkspace(isAuthenticated: boolean = true) {
       return data?.workspace || null;
     },
     enabled: isAuthenticated && !isUserLoading && !!user?.id,
-    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 }
 
