@@ -13,10 +13,17 @@ function RootLayout({ children }: { children: React.ReactNode }) {
     isLoading: workspaceLoading,
     isError,
     error,
+    refetch: refetchWorkspace,
   } = useGetUserWorkspace(isAuthenticated);
   const router = useRouter();
   const pathname = usePathname();
   const [isRedirecting, setIsRedirecting] = useState(false);
+
+  useEffect(() => {
+    if (isAuthenticated && !isSessionLoading) {
+      refetchWorkspace();
+    }
+  }, [isAuthenticated, isSessionLoading, refetchWorkspace]);
 
   useEffect(() => {
     if (!isSessionLoading && !workspaceLoading) {
@@ -48,6 +55,7 @@ function RootLayout({ children }: { children: React.ReactNode }) {
     workspaceLoading,
     router,
     pathname,
+    refetchWorkspace,
   ]);
 
   if (isError) {
