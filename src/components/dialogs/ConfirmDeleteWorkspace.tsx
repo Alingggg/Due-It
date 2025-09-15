@@ -43,15 +43,11 @@ function ConfirmDeleteWorkspace({
   return (
     <Dialog open onOpenChange={onClose}>
       <DialogContent>
-        <DialogHeader>
-          <DialogTitle className="text-slate-800">
-            Delete Workspace?
-          </DialogTitle>
-          <DialogDescription className="text-slate-600">
-            Are you sure you want to delete this workspace? This action will
-            permanently remove:
-          </DialogDescription>
-        </DialogHeader>
+        <DialogTitle className="text-slate-800">Delete Workspace?</DialogTitle>
+        <DialogDescription className="text-slate-600">
+          Are you sure you want to delete this workspace? This action will
+          permanently remove:
+        </DialogDescription>
 
         <div className="space-y-4 text-slate-600">
           <ul className="list-disc list-inside space-y-1 text-sm">
