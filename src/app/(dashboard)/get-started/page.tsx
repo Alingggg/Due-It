@@ -14,7 +14,9 @@ type JoinWorkspaceForm = z.infer<typeof codeSchema>;
 
 function GetStarted() {
   const { openDialog } = useDialogContext();
-  const { mutate: logout } = useLogout();
+  const { mutate: logout, isPending: isLoggingOut } = useLogout();
+  const { mutate: joinWorkspace, isPending: isJoiningWorkspace } =
+    useJoinWorkspace();
   const {
     register,
     handleSubmit,
@@ -22,7 +24,6 @@ function GetStarted() {
     setError,
     clearErrors,
   } = useForm<JoinWorkspaceForm>({ resolver: zodResolver(codeSchema) });
-  const { mutate: joinWorkspace, isPending } = useJoinWorkspace();
 
   function onSubmit({ code }: JoinWorkspaceForm) {
     clearErrors("code");
@@ -64,14 +65,18 @@ function GetStarted() {
                 id="joinCode"
                 type="text"
                 placeholder="Enter workspace code"
-                disabled={isPending}
+                disabled={isJoiningWorkspace}
               />
               {errors.code && (
                 <p className="text-red-500 text-xs">{errors.code.message}</p>
               )}
             </div>
-            <Button type="submit" disabled={isPending} className="w-full">
-              {isPending ? "Joining..." : "Join Workspace"}
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={isJoiningWorkspace}
+            >
+              {isJoiningWorkspace ? "Joining..." : "Join Workspace"}
             </Button>
           </form>
         </div>
@@ -105,6 +110,7 @@ function GetStarted() {
             onClick={() => logout()}
             variant="outline"
             className="w-full text-red-600 border-red-600 hover:bg-red-50"
+            disabled={isLoggingOut}
           >
             Logout
           </Button>

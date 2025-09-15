@@ -34,7 +34,8 @@ function ScheduleItem({
   subjects,
 }: ScheduleItemProps) {
   const { openDialog, closeDialog } = useDialogContext();
-  const { mutate: deleteSchedule } = useDeleteSchedule();
+  const { mutate: deleteSchedule, isPending: isDeletingSchedule } =
+    useDeleteSchedule();
 
   function handleEdit() {
     openDialog("UPSERT_SCHEDULE", {
@@ -51,6 +52,7 @@ function ScheduleItem({
 
   function handleDelete() {
     openDialog("CONFIRM_ACTION", {
+      isPending: isDeletingSchedule,
       title: "Delete Schedule?",
       description: `Are you sure you want to delete the schedule for "${subjectName}"?`,
       actionButtonVariant: "destructive",

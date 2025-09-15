@@ -30,13 +30,14 @@ function TaskDetailPage() {
   const { data: subjects, isLoading: isLoadingSubjects } = useGetSubjects();
   const { data: currentUserRole, isLoading: isLoadingUserRole } =
     useGetUserWorkspaceRole();
-  const { mutate: deleteTask } = useDeleteTask();
+  const { mutate: deleteTask, isPending: isDeletingTask } = useDeleteTask();
   const canManageTask =
     currentUserRole === "admin" || currentUserRole === "co-admin";
   const isPageLoading = isLoadingTask || isLoadingSubjects || isLoadingUserRole;
 
   function handleDeleteTask() {
     openDialog("CONFIRM_ACTION", {
+      isPending: isDeletingTask,
       title: `Delete "${task?.title}"?`,
       description: `Are you sure you want to delete "${task?.title}"? This action cannot be undone.`,
       actionButtonVariant: "destructive",

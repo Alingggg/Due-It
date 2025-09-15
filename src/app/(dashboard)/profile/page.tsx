@@ -25,7 +25,7 @@ function ProfilePage() {
   const { data: profileData, isLoading: isProfileLoading } = useGetProfile();
   const { mutate: updateProfile, isPending: isUpdatingProfile } =
     useUpdateProfile();
-  const { mutate: logout } = useLogout();
+  const { mutate: logout, isPending: isLoggingOut } = useLogout();
   const {
     register,
     handleSubmit,
@@ -208,7 +208,11 @@ function ProfilePage() {
             </p>
           </div>
 
-          <Button onClick={() => logout()} variant="destructive">
+          <Button
+            onClick={() => logout()}
+            variant="destructive"
+            disabled={isLoggingOut}
+          >
             <LogOut className="w-4 h-4" />
             Logout
           </Button>

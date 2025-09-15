@@ -62,7 +62,8 @@ function WorkspaceSettingsPage() {
     mutate: updateDefaultSemester,
     isPending: isUpdatingDefaultSemester,
   } = useUpdateDefaultSemester();
-  const { mutate: leaveWorkspace } = useDeleteMembership();
+  const { mutate: leaveWorkspace, isPending: isLeavingWorkspace } =
+    useDeleteMembership();
   const { mutate: updateWorkspaceName, isPending: isUpdatingWorkspaceName } =
     useUpdateWorkspaceName();
   const {
@@ -121,6 +122,7 @@ function WorkspaceSettingsPage() {
 
   function handleLeaveWorkspace() {
     openDialog("CONFIRM_ACTION", {
+      isPending: isLeavingWorkspace,
       title: "Leave Workspace?",
       description:
         "Are you sure you want to leave this workspace? You will lose access to all its content. You can rejoin at any time using a valid invite code.",

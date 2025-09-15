@@ -37,9 +37,12 @@ function MaterialGroupDetailsPage() {
   const { data: subjects, isLoading: isLoadingSubject } = useGetSubjects();
   const { data: currentUserRole, isLoading: isLoadingUserRole } =
     useGetUserWorkspaceRole();
-  const { mutate: deleteMaterialGroup } = useDeleteMaterialGroup();
-  const { mutate: downloadMaterial } = useDownloadMaterial();
-  const { mutate: deleteMaterial } = useDeleteMaterial();
+  const { mutate: deleteMaterialGroup, isPending: isDeletingMaterialGroup } =
+    useDeleteMaterialGroup();
+  const { mutate: downloadMaterial, isPending: isDownloadingMaterial } =
+    useDownloadMaterial();
+  const { mutate: deleteMaterial, isPending: isDeletingMaterial } =
+    useDeleteMaterial();
   const canManage =
     currentUserRole === "admin" || currentUserRole === "co-admin";
   const isPageLoading =
@@ -63,6 +66,7 @@ function MaterialGroupDetailsPage() {
 
   function handleDeleteMaterial(material: Material) {
     openDialog("CONFIRM_ACTION", {
+      isPending: isDeletingMaterial,
       title: `Delete "${material.name}"?`,
       description: `Are you sure you want to delete this material? This action cannot be undone.`,
       actionButtonVariant: "destructive",
@@ -105,6 +109,7 @@ function MaterialGroupDetailsPage() {
             <Button
               onClick={() =>
                 openDialog("CONFIRM_ACTION", {
+                  isPending: isDeletingMaterialGroup,
                   title: `Delete "${materialGroup?.title}"?`,
                   description: `Are you sure you want to delete "${materialGroup?.title}"? This will also delete all ${materialGroup?.materialCount} materials in this group. This action cannot be undone.`,
                   actionButtonVariant: "destructive",
@@ -198,6 +203,7 @@ function MaterialGroupDetailsPage() {
                   <Button
                     onClick={() => handleOpenMaterial(material)}
                     variant="outline"
+                    disabled={isDownloadingMaterial}
                   >
                     {material.isLink ? (
                       <>
