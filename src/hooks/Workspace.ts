@@ -85,10 +85,14 @@ function useGetUserWorkspace(isAuthenticated: boolean = true) {
   return useQuery({
     queryKey: ["userWorkspace"],
     queryFn: async () => {
+      if (!user?.id) {
+        throw new Error("User is not authenticated");
+      }
+
       const { data, error } = await supabase
         .from("workspace_members")
         .select("workspace:workspaces(*)")
-        .eq("user_id", user?.id)
+        .eq("user_id", user.id)
         .maybeSingle();
 
       if (error) {
@@ -98,7 +102,7 @@ function useGetUserWorkspace(isAuthenticated: boolean = true) {
 
       return data?.workspace || null;
     },
-    enabled: isAuthenticated || !isUserLoading,
+    enabled: isAuthenticated && !isUserLoading && !!user?.id,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 }
