@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Profile } from "@/types/Profile";
 import { WorkspaceMemberWithProfile } from "@/types/Member";
 import { Database } from "@/types/supabase";
+import { useDeleteMembership } from "@/hooks/Members";
 
 type Roles = Database["public"]["Enums"]["workspace_role"];
 
@@ -25,6 +26,7 @@ interface MemberCardProps {
 function MemberCard({ member, currentUser, currentUserRole }: MemberCardProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { openDialog, closeDialog } = useDialogContext();
+  const { mutate: kickMember } = useDeleteMembership();
 
   function getRoleInfo(role: string) {
     switch (role) {
@@ -118,17 +120,15 @@ function MemberCard({ member, currentUser, currentUserRole }: MemberCardProps) {
   function handleKickMember() {
     const memberName = `${member.firstName} ${member.lastName}`;
 
-    function handleAction() {
-      console.log(`Kicking member ${memberName}`);
-      closeDialog();
-    }
-
     openDialog("CONFIRM_ACTION", {
       title: "Kick Member",
-      description: `Are you sure you want to kick ${memberName} from this workspace? They will lose access immediately and will need to be re-invited to rejoin.`,
+      description: `Are you sure you want to kick ${memberName} from this workspace? They will lose access immediately and will need to join again if they wish to return.`,
       actionButtonVariant: "destructive",
       actionButtonText: "Kick Member",
-      handleAction,
+      handleAction: () => {
+        kickMember(member.userId);
+        closeDialog();
+      },
     });
   }
 
