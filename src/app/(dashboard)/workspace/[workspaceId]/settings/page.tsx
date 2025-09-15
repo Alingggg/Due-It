@@ -19,6 +19,8 @@ import {
 } from "@/hooks/Workspace";
 import { useUpdateCodeStatus, useGetCode, useRenewCode } from "@/hooks/Code";
 import LoadingPage from "@/components/LoadingPage";
+import { useDeleteMembership } from "@/hooks/Members";
+import { useGetSession } from "@/hooks/Auth";
 
 const SEMESTER_OPTIONS = [
   { value: 1, label: "1" },
@@ -41,13 +43,16 @@ function WorkspaceSettingsPage() {
     mutate: updateDefaultSemester,
     isPending: isUpdatingDefaultSemester,
   } = useUpdateDefaultSemester();
+  const { user, isLoading: isUserLoading } = useGetSession();
+  const { mutate: leaveWorkspace } = useDeleteMembership();
   const { openDialog, closeDialog } = useDialogContext();
   const isAdmin = currentUserRole === "admin";
   const isPageLoading =
     isWorkspaceLoading ||
     isCodeLoading ||
     isDefaultSemesterLoading ||
-    isCurrentUserRoleLoading;
+    isCurrentUserRoleLoading ||
+    isUserLoading;
 
   function handleCopyCode() {
     if (codeData?.code) {
@@ -63,6 +68,17 @@ function WorkspaceSettingsPage() {
 
   function handleRenewCode() {
     renewCode();
+  }
+
+  function handleLeaveWorkspace() {
+    openDialog("CONFIRM_ACTION", {
+      title: "Leave Workspace?",
+      description:
+        "Are you sure you want to leave this workspace? You will lose access to all its content. You can rejoin at any time using a valid invite code.",
+      actionButtonVariant: "destructive",
+      actionButtonText: "Leave",
+      handleAction: () => leaveWorkspace(user?.id, { onSuccess: closeDialog }),
+    });
   }
 
   function handleDefaultSemesterChange(value: string) {
@@ -237,19 +253,7 @@ function WorkspaceSettingsPage() {
               </p>
             </div>
 
-            <Button
-              onClick={() =>
-                openDialog("CONFIRM_ACTION", {
-                  title: "Leave Workspace?",
-                  description:
-                    "Are you sure you want to leave this workspace? You will lose access to all its content. You can rejoin at any time using a valid invite code.",
-                  actionButtonVariant: "destructive",
-                  actionButtonText: "Leave",
-                  handleAction: closeDialog,
-                })
-              }
-              variant="destructive"
-            >
+            <Button onClick={handleLeaveWorkspace} variant="destructive">
               <UserMinus className="w-4 h-4" />
               Leave
             </Button>
