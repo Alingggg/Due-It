@@ -1,13 +1,21 @@
 import * as z from "zod";
 
 const MaterialGroupSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  description: z.string().optional(),
-  subjectId: z.string().min(1, "Subject is required"),
+  title: z
+    .string()
+    .trim()
+    .min(1, { error: "Title is required" })
+    .max(100, { error: "Title is too long" }),
+  description: z.string().trim().optional(),
+  subjectId: z.string().min(1, { error: "Subject is required" }),
 });
 
 const MaterialSchema = z.object({
-  name: z.string().min(1, "Name is required"),
+  name: z
+    .string()
+    .trim()
+    .min(1, { error: "Name is required" })
+    .max(100, { error: "Name is too long" }),
   isLink: z.boolean(),
   url: z.string().optional(),
   size: z.number().optional(),
@@ -20,7 +28,7 @@ const MaterialsSchema = z
     links: z.array(MaterialSchema),
   })
   .refine((data) => data.files.length + data.links.length >= 1, {
-    message: "At least one material or link is required",
+    error: "At least one material or link is required",
     path: ["files"], // You can also use ["links"] or [] for a general error
   });
 

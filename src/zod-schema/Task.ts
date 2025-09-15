@@ -2,9 +2,13 @@ import { isValid, parse } from "date-fns";
 import * as z from "zod";
 
 const TaskSchema = z.object({
-  title: z.string().min(1, "Title is required").max(100, "Title is too long"),
-  description: z.string().max(500, "Description is too long"),
-  subjectId: z.string().min(1, "Subject is required"),
+  title: z
+    .string()
+    .trim()
+    .min(1, { error: "Title is required" })
+    .max(100, { error: "Title is too long" }),
+  description: z.string().trim().max(500, { error: "Description is too long" }),
+  subjectId: z.string().min(1, { error: "Subject is required" }),
   taskType: z.enum(["exam", "activity"]),
   completionType: z.enum(["individual", "pair", "group"]),
   dueDate: z
@@ -18,7 +22,7 @@ const TaskSchema = z.object({
         }
         return false;
       },
-      { message: "Due date is required and must be a valid date" }
+      { error: "Due date is required and must be a valid date" }
     )
     .transform((val) => {
       if (val instanceof Date && isValid(val)) return val.toLocaleDateString();
@@ -34,7 +38,7 @@ const TaskSchema = z.object({
       const parsedWithoutSeconds = parse(val, "HH:mm", new Date());
       return isValid(parsedWithSeconds) || isValid(parsedWithoutSeconds);
     },
-    { message: "Invalid time format (expected HH:mm or HH:mm:ss)" }
+    { error: "Invalid time format (expected HH:mm or HH:mm:ss)" }
   ),
 });
 

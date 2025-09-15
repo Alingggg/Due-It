@@ -1,20 +1,22 @@
 import * as z from "zod";
 
-const authFields = {
+const AuthFields = {
   email: z
     .string()
+    .trim()
     .min(1, { error: "Email is required" })
     .email({ error: "Invalid email format" }),
   password: z
     .string()
-    .min(1, "Password is required")
+    .min(1, { error: "Password is required" })
     .min(8, { error: "Password must be at least 8 characters" })
     .max(64, { error: "Password must be at most 64 characters" })
     .regex(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[^\w\s]).+$/, {
       error: "Must include upper & lowercase letters, a number, and a symbol",
     }),
   name: z
-    .string({ error: "Name must be a string" })
+    .string()
+    .trim()
     .min(2, { error: "Name must be at least 2 characters" })
     .max(32, { error: "Name must be at most 32 characters" })
     .regex(/^[\p{L}\s'-]+$/u, {
@@ -22,14 +24,15 @@ const authFields = {
     }),
 };
 
-const registerSchema = z
+const RegisterSchema = z
   .object({
-    email: authFields.email,
-    password: authFields.password,
-    firstName: authFields.name,
-    lastName: authFields.name,
+    email: AuthFields.email,
+    password: AuthFields.password,
+    firstName: AuthFields.name,
+    lastName: AuthFields.name,
     confirmPassword: z
       .string()
+      .trim()
       .min(1, { error: "Confirm password is required" }),
   })
   .refine((schema) => schema.password === schema.confirmPassword, {
@@ -37,9 +40,9 @@ const registerSchema = z
     path: ["confirmPassword"],
   });
 
-const loginSchema = z.object({
-  email: authFields.email,
-  password: authFields.password,
+const LoginSchema = z.object({
+  email: AuthFields.email,
+  password: AuthFields.password,
 });
 
-export { registerSchema, loginSchema };
+export { RegisterSchema, LoginSchema };

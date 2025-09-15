@@ -5,12 +5,12 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import useDialogContext from "@/hooks/Dialog";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { loginSchema } from "@/zod-schema/Auth";
+import { LoginSchema } from "@/zod-schema/Auth";
 import * as z from "zod";
 import { useLogin } from "@/hooks/Auth";
 import { useForm } from "react-hook-form";
 
-type FormData = z.infer<typeof loginSchema>;
+type FormData = z.infer<typeof LoginSchema>;
 
 function SignIn() {
   const { openDialog } = useDialogContext();
@@ -18,7 +18,7 @@ function SignIn() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormData>({ resolver: zodResolver(loginSchema) });
+  } = useForm<FormData>({ resolver: zodResolver(LoginSchema) });
   const { mutate, isPending } = useLogin();
 
   function onSubmit(data: FormData) {

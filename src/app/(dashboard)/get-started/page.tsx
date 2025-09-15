@@ -7,10 +7,10 @@ import useDialogContext from "@/hooks/Dialog";
 import { useJoinWorkspace } from "@/hooks/Workspace";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { codeSchema } from "@/zod-schema/Code";
+import { CodeSchema } from "@/zod-schema/Code";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-type JoinWorkspaceForm = z.infer<typeof codeSchema>;
+type JoinWorkspaceForm = z.infer<typeof CodeSchema>;
 
 function GetStarted() {
   const { openDialog } = useDialogContext();
@@ -23,7 +23,7 @@ function GetStarted() {
     formState: { errors },
     setError,
     clearErrors,
-  } = useForm<JoinWorkspaceForm>({ resolver: zodResolver(codeSchema) });
+  } = useForm<JoinWorkspaceForm>({ resolver: zodResolver(CodeSchema) });
 
   function onSubmit({ code }: JoinWorkspaceForm) {
     clearErrors("code");

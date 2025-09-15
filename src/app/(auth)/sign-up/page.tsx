@@ -5,12 +5,12 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { registerSchema } from "@/zod-schema/Auth";
+import { RegisterSchema } from "@/zod-schema/Auth";
 import * as z from "zod";
 import { useRegister } from "@/hooks/Auth";
 import { CheckCircle } from "lucide-react";
 
-type FormValues = z.infer<typeof registerSchema>;
+type FormValues = z.infer<typeof RegisterSchema>;
 
 function SignUp() {
   const {
@@ -18,7 +18,7 @@ function SignUp() {
     handleSubmit,
     formState: { errors },
   } = useForm<FormValues>({
-    resolver: zodResolver(registerSchema),
+    resolver: zodResolver(RegisterSchema),
   });
   const { mutate, isPending, isSuccess } = useRegister();
 
