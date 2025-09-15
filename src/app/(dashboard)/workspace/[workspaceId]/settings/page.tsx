@@ -1,8 +1,17 @@
 "use client";
 import { useState } from "react";
-import { Check, Copy, RefreshCcw, UserMinus, Trash2 } from "lucide-react";
+import {
+  Check,
+  Copy,
+  RefreshCcw,
+  UserMinus,
+  Trash2,
+  Edit,
+  X,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -16,19 +25,29 @@ import {
   useGetDefaultSemester,
   useGetUserWorkspaceRole,
   useGetUserWorkspace,
+  useUpdateWorkspaceName,
 } from "@/hooks/Workspace";
 import { useUpdateCodeStatus, useGetCode, useRenewCode } from "@/hooks/Code";
 import LoadingPage from "@/components/LoadingPage";
 import { useDeleteMembership } from "@/hooks/Members";
 import { useGetSession } from "@/hooks/Auth";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { WorkspaceNameSchema } from "@/zod-schema/Workspace";
 
 const SEMESTER_OPTIONS = [
   { value: 1, label: "1" },
   { value: 2, label: "2" },
 ];
 
+type WorkspaceNameForm = z.infer<typeof WorkspaceNameSchema>;
+
 function WorkspaceSettingsPage() {
   const [copied, setCopied] = useState(false);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const { openDialog, closeDialog } = useDialogContext();
+  const { user, isLoading: isUserLoading } = useGetSession();
   const { data: workspace, isLoading: isWorkspaceLoading } =
     useGetUserWorkspace();
   const { data: codeData, isLoading: isCodeLoading } = useGetCode();
@@ -43,9 +62,21 @@ function WorkspaceSettingsPage() {
     mutate: updateDefaultSemester,
     isPending: isUpdatingDefaultSemester,
   } = useUpdateDefaultSemester();
-  const { user, isLoading: isUserLoading } = useGetSession();
   const { mutate: leaveWorkspace } = useDeleteMembership();
-  const { openDialog, closeDialog } = useDialogContext();
+  const { mutate: updateWorkspaceName, isPending: isUpdatingWorkspaceName } =
+    useUpdateWorkspaceName();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    setValue,
+  } = useForm<WorkspaceNameForm>({
+    resolver: zodResolver(WorkspaceNameSchema),
+    defaultValues: {
+      name: workspace?.name || "",
+    },
+  });
   const isAdmin = currentUserRole === "admin";
   const isPageLoading =
     isWorkspaceLoading ||
@@ -53,6 +84,24 @@ function WorkspaceSettingsPage() {
     isDefaultSemesterLoading ||
     isCurrentUserRoleLoading ||
     isUserLoading;
+
+  function handleEditName() {
+    setValue("name", workspace?.name || "");
+    setIsEditingName(true);
+  }
+
+  function handleCancelEdit() {
+    setIsEditingName(false);
+    reset({ name: workspace?.name || "" });
+  }
+
+  function onSubmitWorkspaceName(data: WorkspaceNameForm) {
+    updateWorkspaceName(data.name, {
+      onSuccess: () => {
+        setIsEditingName(false);
+      },
+    });
+  }
 
   function handleCopyCode() {
     if (codeData?.code) {
@@ -91,14 +140,88 @@ function WorkspaceSettingsPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8 px-2 sm:px-0">
+    <div className="max-w-4xl mx-auto space-y-6 px-2 sm:px-0">
       <div className="flex items-center justify-between">
         <h1 className="text-lg sm:text-2xl font-bold text-slate-800">
           Workspace Settings
         </h1>
       </div>
 
-      {/* Invite Code Section - Show to everyone */}
+      <div className="bg-white rounded-lg border border-slate-200 p-4 sm:p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-base sm:text-lg font-semibold text-slate-800">
+            Workspace Name
+          </h2>
+          {isAdmin && (
+            <>
+              {!isEditingName ? (
+                <Button onClick={handleEditName} variant="outline" size="sm">
+                  <Edit className="w-4 h-4" />
+                  Edit
+                </Button>
+              ) : (
+                <div className="flex gap-2">
+                  <Button
+                    type="submit"
+                    form="workspace-name-form"
+                    disabled={isUpdatingWorkspaceName}
+                    size="sm"
+                  >
+                    {isUpdatingWorkspaceName ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        <span>Saving...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Check className="w-4 h-4" />
+                        <span>Save</span>
+                      </>
+                    )}
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={handleCancelEdit}
+                    variant="outline"
+                    size="sm"
+                    disabled={isUpdatingWorkspaceName}
+                  >
+                    <X className="w-4 h-4" />
+                    Cancel
+                  </Button>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+
+        {isEditingName ? (
+          <form
+            id="workspace-name-form"
+            onSubmit={handleSubmit(onSubmitWorkspaceName)}
+            className="space-y-3"
+          >
+            <div>
+              <Input
+                {...register("name")}
+                placeholder="Enter workspace name"
+                className="w-full"
+                disabled={isUpdatingWorkspaceName}
+              />
+              {errors.name && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.name.message}
+                </p>
+              )}
+            </div>
+          </form>
+        ) : (
+          <div className="text-lg sm:text-xl font-bold text-slate-900">
+            {workspace?.name}
+          </div>
+        )}
+      </div>
+
       {codeData && (
         <div className="bg-white rounded-lg border border-slate-200 p-4 sm:p-6">
           <h2 className="text-base sm:text-lg font-semibold text-slate-800 mb-3 sm:mb-4">
@@ -106,7 +229,6 @@ function WorkspaceSettingsPage() {
           </h2>
 
           <div className="space-y-3 sm:space-y-4">
-            {/* Code Display */}
             <div className="flex items-center justify-between p-2 sm:p-4 bg-slate-50 rounded-lg border">
               <div className="font-mono text-sm sm:text-base break-all">
                 {codeData.code}
@@ -134,10 +256,8 @@ function WorkspaceSettingsPage() {
               </div>
             )}
 
-            {/* Status and Controls */}
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start space-y-1 sm:space-y-0">
               <div className="space-y-1">
-                {/* Status row */}
                 <div className="flex items-center space-x-2 sm:space-x-3">
                   <span className="text-xs sm:text-sm font-medium text-slate-700">
                     Status:
@@ -152,7 +272,6 @@ function WorkspaceSettingsPage() {
                     {codeData.enabled ? "Active" : "Disabled"}
                   </span>
                 </div>
-                {/* Subtle disabled message - directly under status */}
                 {!codeData.enabled && (
                   <span className="block text-xs text-slate-500 mt-1">
                     New members cannot join using this code
@@ -160,7 +279,7 @@ function WorkspaceSettingsPage() {
                 )}
               </div>
 
-              {/* Buttons row - Only for admins */}
+              {/* Buttons - Only for admins */}
               {isAdmin && (
                 <div className="flex items-center space-x-2 mt-2 sm:mt-0">
                   <Button

@@ -251,6 +251,34 @@ function useDeleteWorkspace() {
   });
 }
 
+function useUpdateWorkspaceName() {
+  const queryClient = useQueryClient();
+  const { data: workspace } = useGetUserWorkspace();
+
+  return useMutation({
+    mutationFn: async (name: string) => {
+      if (!workspace?.id) {
+        throw new Error("Workspace is not available");
+      }
+
+      const { error } = await supabase
+        .from("workspaces")
+        .update({ name })
+        .eq("id", workspace.id);
+
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["userWorkspace"],
+      });
+    },
+    onError: (error: any) => {
+      console.log("Error updating workspace name:", error);
+    },
+  });
+}
+
 export {
   useJoinWorkspace,
   useCreateWorkspace,
@@ -260,4 +288,5 @@ export {
   useGetDefaultSemester,
   useUpdateDefaultSemester,
   useDeleteWorkspace,
+  useUpdateWorkspaceName,
 };
