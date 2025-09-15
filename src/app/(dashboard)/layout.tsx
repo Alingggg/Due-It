@@ -74,7 +74,7 @@ function RootLayout({ children }: { children: React.ReactNode }) {
             ? "Loading..."
             : isRedirecting
             ? "Redirecting..."
-            : "Loading workspace..."
+            : "Loading"
         }
       />
     );
