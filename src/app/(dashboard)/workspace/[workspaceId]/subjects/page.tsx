@@ -60,7 +60,8 @@ function SubjectsPage() {
   const [activeTab, setActiveTab] = useState<"subjects" | "schedule">(
     "subjects"
   );
-  const { data: workspace } = useGetUserWorkspace();
+  const { data: workspace, isLoading: isLoadingWorkspace } =
+    useGetUserWorkspace();
   const workspaceId = workspace?.id!;
   const { semester } = useSemesterContext();
   const { openDialog } = useDialogContext();
@@ -71,6 +72,11 @@ function SubjectsPage() {
   const { data: subjects, isLoading: isLoadingSubjects } = useGetSubjects();
   const canManageSubjects =
     currentUserRole === "admin" || currentUserRole === "co-admin";
+  const isPageLoading =
+    isLoadingWorkspace ||
+    isLoadingUserRole ||
+    isLoadingSubjects ||
+    isLoadingSchedules;
 
   function handleAddSubject() {
     openDialog("UPSERT_SUBJECT", { semester, workspaceId });
@@ -144,7 +150,7 @@ function SubjectsPage() {
     );
   }
 
-  if (isLoadingUserRole || isLoadingSubjects || isLoadingSchedules) {
+  if (isPageLoading) {
     return <LoadingPage message="Loading subjects and schedules..." />;
   }
 

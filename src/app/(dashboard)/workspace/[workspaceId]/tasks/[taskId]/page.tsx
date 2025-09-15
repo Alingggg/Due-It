@@ -24,16 +24,21 @@ import LoadingPage from "@/components/LoadingPage";
 function TaskDetailPage() {
   const { taskId } = useParams();
   const router = useRouter();
-  const { data: workspace } = useGetUserWorkspace();
-  const { data: task, isLoading: isLoadingTask } = useGetTask(taskId as string);
   const { openDialog, closeDialog } = useDialogContext();
+  const { data: workspace, isLoading: isLoadingWorkspace } =
+    useGetUserWorkspace();
+  const { data: task, isLoading: isLoadingTask } = useGetTask(taskId as string);
   const { data: subjects, isLoading: isLoadingSubjects } = useGetSubjects();
   const { data: currentUserRole, isLoading: isLoadingUserRole } =
     useGetUserWorkspaceRole();
   const { mutate: deleteTask, isPending: isDeletingTask } = useDeleteTask();
   const canManageTask =
     currentUserRole === "admin" || currentUserRole === "co-admin";
-  const isPageLoading = isLoadingTask || isLoadingSubjects || isLoadingUserRole;
+  const isPageLoading =
+    isLoadingTask ||
+    isLoadingSubjects ||
+    isLoadingUserRole ||
+    isLoadingWorkspace;
 
   function handleDeleteTask() {
     openDialog("CONFIRM_ACTION", {
