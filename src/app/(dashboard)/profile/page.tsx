@@ -185,7 +185,11 @@ function ProfilePage() {
 
           {isEditing && (
             <div className="flex items-center justify-end space-x-3 pt-4 border-t border-slate-200">
-              <Button onClick={handleCancel} variant="outline">
+              <Button
+                onClick={handleCancel}
+                variant="outline"
+                disabled={isUpdatingProfile}
+              >
                 Cancel
               </Button>
               <Button type="submit" disabled={isUpdatingProfile}>
