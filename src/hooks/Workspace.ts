@@ -165,7 +165,7 @@ function useGetUserWorkspaceRole() {
         throw error;
       }
 
-      return data?.role;
+      return data?.role || null;
     },
     enabled: !isLoadingWorkspace && !!workspace,
   });
@@ -188,7 +188,7 @@ function useGetDefaultSemester() {
         throw error;
       }
 
-      return data?.semester;
+      return data?.semester || null;
     },
     enabled: !isLoadingWorkspace && !!workspace,
   });
