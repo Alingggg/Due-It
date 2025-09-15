@@ -4,7 +4,6 @@ import {
   DialogContent,
   DialogDescription,
   DialogFooter,
-  DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -44,13 +43,13 @@ function ConfirmDeleteWorkspace({
     <Dialog open onOpenChange={onClose}>
       <DialogContent>
         <DialogTitle className="text-slate-800">Delete Workspace?</DialogTitle>
-        <DialogDescription className="text-slate-600">
+        <DialogDescription className="text-slate-700">
           Are you sure you want to delete this workspace? This action will
           permanently remove:
         </DialogDescription>
 
-        <div className="space-y-4 text-slate-600">
-          <ul className="list-disc list-inside space-y-1 text-sm">
+        <div className="space-y-4">
+          <ul className="list-disc list-inside space-y-1 text-sm text-slate-700">
             <li>All tasks and deadlines</li>
             <li>All materials and files</li>
             <li>All member data and permissions</li>
@@ -61,11 +60,11 @@ function ConfirmDeleteWorkspace({
             This action cannot be undone.
           </div>
 
-          <form className="space-y-3 pt-2">
+          <form className="space-y-3">
             <div className="space-y-2">
               <Label
                 htmlFor="workspace-name-input"
-                className="text-sm font-medium text-slate-700"
+                className="text-sm font-medium"
               >
                 To confirm deletion, type the workspace name:
               </Label>
