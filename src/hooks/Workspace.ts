@@ -1,4 +1,5 @@
 "use client";
+import { useGetSession } from "@/hooks/Auth";
 import { queryKeys } from "@/lib/queryKeys";
 import supabase from "@/lib/supabase";
 import { WorkspaceMemberWithProfile } from "@/types/Member";
@@ -79,12 +80,15 @@ function useCreateWorkspace() {
 }
 
 function useGetUserWorkspace(isAuthenticated: boolean = true) {
+  const { user, isLoading: isUserLoading } = useGetSession();
+
   return useQuery({
     queryKey: ["userWorkspace"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("workspace_members")
         .select("workspace:workspaces(*)")
+        .eq("user_id", user?.id)
         .maybeSingle();
 
       if (error) {
@@ -94,7 +98,7 @@ function useGetUserWorkspace(isAuthenticated: boolean = true) {
 
       return data?.workspace || null;
     },
-    enabled: isAuthenticated,
+    enabled: isAuthenticated || !isUserLoading,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 }

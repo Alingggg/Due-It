@@ -114,12 +114,15 @@ function useGetSession() {
 }
 
 function useGetProfile() {
+  const { user, isLoading: isUserLoading } = useGetSession();
+
   return useQuery({
     queryKey: queryKeys.profile.detail(),
     queryFn: async () => {
       const { data, error } = await supabase
         .from("profiles")
         .select("*")
+        .eq("id", user?.id)
         .single();
 
       if (error) {
@@ -129,6 +132,7 @@ function useGetProfile() {
 
       return toCamelCase<Profile>(data);
     },
+    enabled: !!user && !isUserLoading,
   });
 }
 
