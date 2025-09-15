@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Profile } from "@/types/Profile";
 import { WorkspaceMemberWithProfile } from "@/types/Member";
 import { Database } from "@/types/supabase";
-import { useDeleteMembership } from "@/hooks/Members";
+import { useDeleteMembership, useUpdateRole } from "@/hooks/Members";
 
 type Roles = Database["public"]["Enums"]["workspace_role"];
 
@@ -27,8 +27,9 @@ function MemberCard({ member, currentUser, currentUserRole }: MemberCardProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { openDialog, closeDialog } = useDialogContext();
   const { mutate: kickMember } = useDeleteMembership();
+  const { mutate: updateRole } = useUpdateRole();
 
-  function getRoleInfo(role: string) {
+  function getRoleInfo(role: Roles) {
     switch (role) {
       case "admin":
         return {
@@ -61,7 +62,7 @@ function MemberCard({ member, currentUser, currentUserRole }: MemberCardProps) {
     return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
   }
 
-  function handleRoleChange(newRole: string) {
+  function handleRoleChange(newRole: Roles) {
     const action = newRole === "member" ? "demote" : "promote";
     const memberName = `${member.firstName} ${member.lastName}`;
 
@@ -103,17 +104,16 @@ function MemberCard({ member, currentUser, currentUserRole }: MemberCardProps) {
 
     const actionDetails = getActionDetails();
 
-    function handleAction() {
-      console.log(`Changing role of ${memberName} to ${newRole}`);
-      closeDialog();
-    }
-
     openDialog("CONFIRM_ACTION", {
       title: actionDetails?.title,
       description: actionDetails?.description,
       actionButtonVariant: actionDetails?.buttonVariant,
       actionButtonText: actionDetails?.buttonText,
-      handleAction,
+      handleAction: () =>
+        updateRole(
+          { userId: member.userId, role: newRole },
+          { onSuccess: closeDialog }
+        ),
     });
   }
 
@@ -132,7 +132,7 @@ function MemberCard({ member, currentUser, currentUserRole }: MemberCardProps) {
     });
   }
 
-  function canManageMember(targetMemberRole: string, currentUserRole: string) {
+  function canManageMember(targetMemberRole: Roles, currentUserRole: Roles) {
     if (currentUserRole === "admin") {
       return true;
     }
@@ -142,7 +142,7 @@ function MemberCard({ member, currentUser, currentUserRole }: MemberCardProps) {
     return false;
   }
 
-  function getAvailableActions(currentUserRole: string) {
+  function getAvailableActions(currentUserRole: Roles) {
     let actions: {
       label: string;
       action: () => void;
