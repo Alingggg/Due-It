@@ -1,3 +1,4 @@
+"use client";
 import { useGetSession } from "@/hooks/Auth";
 import { useGetUserWorkspace } from "@/hooks/Workspace";
 import { queryKeys } from "@/lib/queryKeys";
