@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,11 +22,7 @@ type ProfileForm = z.infer<typeof ProfileSchema>;
 function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const { user, isLoading: isLoadingUser } = useGetSession();
-  const {
-    data: profileData,
-    isLoading: isProfileLoading,
-    isSuccess: isProfileFetched,
-  } = useGetProfile();
+  const { data: profileData, isLoading: isProfileLoading } = useGetProfile();
   const { mutate: updateProfile, isPending: isUpdatingProfile } =
     useUpdateProfile();
   const { mutate: logout } = useLogout();
@@ -35,27 +31,19 @@ function ProfilePage() {
     handleSubmit,
     formState: { errors },
     reset,
-    watch,
   } = useForm<ProfileForm>({
     resolver: zodResolver(ProfileSchema),
   });
 
   const router = useRouter();
 
-  // Watch form values for display
-  const formValues = watch();
-
-  useEffect(() => {
-    if (isProfileFetched && profileData) {
-      const profileValues = {
+  function handleEdit() {
+    if (profileData) {
+      reset({
         firstName: profileData.firstName,
         lastName: profileData.lastName,
-      };
-      reset(profileValues);
+      });
     }
-  }, [isProfileFetched, profileData, reset]);
-
-  function handleEdit() {
     setIsEditing(true);
   }
 
@@ -83,7 +71,6 @@ function ProfilePage() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6 sm:space-y-8 p-4 pt-6 sm:pt-8">
-      {/* Header with Back Button */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <Button
@@ -100,7 +87,6 @@ function ProfilePage() {
         </div>
       </div>
 
-      {/* Profile Information */}
       <div className="bg-white rounded-lg border border-slate-200 p-4 sm:p-6">
         <div className="flex items-center justify-between mb-4 sm:mb-6">
           <h2 className="text-base sm:text-lg font-semibold text-slate-800">
@@ -117,18 +103,16 @@ function ProfilePage() {
           onSubmit={handleSubmit(onSubmit)}
           className="space-y-4 sm:space-y-6"
         >
-          {/* Profile Avatar Placeholder */}
           <div className="flex items-center space-x-4">
             <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-white text-xl font-medium">
-              {formValues.firstName?.[0] || "F"}
-              {formValues.lastName?.[0] || "L"}
+              {profileData?.firstName?.[0] || "F"}
+              {profileData?.lastName?.[0] || "L"}
             </div>
             <div className="text-sm text-slate-600">
               Profile picture coming soon
             </div>
           </div>
 
-          {/* First Name */}
           <div className="space-y-2">
             <Label
               htmlFor="firstName"
@@ -153,12 +137,11 @@ function ProfilePage() {
               </div>
             ) : (
               <div className="px-3 py-2 border border-slate-200 rounded-md text-slate-900">
-                {formValues.firstName}
+                {profileData?.firstName}
               </div>
             )}
           </div>
 
-          {/* Last Name */}
           <div className="space-y-2">
             <Label
               htmlFor="lastName"
@@ -183,12 +166,11 @@ function ProfilePage() {
               </div>
             ) : (
               <div className="px-3 py-2 border border-slate-200 rounded-md text-slate-900">
-                {formValues.lastName}
+                {profileData?.lastName}
               </div>
             )}
           </div>
 
-          {/* Email (Read-only) */}
           <div className="space-y-2">
             <Label className="text-sm font-medium text-slate-700">
               Email Address
@@ -201,7 +183,6 @@ function ProfilePage() {
             </p>
           </div>
 
-          {/* Edit Controls */}
           {isEditing && (
             <div className="flex items-center justify-end space-x-3 pt-4 border-t border-slate-200">
               <Button onClick={handleCancel} variant="outline">
@@ -215,7 +196,6 @@ function ProfilePage() {
         </form>
       </div>
 
-      {/* Logout Section */}
       <div className="bg-white rounded-lg border border-slate-200 p-4 sm:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="flex-1 pr-0 sm:pr-6">
