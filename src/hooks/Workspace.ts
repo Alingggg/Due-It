@@ -8,6 +8,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 
 function useJoinWorkspace() {
+  const queryClient = useQueryClient();
   const router = useRouter();
 
   return useMutation({
@@ -22,21 +23,27 @@ function useJoinWorkspace() {
 
       const { data: codeData, error: fetchError } = await supabase
         .from("codes")
-        .select("workspace_id")
+        .select("workspace_id, enabled")
         .eq("code", code)
         .maybeSingle();
 
       if (fetchError) throw new Error(fetchError.message);
 
       if (!codeData?.workspace_id) throw new Error("Invalid join code");
+      if (!codeData.enabled) throw new Error("Join code is disabled");
 
       const { error: addError } = await supabase
         .from("workspace_members")
         .insert({ workspace_id: codeData.workspace_id, user_id: user.id });
 
       if (addError) throw new Error(addError.message);
+
+      return codeData.workspace_id;
     },
     onSuccess: (workspaceId) => {
+      queryClient.invalidateQueries({
+        queryKey: ["userWorkspace"],
+      });
       router.push(`/workspace/${workspaceId}/tasks`);
     },
     onError: (error: any) => {
