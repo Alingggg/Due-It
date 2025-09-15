@@ -158,7 +158,7 @@ function useGetUserWorkspaceRole() {
         .select("role")
         .eq("workspace_id", workspace.id)
         .eq("user_id", user.id)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.log(error);
@@ -181,7 +181,7 @@ function useGetDefaultSemester() {
       const { data, error } = await supabase
         .from("default_semester")
         .select("semester")
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.log(error);
