@@ -32,6 +32,7 @@ function AddMaterialDialog({
   const [showLinkInput, setShowLinkInput] = useState(false);
   const [tempLinkUrl, setTempLinkUrl] = useState("");
   const [tempLinkName, setTempLinkName] = useState("");
+  const [urlError, setUrlError] = useState("");
   const [fileMap, setFileMap] = useState<Map<number, File>>(new Map());
   const { mutate: addMaterials, isPending: isAddingMaterials } =
     useAddMaterials();
@@ -65,6 +66,44 @@ function AddMaterialDialog({
   const materials = form.watch("files");
   const links = form.watch("links");
 
+  function validateAndFormatUrl(url: string): {
+    isValid: boolean;
+    formattedUrl: string;
+    error: string;
+  } {
+    if (!url.trim()) {
+      return { isValid: false, formattedUrl: "", error: "URL is required" };
+    }
+
+    let formattedUrl = url.trim();
+
+    if (formattedUrl.includes(" ")) {
+      return {
+        isValid: false,
+        formattedUrl: "",
+        error: "Please enter a valid URL",
+      };
+    }
+
+    if (
+      !formattedUrl.startsWith("http://") &&
+      !formattedUrl.startsWith("https://")
+    ) {
+      formattedUrl = "https://" + formattedUrl;
+    }
+
+    try {
+      new URL(formattedUrl);
+      return { isValid: true, formattedUrl, error: "" };
+    } catch {
+      return {
+        isValid: false,
+        formattedUrl: "",
+        error: "Please enter a valid URL",
+      };
+    }
+  }
+
   function handleAddFiles(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files || []) as File[];
     if (files.length > 0) {
@@ -90,14 +129,22 @@ function AddMaterialDialog({
   }
 
   function handleAddLink() {
-    if (!tempLinkName.trim() || !tempLinkUrl.trim()) {
+    if (!tempLinkName.trim()) {
+      setUrlError("Link name is required");
+      return;
+    }
+
+    const urlValidation = validateAndFormatUrl(tempLinkUrl);
+
+    if (!urlValidation.isValid) {
+      setUrlError(urlValidation.error);
       return;
     }
 
     appendLink({
-      name: tempLinkName,
+      name: tempLinkName.trim(),
       isLink: true,
-      url: tempLinkUrl,
+      url: urlValidation.formattedUrl,
       size: undefined,
       type: undefined,
     });
@@ -105,6 +152,7 @@ function AddMaterialDialog({
     setShowLinkInput(false);
     setTempLinkUrl("");
     setTempLinkName("");
+    setUrlError("");
   }
 
   function handleRemoveMaterial(index: number) {
@@ -137,6 +185,7 @@ function AddMaterialDialog({
     setShowFileUpload(false);
     setTempLinkUrl("");
     setTempLinkName("");
+    setUrlError("");
   }
 
   function onSubmit(data: FormValues) {
@@ -325,10 +374,16 @@ function AddMaterialDialog({
                       </Label>
                       <Input
                         value={tempLinkUrl}
-                        onChange={(e) => setTempLinkUrl(e.target.value)}
+                        onChange={(e) => {
+                          setTempLinkUrl(e.target.value);
+                          if (urlError) setUrlError("");
+                        }}
                         placeholder="https://example.com"
                         disabled={isAddingMaterials}
                       />
+                      {urlError && (
+                        <p className="text-xs text-red-600">{urlError}</p>
+                      )}
                     </div>
                     <div className="flex gap-2 justify-end">
                       <Button onClick={handleAddLink} type="button">
