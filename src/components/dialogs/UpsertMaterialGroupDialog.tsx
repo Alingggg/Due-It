@@ -28,6 +28,9 @@ function UpsertMaterialDialog({
   subjects,
   materialGroup,
 }: UpsertMaterialDialogProps) {
+  const sortedSubjects = [...subjects].sort((a, b) =>
+    a.name.localeCompare(b.name)
+  );
   const { mutate: addMaterialGroup, isPending: isAddingMaterialGroup } =
     useAddMaterialGroup();
   const { mutate: updateMaterialGroup, isPending: isUpdatingMaterialGroup } =
@@ -65,10 +68,7 @@ function UpsertMaterialDialog({
         </DialogTitle>
 
         <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-3 sm:space-y-4"
-          >
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="title">
                 Title <span className="text-red-500">*</span>
@@ -104,7 +104,7 @@ function UpsertMaterialDialog({
                 control={form.control}
                 name="subjectId"
                 label="Subject"
-                options={subjects.map((subject) => ({
+                options={sortedSubjects.map((subject) => ({
                   label: subject.name,
                   value: subject.id,
                 }))}
@@ -112,7 +112,7 @@ function UpsertMaterialDialog({
               />
             </div>
 
-            <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pt-3 border-t border-slate-200">
+            <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pt-4 border-t border-slate-200">
               <Button
                 onClick={onClose}
                 variant="outline"

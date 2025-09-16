@@ -41,6 +41,9 @@ function UpsertTaskDialog({
   subjects,
   onClose,
 }: UpsertTaskDialogProps) {
+  const sortedSubjects = [...subjects].sort((a, b) =>
+    a.name.localeCompare(b.name)
+  );
   const form = useForm<TaskFormValues>({
     defaultValues: {
       title: initialData.title || "",
@@ -175,7 +178,7 @@ function UpsertTaskDialog({
                 control={form.control}
                 name="subjectId"
                 label="Subject"
-                options={subjects.map((subject) => ({
+                options={sortedSubjects.map((subject) => ({
                   label: subject.name,
                   value: subject.id,
                 }))}

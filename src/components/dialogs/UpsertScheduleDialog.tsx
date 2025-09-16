@@ -36,6 +36,9 @@ function UpsertScheduleDialog({
   subjects,
   onClose,
 }: UpsertScheduleDialogProps) {
+  const sortedSubjects = [...subjects].sort((a, b) =>
+    a.name.localeCompare(b.name)
+  );
   const form = useForm<ScheduleFormData>({
     defaultValues: {
       subjectId: initialData.subjectId || "",
@@ -63,22 +66,19 @@ function UpsertScheduleDialog({
           {initialData.id ? "Edit Schedule" : "Add New Schedule"}
         </DialogTitle>
 
-        {/* Form */}
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            {/* Subject Selection */}
             <SelectField
               control={form.control}
               name="subjectId"
               label="Subject"
-              options={subjects.map((subject) => ({
-                label: `${subject.subjectCode} - ${subject.name}`,
+              options={sortedSubjects.map((subject) => ({
+                label: subject.name,
                 value: subject.id,
               }))}
               required
             />
 
-            {/* Day of Week */}
             <SelectField
               control={form.control}
               name="dayOfWeek"
@@ -87,9 +87,7 @@ function UpsertScheduleDialog({
               required
             />
 
-            {/* Start Time and End Time */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-              {/* Start Time */}
               <div className="space-y-2 w-full">
                 <Label htmlFor="startTime">
                   Start Time <span className="text-red-500">*</span>
@@ -108,7 +106,6 @@ function UpsertScheduleDialog({
                 )}
               </div>
 
-              {/* End Time */}
               <div className="space-y-2 w-full">
                 <Label htmlFor="endTime">
                   End Time <span className="text-red-500">*</span>
@@ -128,7 +125,6 @@ function UpsertScheduleDialog({
               </div>
             </div>
 
-            {/* Action Buttons */}
             <div className="pt-4 border-t border-gray-200">
               <Button
                 disabled={isAdding || isUpdating}
