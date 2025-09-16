@@ -3,6 +3,7 @@ import { Database } from "@/types/supabase";
 interface WorkspaceMemberWithProfile {
   workspaceId: string;
   userId: string;
+  email: string;
   firstName: string;
   lastName: string;
   role: Database["public"]["Enums"]["workspace_role"];

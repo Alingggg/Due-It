@@ -9,10 +9,13 @@ import { RegisterSchema } from "@/zod-schema/Auth";
 import * as z from "zod";
 import { useRegister } from "@/hooks/Auth";
 import { CheckCircle } from "lucide-react";
+import { useState } from "react";
 
 type FormValues = z.infer<typeof RegisterSchema>;
 
 function SignUp() {
+  const [registerError, setRegisterError] = useState<string | null>(null);
+  const { mutate: registerAccount, isPending, isSuccess } = useRegister();
   const {
     register,
     handleSubmit,
@@ -20,10 +23,15 @@ function SignUp() {
   } = useForm<FormValues>({
     resolver: zodResolver(RegisterSchema),
   });
-  const { mutate, isPending, isSuccess } = useRegister();
 
   function onSubmit(data: FormValues) {
-    mutate(data);
+    registerAccount(data, {
+      onError: (error: any) => {
+        setRegisterError(
+          error?.message || "Registration failed. Please try again."
+        );
+      },
+    });
   }
 
   if (isSuccess) {
@@ -57,13 +65,19 @@ function SignUp() {
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center px-2 py-6 sm:p-4">
       <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8 w-full max-w-xs sm:max-w-md">
-        <div className="text-center mb-5 sm:mb-8">
+        <div className="text-center mb-4">
           <h1 className="text-xl sm:text-3xl font-bold text-blue-600 mb-2">
             Due It
           </h1>
           <h2 className="text-lg sm:text-xl font-semibold text-slate-800">
             Create account
           </h2>
+
+          {registerError && (
+            <div className="mt-3 text-red-600 text-sm font-medium">
+              {registerError}
+            </div>
+          )}
         </div>
 
         <form
@@ -153,7 +167,7 @@ function SignUp() {
           </Button>
         </form>
 
-        <div className="text-center mt-5 sm:mt-6">
+        <div className="text-center mt-4">
           <p className="text-slate-600 text-sm sm:text-base">
             Already have an account?{" "}
             <Button variant="link" className="pl-0" asChild>

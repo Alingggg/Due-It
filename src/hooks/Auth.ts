@@ -21,7 +21,17 @@ function useRegister() {
       firstName: string;
       lastName: string;
     }) => {
-      const { error } = await supabase.auth.signUp({
+      const { data, error: fetchError } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("email", email)
+        .maybeSingle();
+
+      if (fetchError) throw new Error(fetchError.message);
+
+      if (data?.id) throw new Error("Email already registered");
+
+      const { error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -33,7 +43,7 @@ function useRegister() {
         },
       });
 
-      if (error) throw new Error(error.message);
+      if (signUpError) throw new Error(signUpError.message);
     },
     onError: (error) => {
       console.log("Error during registration:", error);
