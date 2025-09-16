@@ -9,32 +9,45 @@ import { LoginSchema } from "@/zod-schema/Auth";
 import * as z from "zod";
 import { useLogin } from "@/hooks/Auth";
 import { useForm } from "react-hook-form";
+import { useState } from "react";
 
 type FormData = z.infer<typeof LoginSchema>;
 
 function SignIn() {
+  const [loginError, setLoginError] = useState<string | null>(null);
   const { openDialog } = useDialogContext();
+  const { mutate: login, isPending } = useLogin();
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<FormData>({ resolver: zodResolver(LoginSchema) });
-  const { mutate, isPending } = useLogin();
 
   function onSubmit(data: FormData) {
-    mutate(data);
+    setLoginError(null);
+    login(data, {
+      onError: (err: any) => {
+        setLoginError(err?.message || "Login failed. Please try again.");
+      },
+    });
   }
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center px-2 py-6 sm:p-4">
       <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8 w-full max-w-xs sm:max-w-md">
-        <div className="text-center mb-4 sm:mb-7">
+        <div className="text-center mb-4">
           <h1 className="text-2xl sm:text-3xl font-bold text-blue-600 mb-2">
             Due It
           </h1>
           <p className="text-slate-600 text-sm sm:text-base">
             Sign in to your account
           </p>
+
+          {loginError && (
+            <div className="mt-3 text-red-600 text-sm font-medium">
+              {loginError}
+            </div>
+          )}
         </div>
 
         <form
