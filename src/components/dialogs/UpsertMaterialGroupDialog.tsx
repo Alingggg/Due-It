@@ -95,6 +95,7 @@ function UpsertMaterialDialog({
                 id="description"
                 placeholder="Enter material group description"
                 disabled={isSubmitting}
+                className="break-all"
               />
             </div>
 
