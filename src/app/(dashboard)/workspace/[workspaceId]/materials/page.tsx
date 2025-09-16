@@ -75,10 +75,9 @@ function MaterialsPage() {
       return subjectMatch;
     }) ?? [];
 
-  // Sort material groups
   const sortedMaterialGroups = [...filteredMaterialGroups].sort((a, b) => {
     if (sortBy === "createdAt") {
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(); // Latest first
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     } else if (sortBy === "subject") {
       const subjectA = subjects?.find((s) => s.id === a.subjectId)?.name || "";
       const subjectB = subjects?.find((s) => s.id === b.subjectId)?.name || "";
@@ -152,7 +151,6 @@ function MaterialsPage() {
     }
   }
 
-  // Dropdown options
   const SORT_OPTIONS = [
     { value: "createdDate", label: "Created Date" },
     { value: "subject", label: "Subject" },
@@ -172,7 +170,6 @@ function MaterialsPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-slate-800">Materials</h1>
         {(currentUserRole === "admin" || currentUserRole === "co-admin") && (
@@ -183,14 +180,12 @@ function MaterialsPage() {
         )}
       </div>
 
-      {/* Filters */}
       <div className="flex flex-wrap items-center gap-4">
         <div className="flex items-center text-sm text-slate-600">
           <Filter className="w-4 h-4 mr-2" />
           <span>Filters:</span>
         </div>
 
-        {/* Sort By */}
         <div className="flex items-center space-x-2">
           <Label htmlFor="sortBy">Sort by:</Label>
           <Select value={sortBy} onValueChange={setSortBy}>
@@ -207,7 +202,6 @@ function MaterialsPage() {
           </Select>
         </div>
 
-        {/* Filter by Subject */}
         <div className="flex items-center space-x-2">
           <Label htmlFor="filterSubject">Subject:</Label>
           <Select value={filterSubject} onValueChange={setFilterSubject}>
@@ -225,10 +219,8 @@ function MaterialsPage() {
         </div>
       </div>
 
-      {/* Materials List */}
       <div className="space-y-6">{renderMaterialGroups()}</div>
 
-      {/* Empty State */}
       {sortedMaterialGroups.length === 0 && (
         <div className="text-center py-12">
           <div className="text-slate-400 mb-2">

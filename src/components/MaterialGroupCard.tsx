@@ -25,7 +25,6 @@ function MaterialGroupCard({
       className="bg-white rounded-lg border border-slate-200 p-3 sm:p-4 hover:shadow-md hover:border-blue-200 transition-all cursor-pointer"
     >
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
-        {/* Main Content */}
         <div className="flex items-start sm:items-center flex-1">
           <div className="p-2 sm:p-3 bg-blue-50 rounded-lg mr-2 sm:mr-4 shrink-0 flex items-center justify-center">
             <Folder className="w-4 h-4 sm:w-5 sm:h-5 fill-blue-600 text-blue-600" />
@@ -59,7 +58,6 @@ function MaterialGroupCard({
           </div>
         </div>
 
-        {/* Date Section */}
         <div className="flex flex-col justify-center items-end min-w-[100px]">
           <div className="text-xs sm:text-sm text-slate-500 sm:mb-0 sm:text-right">
             {format(

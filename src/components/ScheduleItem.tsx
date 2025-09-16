@@ -76,7 +76,7 @@ function ScheduleItem({
         </span>
       </div>
 
-      {/* Actions Menu - Only show if user can manage subjects */}
+      {/* Actions Menu - Only for Admins */}
       {canManage && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

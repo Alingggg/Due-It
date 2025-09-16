@@ -76,7 +76,6 @@ function TaskCard({ task, workspaceId, subjectName }: TaskCardProps) {
       className="bg-white rounded-lg border border-slate-200 p-3 sm:p-4 hover:shadow-md hover:border-blue-200 transition-all cursor-pointer"
     >
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
-        {/* Main Content */}
         <div className="flex items-start sm:items-center flex-1">
           <div className="p-2 sm:p-3 bg-blue-50 rounded-lg mr-2 sm:mr-4 shrink-0">
             <TypeIcon className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
@@ -104,7 +103,6 @@ function TaskCard({ task, workspaceId, subjectName }: TaskCardProps) {
           </div>
         </div>
 
-        {/* Due Date Section */}
         <div className="flex items-center justify-between sm:justify-end sm:flex-col sm:items-end space-x-2 sm:space-x-0 sm:min-w-[120px]">
           <div className="text-xs sm:text-sm text-slate-600 sm:mb-1 sm:text-right">
             {format(new Date(task.dueDate), "MM/dd/yyyy")}

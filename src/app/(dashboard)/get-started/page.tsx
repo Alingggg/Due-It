@@ -39,7 +39,6 @@ function GetStarted() {
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center px-2 py-6 sm:p-4">
       <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8 w-full max-w-xs sm:max-w-md">
-        {/* Header */}
         <div className="text-center mb-5 sm:mb-8">
           <h1 className="text-xl sm:text-3xl font-bold text-blue-600 mb-2">
             Due It

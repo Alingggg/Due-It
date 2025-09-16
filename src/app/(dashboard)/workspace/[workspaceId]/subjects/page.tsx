@@ -46,7 +46,7 @@ function useGroupedSchedules(schedules: SemesterSchedule[]) {
         schedule: sched,
       });
     });
-    // Sort each day's subjects by time
+
     DAYS.forEach((day) => {
       grouped[day].sort((a, b) =>
         a.schedule.startTime.localeCompare(b.schedule.startTime)
@@ -156,7 +156,6 @@ function SubjectsPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-slate-800">Subjects</h1>
         {canManageSubjects && (
@@ -171,7 +170,6 @@ function SubjectsPage() {
         )}
       </div>
 
-      {/* Tabs */}
       <div className="border-b border-slate-200">
         <nav className="flex space-x-8">
           <button
@@ -197,7 +195,6 @@ function SubjectsPage() {
         </nav>
       </div>
 
-      {/* Tab Content */}
       <div>
         {activeTab === "subjects" ? renderSubjectsTab() : renderScheduleTab()}
       </div>

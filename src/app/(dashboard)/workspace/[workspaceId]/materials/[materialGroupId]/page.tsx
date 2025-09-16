@@ -234,7 +234,6 @@ function MaterialGroupDetailsPage() {
           ))}
         </div>
 
-        {/* Empty Materials State */}
         {materials?.length === 0 && (
           <div className="p-8 sm:p-12 text-center">
             <div className="text-slate-400 mb-4">

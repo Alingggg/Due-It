@@ -29,27 +29,25 @@ function SignUp() {
   if (isSuccess) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center px-2 py-6 sm:p-4">
-        <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8 w-full max-w-xs sm:max-w-md">
-          <div className="text-center">
-            <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-              <CheckCircle className="w-8 h-8 text-green-600" />
-            </div>
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-800 mb-2">
-              Check your email
-            </h1>
-            <p className="text-slate-600 text-sm sm:text-base mb-6">
-              We've sent you a confirmation link to verify your account. Please
-              check your email and click the link to complete your registration.
+        <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8 w-full max-w-xs sm:max-w-md text-center">
+          <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+            <CheckCircle className="w-8 h-8 text-green-600" />
+          </div>
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-800 mb-2">
+            Check your email
+          </h1>
+          <p className="text-slate-600 text-sm sm:text-base mb-6">
+            We've sent you a confirmation link to verify your account. Please
+            check your email and click the link to complete your registration.
+          </p>
+          <div className="space-y-3">
+            <Button asChild className="w-full">
+              <Link href="/sign-in">Continue to Sign In</Link>
+            </Button>
+            <p className="text-xs text-slate-500">
+              Didn't receive the email? Check your spam folder or try signing up
+              again.
             </p>
-            <div className="space-y-3">
-              <Button asChild className="w-full">
-                <Link href="/sign-in">Continue to Sign In</Link>
-              </Button>
-              <p className="text-xs text-slate-500">
-                Didn't receive the email? Check your spam folder or try signing
-                up again.
-              </p>
-            </div>
           </div>
         </div>
       </div>

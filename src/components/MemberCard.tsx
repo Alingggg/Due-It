@@ -213,7 +213,6 @@ function MemberCard({ member, currentUser, currentUserRole }: MemberCardProps) {
   return (
     <div className="bg-white rounded-lg border border-slate-200 p-3 sm:p-4 hover:shadow-md hover:border-blue-200 transition-all relative">
       <div className="flex items-center justify-between">
-        {/* Left Section */}
         <div className="flex items-center flex-1">
           <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-full flex items-center justify-center mr-3 sm:mr-4">
             <span className="text-blue-700 font-semibold text-xs sm:text-sm">
@@ -232,7 +231,6 @@ function MemberCard({ member, currentUser, currentUserRole }: MemberCardProps) {
           </div>
         </div>
 
-        {/* Right Section */}
         <div className="flex items-center space-x-2 sm:space-x-4">
           <div className="text-right">
             <span
@@ -243,7 +241,7 @@ function MemberCard({ member, currentUser, currentUserRole }: MemberCardProps) {
             </span>
           </div>
 
-          {/* Actions Menu */}
+          {/* Actions Menu - Only for Admins */}
           {availableActions.length > 0 && (
             <DropdownMenu
               open={isMenuOpen}

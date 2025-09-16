@@ -194,7 +194,6 @@ function TasksPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-slate-800">Tasks</h1>
         <div className="flex items-center space-x-4">
@@ -210,7 +209,6 @@ function TasksPage() {
         </div>
       </div>
 
-      {/* Tabs */}
       <div className="border-b border-slate-200">
         <nav className="flex space-x-8">
           <button
@@ -236,14 +234,12 @@ function TasksPage() {
         </nav>
       </div>
 
-      {/* Filters */}
       <div className="flex flex-wrap items-center gap-4">
         <div className="flex items-center text-sm text-slate-600">
           <Filter className="w-4 h-4 mr-2" />
           <span>Filters:</span>
         </div>
 
-        {/* Sort By */}
         <div className="flex items-center space-x-2">
           <Label htmlFor="sortBy">Sort by:</Label>
           <Select value={sortBy} onValueChange={setSortBy}>
@@ -260,7 +256,6 @@ function TasksPage() {
           </Select>
         </div>
 
-        {/* Filter by Task Type */}
         <div className="flex items-center space-x-2">
           <Label htmlFor="filterTaskType">Task Type:</Label>
           <Select value={filterTaskType} onValueChange={setFilterTaskType}>
@@ -277,7 +272,6 @@ function TasksPage() {
           </Select>
         </div>
 
-        {/* Filter by Completion Type */}
         <div className="flex items-center space-x-2">
           <Label htmlFor="filterCompletionType">Completion Type:</Label>
           <Select
@@ -298,10 +292,8 @@ function TasksPage() {
         </div>
       </div>
 
-      {/* Tasks List */}
       <div className="space-y-6">{renderTasks()}</div>
 
-      {/* Empty State */}
       {sortedTasks.length === 0 && (
         <div className="text-center py-12">
           <div className="text-slate-400 mb-4">
