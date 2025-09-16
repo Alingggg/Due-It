@@ -90,6 +90,7 @@ function UpsertTaskDialog({
                 type="text"
                 placeholder="Enter task title..."
                 disabled={isPending}
+                autoComplete="off"
               />
               {form.formState.errors.title && (
                 <p className="text-red-500 text-xs">

@@ -253,7 +253,6 @@ function AddMaterialDialog({
           </Button>
         </div>
 
-        {/* Material Details */}
         <div className="text-sm text-slate-600">
           {item.data.isLink ? (
             <div className="break-all">
@@ -289,7 +288,6 @@ function AddMaterialDialog({
             onSubmit={form.handleSubmit(onSubmit)}
             className="space-y-3 sm:space-y-4"
           >
-            {/* Add Material Section */}
             <div className="space-y-2">
               <Label>
                 Add Materials <span className="text-red-500">*</span>
@@ -366,6 +364,7 @@ function AddMaterialDialog({
                         onChange={(e) => setTempLinkName(e.target.value)}
                         placeholder="Enter link name"
                         disabled={isAddingMaterials}
+                        autoComplete="off"
                       />
                     </div>
                     <div className="space-y-2">
@@ -380,6 +379,7 @@ function AddMaterialDialog({
                         }}
                         placeholder="https://example.com"
                         disabled={isAddingMaterials}
+                        autoComplete="off"
                       />
                       {urlError && (
                         <p className="text-xs text-red-600">{urlError}</p>
@@ -395,7 +395,6 @@ function AddMaterialDialog({
               )}
             </div>
 
-            {/* Materials List */}
             {(materials.length > 0 || links.length > 0) && (
               <div className="space-y-2">
                 <Label>Materials ({materials.length + links.length})</Label>
@@ -403,7 +402,6 @@ function AddMaterialDialog({
               </div>
             )}
 
-            {/* Actions */}
             <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pt-3 border-t border-slate-200">
               <Button
                 onClick={onClose}

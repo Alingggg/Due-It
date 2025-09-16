@@ -209,6 +209,7 @@ function WorkspaceSettingsPage() {
                 placeholder="Enter workspace name"
                 className="w-full"
                 disabled={isUpdatingWorkspaceName}
+                autoComplete="off"
               />
               {errors.name && (
                 <p className="text-red-500 text-xs mt-1">

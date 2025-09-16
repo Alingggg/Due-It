@@ -78,6 +78,7 @@ function UpsertMaterialDialog({
                 id="title"
                 placeholder="Enter material group title"
                 disabled={isSubmitting}
+                autoComplete="off"
               />
               {form.formState.errors.title && (
                 <p className="text-xs text-red-600">

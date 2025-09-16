@@ -94,6 +94,7 @@ function SignUp() {
                 type="text"
                 placeholder="First name"
                 disabled={isPending}
+                autoComplete="given-name"
               />
               {errors.firstName && (
                 <p className="text-red-500 text-xs">
@@ -109,6 +110,7 @@ function SignUp() {
                 type="text"
                 placeholder="Last name"
                 disabled={isPending}
+                autoComplete="family-name"
               />
               {errors.lastName && (
                 <p className="text-red-500 text-xs">

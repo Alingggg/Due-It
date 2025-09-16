@@ -58,6 +58,7 @@ function CreateWorkspaceDialog({ onClose }: CreateWorkspaceDialogProps) {
               placeholder="Enter workspace name"
               disabled={isSubmitting}
               autoFocus
+              autoComplete="off"
             />
             {errors.workspaceName && (
               <p className="text-red-500 text-xs">

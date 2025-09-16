@@ -132,6 +132,7 @@ function ProfilePage() {
                   type="text"
                   placeholder="Enter your first name"
                   className="w-full"
+                  autoComplete="given-name"
                 />
                 {errors.firstName && (
                   <p className="text-red-500 text-xs">
@@ -161,6 +162,7 @@ function ProfilePage() {
                   type="text"
                   placeholder="Enter your last name"
                   className="w-full"
+                  autoComplete="family-name"
                 />
                 {errors.lastName && (
                   <p className="text-red-500 text-xs">

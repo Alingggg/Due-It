@@ -74,9 +74,7 @@ function UpsertSubjectDialog({
           {initialData.name ? "Edit Subject" : "Add New Subject"}
         </DialogTitle>
 
-        {/* Form */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {/* Subject Name */}
           <div className="space-y-2">
             <Label htmlFor="subject-name">
               Subject Name <span className="text-red-500">*</span>
@@ -87,15 +85,14 @@ function UpsertSubjectDialog({
               type="text"
               placeholder="Enter subject name..."
               disabled={isAdding || isUpdating}
+              autoComplete="off"
             />
             {errors.name && (
               <p className="text-red-500 text-xs">{errors.name.message}</p>
             )}
           </div>
 
-          {/* Subject Code and Instructor */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Subject Code */}
             <div className="space-y-2">
               <Label htmlFor="subject-code">
                 Subject Code <span className="text-red-500">*</span>
@@ -106,6 +103,7 @@ function UpsertSubjectDialog({
                 type="text"
                 placeholder="e.g., COMP 101"
                 disabled={isAdding || isUpdating}
+                autoComplete="off"
               />
               {errors.subjectCode && (
                 <p className="text-red-500 text-xs">
@@ -114,7 +112,6 @@ function UpsertSubjectDialog({
               )}
             </div>
 
-            {/* Instructor */}
             <div className="space-y-2">
               <Label htmlFor="instructor">
                 Instructor <span className="text-red-500">*</span>
@@ -125,6 +122,7 @@ function UpsertSubjectDialog({
                 type="text"
                 placeholder="Enter instructor name..."
                 disabled={isAdding || isUpdating}
+                autoComplete="off"
               />
               {errors.instructorName && (
                 <p className="text-red-500 text-xs">
@@ -134,7 +132,6 @@ function UpsertSubjectDialog({
             </div>
           </div>
 
-          {/* Action Buttons */}
           <div className="pt-4 border-t border-gray-200">
             <Button disabled={isAdding || isUpdating} type="submit">
               {isAdding || isUpdating ? (
