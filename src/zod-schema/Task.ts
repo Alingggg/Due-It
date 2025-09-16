@@ -9,10 +9,17 @@ const TaskSchema = z.object({
     .max(100, { error: "Title is too long" }),
   description: z.string().trim().max(500, { error: "Description is too long" }),
   subjectId: z.string().min(1, { error: "Subject is required" }),
-  taskType: z.enum(["exam", "activity"]),
-  completionType: z.enum(["individual", "pair", "group"]),
+  taskType: z.enum(["exam", "activity"], {
+    error: "Invalid or missing task type",
+  }),
+  completionType: z.enum(["individual", "pair", "group"], {
+    error: "Invalid or missing completion type",
+  }),
   dueDate: z
     .any()
+    .refine((val) => val !== undefined && val !== null && val !== "", {
+      error: "Due date is required",
+    })
     .refine(
       (val) => {
         if (val instanceof Date && isValid(val)) return true;
@@ -22,7 +29,7 @@ const TaskSchema = z.object({
         }
         return false;
       },
-      { error: "Due date is required and must be a valid date" }
+      { error: "Due date must be a valid date" }
     )
     .transform((val) => {
       if (val instanceof Date && isValid(val)) return val.toLocaleDateString();

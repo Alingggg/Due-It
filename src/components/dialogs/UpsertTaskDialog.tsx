@@ -21,7 +21,6 @@ interface UpsertTaskDialogProps {
   initialData?: Partial<SemesterTask>;
   subjects: Subject[];
   onClose: () => void;
-  isLoading?: boolean;
 }
 
 type TaskFormValues = z.infer<typeof TaskSchema>;
@@ -41,7 +40,6 @@ function UpsertTaskDialog({
   initialData = {},
   subjects,
   onClose,
-  isLoading = false,
 }: UpsertTaskDialogProps) {
   const form = useForm<TaskFormValues>({
     defaultValues: {
@@ -57,8 +55,7 @@ function UpsertTaskDialog({
   });
   const { mutate: addTask, isPending: isAddingTask } = useAddTask();
   const { mutate: updateTask, isPending: isUpdatingTask } = useUpdateTask();
-
-  const isPending = isAddingTask || isUpdatingTask || isLoading;
+  const isPending = isAddingTask || isUpdatingTask;
 
   function onSubmit(data: TaskFormValues) {
     if (initialData.id) {
@@ -120,7 +117,6 @@ function UpsertTaskDialog({
                   required
                   disabled={isPending}
                   className="w-full"
-                  toggleItemClassName="px-3"
                 />
               </div>
 
