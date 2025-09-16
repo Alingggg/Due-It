@@ -23,7 +23,7 @@ function ConfirmDeleteWorkspace({
   workspaceName,
 }: ConfirmDeleteWorkspaceProps) {
   const { register, watch } = useForm({
-    defaultValues: { workspaceName, confirmWorkspaceName: "" },
+    defaultValues: { confirmWorkspaceName: "" },
   });
   const { mutate: deleteWorkspace, isPending: isDeletingWorkspace } =
     useDeleteWorkspace();

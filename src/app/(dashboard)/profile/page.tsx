@@ -32,6 +32,10 @@ function ProfilePage() {
     formState: { errors },
     reset,
   } = useForm<ProfileForm>({
+    defaultValues: {
+      firstName: profileData?.firstName || "",
+      lastName: profileData?.lastName || "",
+    },
     resolver: zodResolver(ProfileSchema),
   });
 
