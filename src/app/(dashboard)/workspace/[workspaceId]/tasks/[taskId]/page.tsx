@@ -18,7 +18,11 @@ import {
   useGetUserWorkspace,
   useGetUserWorkspaceRole,
 } from "@/hooks/Workspace";
-import { useDeleteTask, useGetTask } from "@/hooks/Task";
+import {
+  useDeleteTask,
+  useGetTask,
+  useUpdateCompletionStatus,
+} from "@/hooks/Task";
 import LoadingPage from "@/components/LoadingPage";
 
 function TaskDetailPage() {
@@ -32,6 +36,10 @@ function TaskDetailPage() {
   const { data: currentUserRole, isLoading: isLoadingUserRole } =
     useGetUserWorkspaceRole();
   const { mutate: deleteTask, isPending: isDeletingTask } = useDeleteTask();
+  const {
+    mutate: updateCompletionStatus,
+    isPending: isUpdatingCompletionStatus,
+  } = useUpdateCompletionStatus();
   const canManageTask =
     currentUserRole === "admin" || currentUserRole === "co-admin";
   const isPageLoading =
@@ -39,6 +47,26 @@ function TaskDetailPage() {
     isLoadingSubjects ||
     isLoadingUserRole ||
     isLoadingWorkspace;
+
+  function handleMarkAsDone() {
+    if (task?.isCompleted) {
+      updateCompletionStatus(
+        {
+          taskId: task?.id as string,
+          markAsDone: false,
+        },
+        { onSuccess: closeDialog }
+      );
+    } else {
+      updateCompletionStatus(
+        {
+          taskId: task?.id as string,
+          markAsDone: true,
+        },
+        { onSuccess: closeDialog }
+      );
+    }
+  }
 
   function handleDeleteTask() {
     openDialog("CONFIRM_ACTION", {
@@ -168,7 +196,12 @@ function TaskDetailPage() {
             </div>
 
             <div className="pt-4 border-t border-slate-100">
-              <Button>Mark as Done</Button>
+              <Button
+                onClick={handleMarkAsDone}
+                disabled={isUpdatingCompletionStatus}
+              >
+                {task?.isCompleted ? "Unmark as done" : "Mark as Done"}
+              </Button>
             </div>
           </div>
         </div>

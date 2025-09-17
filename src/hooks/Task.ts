@@ -1,4 +1,5 @@
 "use client";
+import { useGetSession } from "@/hooks/Auth";
 import useSemesterContext from "@/hooks/Semester";
 import { useGetUserWorkspace } from "@/hooks/Workspace";
 import { queryKeys } from "@/lib/queryKeys";
@@ -195,4 +196,52 @@ function useDeleteTask() {
   });
 }
 
-export { useGetTasks, useGetTask, useAddTask, useUpdateTask, useDeleteTask };
+function useUpdateCompletionStatus() {
+  const queryClient = useQueryClient();
+  const { data: workspace } = useGetUserWorkspace();
+  const { semester } = useSemesterContext();
+  const { user } = useGetSession();
+
+  return useMutation({
+    mutationFn: async ({
+      taskId,
+      markAsDone,
+    }: {
+      taskId: string;
+      markAsDone: boolean;
+    }) => {
+      if (markAsDone) {
+        const { error: insertError } = await supabase
+          .from("completed_tasks")
+          .insert({ task_id: taskId, user_id: user?.id! });
+
+        if (insertError) throw new Error(insertError.message);
+      } else {
+        const { error: deleteError } = await supabase
+          .from("completed_tasks")
+          .delete()
+          .eq("task_id", taskId)
+          .eq("user_id", user?.id!);
+
+        if (deleteError) throw new Error(deleteError.message);
+      }
+    },
+    onSuccess: (_, { taskId }) => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.tasks.detail(workspace?.id!, semester, taskId),
+      });
+    },
+    onError: (error) => {
+      console.log("Error updating completion status:", error);
+    },
+  });
+}
+
+export {
+  useGetTasks,
+  useGetTask,
+  useAddTask,
+  useUpdateTask,
+  useDeleteTask,
+  useUpdateCompletionStatus,
+};
