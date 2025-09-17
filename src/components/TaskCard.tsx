@@ -24,7 +24,6 @@ function TaskCard({ task, workspaceId, subjectName }: TaskCardProps) {
     router.push(`/workspace/${workspaceId}/tasks/${task.id}`);
   }
 
-  // Helper to get full due datetime
   function getDueDateTime(dueDate: string, dueTime: string) {
     return parseISO(`${dueDate}T${dueTime}`);
   }
@@ -109,22 +108,24 @@ function TaskCard({ task, workspaceId, subjectName }: TaskCardProps) {
           </div>
         </div>
 
-        <div className="flex items-center justify-between sm:justify-end sm:flex-col sm:items-end space-x-2 sm:space-x-0 sm:min-w-[120px]">
-          <div className="text-xs sm:text-sm text-slate-600 sm:mb-1 sm:text-right">
-            {format(getDueDateTime(task.dueDate, task.dueTime), "MM/dd/yyyy")}
+        {!task.isCompleted && (
+          <div className="flex items-center justify-between sm:justify-end sm:flex-col sm:items-end space-x-2 sm:space-x-0 sm:min-w-[120px]">
+            <div className="text-xs sm:text-sm text-slate-600 sm:mb-1 sm:text-right">
+              {format(getDueDateTime(task.dueDate, task.dueTime), "MM/dd/yyyy")}
+            </div>
+            <div className="flex justify-end">
+              {dueInfo.showBadge ? (
+                <span
+                  className={`text-xs font-medium px-2 py-1 rounded-full whitespace-nowrap ${dueInfo.color}`}
+                >
+                  {dueInfo.text}
+                </span>
+              ) : (
+                <div className="h-5"></div>
+              )}
+            </div>
           </div>
-          <div className="flex justify-end">
-            {dueInfo.showBadge ? (
-              <span
-                className={`text-xs font-medium px-2 py-1 rounded-full whitespace-nowrap ${dueInfo.color}`}
-              >
-                {dueInfo.text}
-              </span>
-            ) : (
-              <div className="h-5"></div>
-            )}
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

@@ -116,7 +116,6 @@ function TasksPage() {
     router.replace(newUrl, { scroll: false });
   }, [sortBy, filterTaskType, filterCompletionType, router, workspaceId]);
 
-  // Helper to get full due datetime
   function getDueDateTime(dueDate: string, dueTime: string) {
     return parseISO(`${dueDate}T${dueTime}`);
   }
@@ -147,6 +146,14 @@ function TasksPage() {
   // Sort tasks
   const sortedTasks = [...filteredTasks].sort((a, b) => {
     if (sortBy === "dueDate") {
+      // For "past-due" and "completed", sort descending (newest first)
+      if (activeTab === "past-due" || activeTab === "completed") {
+        return (
+          getDueDateTime(b.dueDate, b.dueTime).getTime() -
+          getDueDateTime(a.dueDate, a.dueTime).getTime()
+        );
+      }
+      // For "pending", sort ascending (soonest first)
       return (
         getDueDateTime(a.dueDate, a.dueTime).getTime() -
         getDueDateTime(b.dueDate, b.dueTime).getTime()
