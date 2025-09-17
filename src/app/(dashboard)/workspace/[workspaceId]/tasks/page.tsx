@@ -26,6 +26,7 @@ import {
 } from "@/hooks/Workspace";
 import { useGetSubjects } from "@/hooks/Subject";
 import LoadingPage from "@/components/LoadingPage";
+import { parseISO } from "date-fns";
 
 const SORT_OPTIONS = [
   { value: "dueDate", label: "Due Date" },
@@ -88,15 +89,20 @@ function TasksPage() {
     router.replace(newUrl, { scroll: false });
   }, [sortBy, filterTaskType, filterCompletionType, router, workspaceId]);
 
+  // Helper to get full due datetime
+  function getDueDateTime(dueDate: string, dueTime: string) {
+    return parseISO(`${dueDate}T${dueTime}`);
+  }
+
   // Filter tasks by tab (pending/past due)
   const now = new Date();
   const tabFilteredTasks =
     tasks?.filter((task) => {
-      const dueDate = new Date(task.dueDate);
+      const dueDateTime = getDueDateTime(task.dueDate, task.dueTime);
       if (activeTab === "pending") {
-        return dueDate >= now;
+        return dueDateTime >= now;
       } else {
-        return dueDate < now;
+        return dueDateTime < now;
       }
     }) ?? [];
 
@@ -113,7 +119,10 @@ function TasksPage() {
   // Sort tasks
   const sortedTasks = [...filteredTasks].sort((a, b) => {
     if (sortBy === "dueDate") {
-      return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+      return (
+        getDueDateTime(a.dueDate, a.dueTime).getTime() -
+        getDueDateTime(b.dueDate, b.dueTime).getTime()
+      );
     } else if (sortBy === "subject") {
       const subjectA = subjects?.find((s) => s.id === a.subjectId)?.name || "";
       const subjectB = subjects?.find((s) => s.id === b.subjectId)?.name || "";
@@ -135,11 +144,13 @@ function TasksPage() {
         }, {} as Record<string, typeof tasks>)
       : null;
 
-  // Sort tasks within each subject by due date
+  // Sort tasks within each subject by due date and time
   if (groupedTasks) {
     Object.keys(groupedTasks).forEach((subjectName) => {
       groupedTasks[subjectName]?.sort(
-        (a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
+        (a, b) =>
+          getDueDateTime(a.dueDate, a.dueTime).getTime() -
+          getDueDateTime(b.dueDate, b.dueTime).getTime()
       );
     });
   }

@@ -6,6 +6,8 @@ import {
   isToday,
   isTomorrow,
   differenceInCalendarDays,
+  isBefore,
+  parseISO,
 } from "date-fns";
 import { SemesterTask } from "@/types/Task";
 
@@ -22,12 +24,16 @@ function TaskCard({ task, workspaceId, subjectName }: TaskCardProps) {
     router.push(`/workspace/${workspaceId}/tasks/${task.id}`);
   }
 
-  // Format due date
-  function formatDueDate(dueDate: string) {
-    const date = new Date(dueDate);
+  // Helper to get full due datetime
+  function getDueDateTime(dueDate: string, dueTime: string) {
+    return parseISO(`${dueDate}T${dueTime}`);
+  }
+
+  function formatDueDate(dueDate: string, dueTime: string) {
+    const date = getDueDateTime(dueDate, dueTime);
     const now = new Date();
 
-    if (date < now) {
+    if (isBefore(date, now)) {
       return {
         text: "Overdue",
         color: "text-red-600 bg-red-50",
@@ -67,7 +73,7 @@ function TaskCard({ task, workspaceId, subjectName }: TaskCardProps) {
     return type === "exam" ? HelpCircle : ClipboardList;
   }
 
-  const dueInfo = formatDueDate(task.dueDate);
+  const dueInfo = formatDueDate(task.dueDate, task.dueTime);
   const TypeIcon = getTypeIcon(task.taskType);
 
   return (
@@ -105,7 +111,7 @@ function TaskCard({ task, workspaceId, subjectName }: TaskCardProps) {
 
         <div className="flex items-center justify-between sm:justify-end sm:flex-col sm:items-end space-x-2 sm:space-x-0 sm:min-w-[120px]">
           <div className="text-xs sm:text-sm text-slate-600 sm:mb-1 sm:text-right">
-            {format(new Date(task.dueDate), "MM/dd/yyyy")}
+            {format(getDueDateTime(task.dueDate, task.dueTime), "MM/dd/yyyy")}
           </div>
           <div className="flex justify-end">
             {dueInfo.showBadge ? (
