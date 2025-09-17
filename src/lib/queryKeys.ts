@@ -27,8 +27,16 @@ const queryKeys = {
   tasks: {
     all: (workspaceId: string, semester: Semester) =>
       ["workspaces", workspaceId, "semesters", semester, "tasks"] as const,
-    list: (workspaceId: string, semester: Semester) =>
-      [...queryKeys.tasks.all(workspaceId, semester), "list"] as const,
+    list: (
+      workspaceId: string,
+      semester: Semester,
+      filters?: Array<{ column: string; operator: string; value: any }>
+    ) =>
+      [
+        ...queryKeys.tasks.all(workspaceId, semester),
+        "list",
+        ...(filters ? [JSON.stringify(filters)] : []),
+      ] as const,
     detail: (workspaceId: string, semester: Semester, taskId: string) =>
       [
         ...queryKeys.tasks.all(workspaceId, semester),

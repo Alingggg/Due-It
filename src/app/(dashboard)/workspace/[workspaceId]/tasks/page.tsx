@@ -26,7 +26,7 @@ import {
 } from "@/hooks/Workspace";
 import { useGetSubjects } from "@/hooks/Subject";
 import LoadingPage from "@/components/LoadingPage";
-import { parseISO } from "date-fns";
+import { parseISO, format } from "date-fns";
 
 const SORT_OPTIONS = [
   { value: "dueDate", label: "Due Date" },
@@ -49,7 +49,9 @@ const COMPLETION_TYPE_OPTIONS = [
 function TasksPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [activeTab, setActiveTab] = useState<"pending" | "past-due">("pending");
+  const [activeTab, setActiveTab] = useState<
+    "pending" | "past-due" | "completed"
+  >("pending");
   const [sortBy, setSortBy] = useState(searchParams.get("sort") || "dueDate");
   const [filterTaskType, setFilterTaskType] = useState(
     searchParams.get("taskType") || "all"
@@ -61,7 +63,32 @@ function TasksPage() {
     useGetUserWorkspace();
   const workspaceId = workspace?.id!;
 
-  const { data: tasks, isLoading: isLoadingTasks } = useGetTasks();
+  const now = new Date();
+  const currentDate = format(now, "yyyy-MM-dd");
+  // Generate filters based on active tab
+  const generateFilters = () => {
+    const filters: Array<{ column: string; operator: string; value: any }> = [];
+
+    if (activeTab === "pending") {
+      filters.push(
+        { column: "dueDate", operator: "gte", value: currentDate },
+        { column: "isCompleted", operator: "eq", value: false }
+      );
+    } else if (activeTab === "past-due") {
+      filters.push(
+        { column: "dueDate", operator: "lte", value: currentDate },
+        { column: "isCompleted", operator: "eq", value: false }
+      );
+    } else if (activeTab === "completed") {
+      filters.push({ column: "isCompleted", operator: "eq", value: true });
+    }
+
+    return filters;
+  };
+
+  const { data: allTasks, isLoading: isLoadingTasks } = useGetTasks(
+    generateFilters()
+  );
   const { data: subjects, isLoading: isLoadingSubjects } = useGetSubjects();
   const { data: currentUserRole, isLoading: isLoadingCurrentUserRole } =
     useGetUserWorkspaceRole();
@@ -94,20 +121,21 @@ function TasksPage() {
     return parseISO(`${dueDate}T${dueTime}`);
   }
 
-  // Filter tasks by tab (pending/past due)
-  const now = new Date();
-  const tabFilteredTasks =
-    tasks?.filter((task) => {
-      const dueDateTime = getDueDateTime(task.dueDate, task.dueTime);
-      if (activeTab === "pending") {
-        return dueDateTime >= now;
-      } else {
-        return dueDateTime < now;
+  // Filter tasks types and due time
+  const filteredTasks = (allTasks || []).filter((task) => {
+    // Time filtering for pending and past-due tabs
+    if (activeTab === "pending") {
+      const taskDueDateTime = getDueDateTime(task.dueDate, task.dueTime);
+      if (taskDueDateTime < now) {
+        return false;
       }
-    }) ?? [];
+    } else if (activeTab === "past-due") {
+      const taskDueDateTime = getDueDateTime(task.dueDate, task.dueTime);
+      if (taskDueDateTime >= now) {
+        return false;
+      }
+    }
 
-  // Filter tasks by other filters
-  const filteredTasks = tabFilteredTasks?.filter((task) => {
     const typeMatch =
       filterTaskType === "all" || task.taskType === filterTaskType;
     const completionMatch =
@@ -141,7 +169,7 @@ function TasksPage() {
           }
           groups[subjectName].push(task);
           return groups;
-        }, {} as Record<string, typeof tasks>)
+        }, {} as Record<string, typeof allTasks>)
       : null;
 
   // Sort tasks within each subject by due date and time
@@ -209,7 +237,7 @@ function TasksPage() {
         <h1 className="text-2xl font-bold text-slate-800">Tasks</h1>
         <div className="flex items-center space-x-4">
           <div className="text-sm text-slate-500">
-            {sortedTasks.length} of {tabFilteredTasks.length} tasks
+            {sortedTasks.length} of {allTasks?.length} tasks
           </div>
           {(currentUserRole === "admin" || currentUserRole === "co-admin") && (
             <Button onClick={() => openDialog("UPSERT_TASK", { subjects })}>
@@ -241,6 +269,16 @@ function TasksPage() {
             }`}
           >
             Past Due
+          </button>
+          <button
+            onClick={() => setActiveTab("completed")}
+            className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
+              activeTab === "completed"
+                ? "border-blue-500 text-blue-600"
+                : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
+            }`}
+          >
+            Completed
           </button>
         </nav>
       </div>
@@ -310,35 +348,31 @@ function TasksPage() {
           <div className="text-slate-400 mb-4">
             <ClipboardList className="w-12 h-12 mx-auto" />
           </div>
-          {tasks?.length === 0 ? (
+          {activeTab === "pending" ? (
             <>
               <h3 className="text-lg font-medium text-slate-800 mb-2">
-                No tasks yet
+                No pending tasks
               </h3>
               <p className="text-slate-600 max-w-sm mx-auto">
-                This workspace doesn't have any tasks yet.
+                There are no upcoming tasks.
               </p>
             </>
-          ) : tabFilteredTasks.length === 0 ? (
+          ) : activeTab === "past-due" ? (
             <>
               <h3 className="text-lg font-medium text-slate-800 mb-2">
-                {activeTab === "pending"
-                  ? "No pending tasks"
-                  : "No past-due tasks"}
+                No past-due tasks
               </h3>
               <p className="text-slate-600 max-w-sm mx-auto">
-                {activeTab === "pending"
-                  ? "There are no upcoming tasks."
-                  : "You're all caught up! There are no overdue tasks."}
+                You're all caught up! There are no overdue tasks.
               </p>
             </>
           ) : (
             <>
               <h3 className="text-lg font-medium text-slate-800 mb-2">
-                No tasks match your filters
+                No completed tasks
               </h3>
               <p className="text-slate-600 max-w-sm mx-auto">
-                Try adjusting or clearing your filters to see more tasks.
+                No tasks have been marked as completed yet.
               </p>
             </>
           )}

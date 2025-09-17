@@ -11,6 +11,7 @@ interface SemesterTask {
   dueTime: string;
   semester: number;
   subjectName: string;
+  isCompleted: boolean;
 }
 
 interface Task {

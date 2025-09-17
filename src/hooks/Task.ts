@@ -8,21 +8,49 @@ import { SemesterTask, Task } from "@/types/Task";
 import { toCamelCase, toSnakeCase } from "@/utils/caseConversion";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-function useGetTasks() {
+function useGetTasks(
+  filters?: Array<{ column: string; operator: string; value: any }>
+) {
   const { data: workspace, isLoading: isLoadingWorkspace } =
     useGetUserWorkspace();
   const { semester } = useSemesterContext();
 
   return useQuery({
-    queryKey: queryKeys.tasks.list(workspace?.id!, semester),
+    queryKey: queryKeys.tasks.list(workspace?.id!, semester, filters),
     queryFn: async () => {
       if (!workspace?.id || !semester)
         throw new Error("Workspace or semester is not available");
 
-      const { data, error } = await supabase
-        .from("semester_tasks")
-        .select("*")
-        .eq("semester", semester);
+      let query = supabase.from("semester_tasks").select("*");
+
+      if (filters) {
+        for (const { column, operator, value } of filters) {
+          const snakeColumn = column.replace(
+            /[A-Z]/g,
+            (letter) => `_${letter.toLowerCase()}`
+          );
+
+          switch (operator) {
+            case "eq":
+              query = query.eq(snakeColumn, value);
+              break;
+            case "gt":
+              query = query.gt(snakeColumn, value);
+              break;
+            case "gte":
+              query = query.gte(snakeColumn, value);
+              break;
+            case "lte":
+              query = query.lte(snakeColumn, value);
+              break;
+            case "lt":
+              query = query.lt(snakeColumn, value);
+              break;
+          }
+        }
+      }
+
+      const { data, error } = await query.eq("semester", semester);
 
       if (error) {
         console.log(error);
@@ -62,11 +90,11 @@ function useGetTask(taskId: string) {
 
       return toCamelCase<SemesterTask>(data);
     },
-    initialData: queryClient
-      .getQueryData<SemesterTask[]>(
-        queryKeys.tasks.list(workspace?.id!, semester)
-      )
-      ?.find((task) => task.id === taskId),
+    // initialData: queryClient
+    //   .getQueryData<SemesterTask[]>(
+    //     queryKeys.tasks.list(workspace?.id!, semester)
+    //   )
+    //   ?.find((task) => task.id === taskId),
     enabled: !isLoadingWorkspace && !!workspace && !!semester && !!taskId,
   });
 }
