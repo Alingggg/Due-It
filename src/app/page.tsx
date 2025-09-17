@@ -1,12 +1,15 @@
-import { Input } from "@/components/ui/input";
+"use client";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 function LandingPage() {
-  return (
-    <div className="h-screen w-screen flex flex-col justify-center items-center">
-      Landing Page
-      <Input placeholder="Enter something..." type="password" />
-    </div>
-  );
+  const router = useRouter();
+
+  useEffect(() => {
+    router.push("/sign-in");
+  }, [router]);
+
+  return null;
 }
 
 export default LandingPage;

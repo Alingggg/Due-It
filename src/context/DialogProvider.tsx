@@ -9,6 +9,9 @@ type DialogType =
   | "UPSERT_SUBJECT"
   | "UPSERT_SCHEDULE"
   | "CONFIRM_ACTION"
+  | "ADD_MATERIAL"
+  | "CONFIRM_DELETE_WORKSPACE"
+  | "CREATE_WORKSPACE"
   | null;
 
 interface DialogContextType {

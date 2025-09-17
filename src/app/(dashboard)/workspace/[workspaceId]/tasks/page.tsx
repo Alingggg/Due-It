@@ -1,13 +1,8 @@
 "use client";
-import { useState, useEffect, useContext } from "react";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import TaskCard from "@/components/TaskCard";
 import { Button } from "@/components/ui/button";
-import {
-  getTasksByWorkspaceId,
-  getSubjectsByWorkspaceId,
-  getCurrentUserRole,
-} from "@/data/mockData";
 import { ClipboardList, Filter, Plus } from "lucide-react";
 import useDialogContext from "@/hooks/Dialog";
 import {
@@ -24,44 +19,94 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Label } from "@/components/ui/label";
-import { SemesterContext } from "@/context/SemesterProvider";
+import { useGetTasks } from "@/hooks/Task";
+import {
+  useGetUserWorkspace,
+  useGetUserWorkspaceRole,
+} from "@/hooks/Workspace";
+import { useGetSubjects } from "@/hooks/Subject";
+import LoadingPage from "@/components/LoadingPage";
+import { parseISO, format } from "date-fns";
+
+const SORT_OPTIONS = [
+  { value: "dueDate", label: "Due Date" },
+  { value: "subject", label: "Subject" },
+];
+
+const TASK_TYPE_OPTIONS = [
+  { value: "all", label: "All" },
+  { value: "activity", label: "Activity" },
+  { value: "exam", label: "Exam" },
+];
+
+const COMPLETION_TYPE_OPTIONS = [
+  { value: "all", label: "All" },
+  { value: "individual", label: "Individual" },
+  { value: "pair", label: "Pair" },
+  { value: "group", label: "Group" },
+];
 
 function TasksPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { workspaceId } = useParams<{ workspaceId: string }>();
-  const semesterContext = useContext(SemesterContext);
-  const semester = semesterContext?.semester ?? 1;
-
-  const tasks = getTasksByWorkspaceId(workspaceId, semester);
-
-  const subjects = getSubjectsByWorkspaceId(workspaceId, semester);
-
-  const { openDialog } = useDialogContext();
-
-  // Get current user's role in this workspace
-  const currentUserRole = getCurrentUserRole(workspaceId);
-
-  // Add tab state
-  const [activeTab, setActiveTab] = useState<"pending" | "past-due">("pending");
-
-  // Initialize states from URL params or defaults
+  const [activeTab, setActiveTab] = useState<
+    "pending" | "past-due" | "completed"
+  >("pending");
   const [sortBy, setSortBy] = useState(searchParams.get("sort") || "dueDate");
-  const [filterType, setFilterType] = useState(
-    searchParams.get("type") || "all"
+  const [filterTaskType, setFilterTaskType] = useState(
+    searchParams.get("taskType") || "all"
   );
-  const [filterDoneBy, setFilterDoneBy] = useState(
-    searchParams.get("doneBy") || "all"
+  const [filterCompletionType, setFilterCompletionType] = useState(
+    searchParams.get("completionType") || "all"
   );
+  const { data: workspace, isLoading: isLoadingWorkspace } =
+    useGetUserWorkspace();
+  const workspaceId = workspace?.id!;
+
+  const now = new Date();
+  const currentDate = format(now, "yyyy-MM-dd");
+  // Generate filters based on active tab
+  const generateFilters = () => {
+    const filters: Array<{ column: string; operator: string; value: any }> = [];
+
+    if (activeTab === "pending") {
+      filters.push(
+        { column: "dueDate", operator: "gte", value: currentDate },
+        { column: "isCompleted", operator: "eq", value: false }
+      );
+    } else if (activeTab === "past-due") {
+      filters.push(
+        { column: "dueDate", operator: "lte", value: currentDate },
+        { column: "isCompleted", operator: "eq", value: false }
+      );
+    } else if (activeTab === "completed") {
+      filters.push({ column: "isCompleted", operator: "eq", value: true });
+    }
+
+    return filters;
+  };
+
+  const { data: allTasks, isLoading: isLoadingTasks } = useGetTasks(
+    generateFilters()
+  );
+  const { data: subjects, isLoading: isLoadingSubjects } = useGetSubjects();
+  const { data: currentUserRole, isLoading: isLoadingCurrentUserRole } =
+    useGetUserWorkspaceRole();
+  const { openDialog } = useDialogContext();
+  const isPageLoading =
+    isLoadingWorkspace ||
+    isLoadingTasks ||
+    isLoadingSubjects ||
+    isLoadingCurrentUserRole;
 
   // Update URL when filters change
   useEffect(() => {
     const params = new URLSearchParams();
 
-    // Only add non-default values to keep URL clean
     if (sortBy !== "dueDate") params.set("sort", sortBy);
-    if (filterType !== "all") params.set("type", filterType);
-    if (filterDoneBy !== "all") params.set("doneBy", filterDoneBy);
+    if (filterTaskType !== "all") params.set("taskType", filterTaskType);
+    if (filterCompletionType !== "all")
+      params.set("completionType", filterCompletionType);
 
     const newUrl = params.toString()
       ? `/workspace/${workspaceId}/tasks?${params.toString()}`
@@ -69,33 +114,53 @@ function TasksPage() {
 
     // Replace current URL without page reload
     router.replace(newUrl, { scroll: false });
-  }, [sortBy, filterType, filterDoneBy, router, workspaceId]);
+  }, [sortBy, filterTaskType, filterCompletionType, router, workspaceId]);
 
-  // Filter tasks by tab (pending/past due)
-  const now = new Date();
-  const tabFilteredTasks = tasks.filter((task) => {
-    const dueDate = new Date(task.dueDate);
+  function getDueDateTime(dueDate: string, dueTime: string) {
+    return parseISO(`${dueDate}T${dueTime}`);
+  }
+
+  // Filter tasks types and due time
+  const filteredTasks = (allTasks || []).filter((task) => {
+    // Time filtering for pending and past-due tabs
     if (activeTab === "pending") {
-      return dueDate >= now;
-    } else {
-      return dueDate < now;
+      const taskDueDateTime = getDueDateTime(task.dueDate, task.dueTime);
+      if (taskDueDateTime < now) {
+        return false;
+      }
+    } else if (activeTab === "past-due") {
+      const taskDueDateTime = getDueDateTime(task.dueDate, task.dueTime);
+      if (taskDueDateTime >= now) {
+        return false;
+      }
     }
-  });
 
-  // Filter tasks by other filters
-  const filteredTasks = tabFilteredTasks.filter((task) => {
-    const typeMatch = filterType === "all" || task.type === filterType;
-    const doneByMatch = filterDoneBy === "all" || task.doneBy === filterDoneBy;
-    return typeMatch && doneByMatch;
+    const typeMatch =
+      filterTaskType === "all" || task.taskType === filterTaskType;
+    const completionMatch =
+      filterCompletionType === "all" ||
+      task.completionType === filterCompletionType;
+    return typeMatch && completionMatch;
   });
 
   // Sort tasks
   const sortedTasks = [...filteredTasks].sort((a, b) => {
     if (sortBy === "dueDate") {
-      return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+      // For "past-due" and "completed", sort descending (newest first)
+      if (activeTab === "past-due" || activeTab === "completed") {
+        return (
+          getDueDateTime(b.dueDate, b.dueTime).getTime() -
+          getDueDateTime(a.dueDate, a.dueTime).getTime()
+        );
+      }
+      // For "pending", sort ascending (soonest first)
+      return (
+        getDueDateTime(a.dueDate, a.dueTime).getTime() -
+        getDueDateTime(b.dueDate, b.dueTime).getTime()
+      );
     } else if (sortBy === "subject") {
-      const subjectA = subjects.find((s) => s.id === a.subjectId)?.name || "";
-      const subjectB = subjects.find((s) => s.id === b.subjectId)?.name || "";
+      const subjectA = subjects?.find((s) => s.id === a.subjectId)?.name || "";
+      const subjectB = subjects?.find((s) => s.id === b.subjectId)?.name || "";
       return subjectA.localeCompare(subjectB);
     }
     return 0;
@@ -111,19 +176,21 @@ function TasksPage() {
           }
           groups[subjectName].push(task);
           return groups;
-        }, {} as Record<string, typeof tasks>)
+        }, {} as Record<string, typeof allTasks>)
       : null;
 
-  // Sort tasks within each subject by due date
+  // Sort tasks within each subject by due date and time
   if (groupedTasks) {
     Object.keys(groupedTasks).forEach((subjectName) => {
-      groupedTasks[subjectName].sort(
-        (a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
+      groupedTasks[subjectName]?.sort(
+        (a, b) =>
+          getDueDateTime(a.dueDate, a.dueTime).getTime() -
+          getDueDateTime(b.dueDate, b.dueTime).getTime()
       );
     });
   }
 
-  const renderTasks = () => {
+  function renderTasks() {
     if (sortBy === "subject" && groupedTasks) {
       return (
         <Accordion
@@ -140,11 +207,12 @@ function TasksPage() {
                 </AccordionTrigger>
                 <AccordionContent>
                   <div className="space-y-4">
-                    {subjectTasks.map((task) => (
+                    {subjectTasks?.map((task) => (
                       <TaskCard
                         key={task.id}
                         workspaceId={workspaceId}
                         task={task}
+                        subjectName={subjectName}
                       />
                     ))}
                   </div>
@@ -164,37 +232,21 @@ function TasksPage() {
         />
       ));
     }
-  };
+  }
 
-  // Dropdown options
-  const sortOptions = [
-    { value: "dueDate", label: "Due Date" },
-    { value: "subject", label: "Subject" },
-  ];
-
-  const typeOptions = [
-    { value: "all", label: "All" },
-    { value: "activity", label: "Activity" },
-    { value: "quiz", label: "Quiz" },
-  ];
-
-  const doneByOptions = [
-    { value: "all", label: "All" },
-    { value: "individual", label: "Individual" },
-    { value: "pair", label: "Pair" },
-    { value: "group", label: "Group" },
-  ];
+  if (isPageLoading) {
+    return <LoadingPage message="Loading tasks..." />;
+  }
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-slate-800">Tasks</h1>
         <div className="flex items-center space-x-4">
           <div className="text-sm text-slate-500">
-            {sortedTasks.length} of {tabFilteredTasks.length} tasks
+            {sortedTasks.length} of {allTasks?.length} tasks
           </div>
-          {(currentUserRole === "admin" || currentUserRole === "co") && (
+          {(currentUserRole === "admin" || currentUserRole === "co-admin") && (
             <Button onClick={() => openDialog("UPSERT_TASK", { subjects })}>
               <Plus className="w-4 h-4" />
               <span>Create</span>
@@ -203,7 +255,6 @@ function TasksPage() {
         </div>
       </div>
 
-      {/* Tabs */}
       <div className="border-b border-slate-200">
         <nav className="flex space-x-8">
           <button
@@ -226,17 +277,25 @@ function TasksPage() {
           >
             Past Due
           </button>
+          <button
+            onClick={() => setActiveTab("completed")}
+            className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
+              activeTab === "completed"
+                ? "border-blue-500 text-blue-600"
+                : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
+            }`}
+          >
+            Completed
+          </button>
         </nav>
       </div>
 
-      {/* Filters */}
       <div className="flex flex-wrap items-center gap-4">
         <div className="flex items-center text-sm text-slate-600">
           <Filter className="w-4 h-4 mr-2" />
           <span>Filters:</span>
         </div>
 
-        {/* Sort By */}
         <div className="flex items-center space-x-2">
           <Label htmlFor="sortBy">Sort by:</Label>
           <Select value={sortBy} onValueChange={setSortBy}>
@@ -244,7 +303,7 @@ function TasksPage() {
               <SelectValue placeholder="Select an option" />
             </SelectTrigger>
             <SelectContent>
-              {sortOptions.map((option) => (
+              {SORT_OPTIONS.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
                 </SelectItem>
@@ -253,15 +312,14 @@ function TasksPage() {
           </Select>
         </div>
 
-        {/* Filter by Type */}
         <div className="flex items-center space-x-2">
-          <Label htmlFor="filterType">Type:</Label>
-          <Select value={filterType} onValueChange={setFilterType}>
-            <SelectTrigger id="filterType">
+          <Label htmlFor="filterTaskType">Task Type:</Label>
+          <Select value={filterTaskType} onValueChange={setFilterTaskType}>
+            <SelectTrigger id="filterTaskType">
               <SelectValue placeholder="Select an option" />
             </SelectTrigger>
             <SelectContent>
-              {typeOptions.map((option) => (
+              {TASK_TYPE_OPTIONS.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
                 </SelectItem>
@@ -270,15 +328,17 @@ function TasksPage() {
           </Select>
         </div>
 
-        {/* Filter by Done By */}
         <div className="flex items-center space-x-2">
-          <Label htmlFor="filterDoneBy">Done by:</Label>
-          <Select value={filterDoneBy} onValueChange={setFilterDoneBy}>
-            <SelectTrigger id="filterDoneBy">
+          <Label htmlFor="filterCompletionType">Completion Type:</Label>
+          <Select
+            value={filterCompletionType}
+            onValueChange={setFilterCompletionType}
+          >
+            <SelectTrigger id="filterCompletionType">
               <SelectValue placeholder="Select an option" />
             </SelectTrigger>
             <SelectContent>
-              {doneByOptions.map((option) => (
+              {COMPLETION_TYPE_OPTIONS.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
                 </SelectItem>
@@ -288,29 +348,41 @@ function TasksPage() {
         </div>
       </div>
 
-      {/* Tasks List */}
       <div className="space-y-6">{renderTasks()}</div>
 
-      {/* Empty State */}
       {sortedTasks.length === 0 && (
         <div className="text-center py-12">
-          <div className="text-slate-400 mb-2">
+          <div className="text-slate-400 mb-4">
             <ClipboardList className="w-12 h-12 mx-auto" />
           </div>
-          <h3 className="text-lg font-medium text-slate-800 mb-1">
-            {tabFilteredTasks.length === 0
-              ? activeTab === "pending"
-                ? "No pending tasks"
-                : "No past due tasks"
-              : "No tasks match your filters"}
-          </h3>
-          <p className="text-slate-600 mb-4">
-            {tabFilteredTasks.length === 0
-              ? activeTab === "pending"
-                ? "All tasks are completed or past due."
-                : "Great! No tasks are overdue."
-              : "Try adjusting your filters to see more tasks."}
-          </p>
+          {activeTab === "pending" ? (
+            <>
+              <h3 className="text-lg font-medium text-slate-800 mb-2">
+                No pending tasks
+              </h3>
+              <p className="text-slate-600 max-w-sm mx-auto">
+                There are no upcoming tasks.
+              </p>
+            </>
+          ) : activeTab === "past-due" ? (
+            <>
+              <h3 className="text-lg font-medium text-slate-800 mb-2">
+                No past-due tasks
+              </h3>
+              <p className="text-slate-600 max-w-sm mx-auto">
+                You're all caught up! There are no overdue tasks.
+              </p>
+            </>
+          ) : (
+            <>
+              <h3 className="text-lg font-medium text-slate-800 mb-2">
+                No completed tasks
+              </h3>
+              <p className="text-slate-600 max-w-sm mx-auto">
+                No tasks have been marked as completed yet.
+              </p>
+            </>
+          )}
         </div>
       )}
     </div>

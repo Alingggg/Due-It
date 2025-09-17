@@ -27,6 +27,7 @@ function Input({ className, type, ...props }: React.ComponentProps<"input">) {
       {isPassword && (
         <button
           type="button"
+          disabled={props.disabled}
           tabIndex={-1}
           onClick={() => setShowPassword((v) => !v)}
           className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none focus:text-slate-600 transition-colors duration-200 p-1 hover:cursor-pointer"

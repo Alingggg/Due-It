@@ -1,33 +1,38 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { ClipboardList, HelpCircle } from "lucide-react";
-import { Task } from "@/data/mockData";
 import {
   format,
   isToday,
   isTomorrow,
   differenceInCalendarDays,
+  isBefore,
+  parseISO,
 } from "date-fns";
+import { SemesterTask } from "@/types/Task";
 
 interface TaskCardProps {
-  task: Task;
+  task: SemesterTask;
   workspaceId: string;
-  subjectName?: string;
+  subjectName: string;
 }
 
 function TaskCard({ task, workspaceId, subjectName }: TaskCardProps) {
   const router = useRouter();
 
-  const handleCardClick = () => {
+  function handleCardClick() {
     router.push(`/workspace/${workspaceId}/tasks/${task.id}`);
-  };
+  }
 
-  // Format due date
-  const formatDueDate = (dueDate: string) => {
-    const date = new Date(dueDate);
+  function getDueDateTime(dueDate: string, dueTime: string) {
+    return parseISO(`${dueDate}T${dueTime}`);
+  }
+
+  function formatDueDate(dueDate: string, dueTime: string) {
+    const date = getDueDateTime(dueDate, dueTime);
     const now = new Date();
 
-    if (date < now) {
+    if (isBefore(date, now)) {
       return {
         text: "Overdue",
         color: "text-red-600 bg-red-50",
@@ -61,15 +66,14 @@ function TaskCard({ task, workspaceId, subjectName }: TaskCardProps) {
         };
       }
     }
-  };
+  }
 
-  // Get type icon
-  const getTypeIcon = (type: string) => {
-    return type === "quiz" ? HelpCircle : ClipboardList;
-  };
+  function getTypeIcon(type: string) {
+    return type === "exam" ? HelpCircle : ClipboardList;
+  }
 
-  const dueInfo = formatDueDate(task.dueDate);
-  const TypeIcon = getTypeIcon(task.type);
+  const dueInfo = formatDueDate(task.dueDate, task.dueTime);
+  const TypeIcon = getTypeIcon(task.taskType);
 
   return (
     <div
@@ -77,7 +81,6 @@ function TaskCard({ task, workspaceId, subjectName }: TaskCardProps) {
       className="bg-white rounded-lg border border-slate-200 p-3 sm:p-4 hover:shadow-md hover:border-blue-200 transition-all cursor-pointer"
     >
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
-        {/* Main Content */}
         <div className="flex items-start sm:items-center flex-1">
           <div className="p-2 sm:p-3 bg-blue-50 rounded-lg mr-2 sm:mr-4 shrink-0">
             <TypeIcon className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
@@ -95,31 +98,34 @@ function TaskCard({ task, workspaceId, subjectName }: TaskCardProps) {
                 </>
               )}
               <div className="flex items-center space-x-2">
-                <span className="capitalize">{task.type}</span>
+                <span className="capitalize">
+                  {task.taskType === "exam" ? "Exam" : task.taskType}
+                </span>
                 <span className="text-slate-400">•</span>
-                <span className="capitalize">{task.doneBy}</span>
+                <span className="capitalize">{task.completionType}</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Due Date Section */}
-        <div className="flex items-center justify-between sm:justify-end sm:flex-col sm:items-end space-x-2 sm:space-x-0 sm:min-w-[120px]">
-          <div className="text-xs sm:text-sm text-slate-600 sm:mb-1 sm:text-right">
-            {format(new Date(task.dueDate), "MM/dd/yyyy")}
+        {!task.isCompleted && (
+          <div className="flex items-center justify-between sm:justify-end sm:flex-col sm:items-end space-x-2 sm:space-x-0 sm:min-w-[120px]">
+            <div className="text-xs sm:text-sm text-slate-600 sm:mb-1 sm:text-right">
+              {format(getDueDateTime(task.dueDate, task.dueTime), "MM/dd/yyyy")}
+            </div>
+            <div className="flex justify-end">
+              {dueInfo.showBadge ? (
+                <span
+                  className={`text-xs font-medium px-2 py-1 rounded-full whitespace-nowrap ${dueInfo.color}`}
+                >
+                  {dueInfo.text}
+                </span>
+              ) : (
+                <div className="h-5"></div>
+              )}
+            </div>
           </div>
-          <div className="flex justify-end">
-            {dueInfo.showBadge ? (
-              <span
-                className={`text-xs font-medium px-2 py-1 rounded-full whitespace-nowrap ${dueInfo.color}`}
-              >
-                {dueInfo.text}
-              </span>
-            ) : (
-              <div className="h-5"></div>
-            )}
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

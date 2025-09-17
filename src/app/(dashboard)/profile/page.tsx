@@ -3,62 +3,82 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { LogOut, Save, ArrowLeft } from "lucide-react";
+import { LogOut, ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
+import {
+  useLogout,
+  useGetProfile,
+  useUpdateProfile,
+  useGetSession,
+} from "@/hooks/Auth";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { ProfileSchema } from "@/zod-schema/Profile";
+import { zodResolver } from "@hookform/resolvers/zod";
+import LoadingPage from "@/components/LoadingPage";
+
+type ProfileForm = z.infer<typeof ProfileSchema>;
 
 function ProfilePage() {
-  const [userData, setUserData] = useState({
-    firstName: "John",
-    lastName: "Doe",
-    email: "john.doe@example.com",
-  });
-
   const [isEditing, setIsEditing] = useState(false);
-  const [editedData, setEditedData] = useState(userData);
-  const [isSaving, setIsSaving] = useState(false);
+  const { user, isLoading: isLoadingUser } = useGetSession();
+  const { data: profileData, isLoading: isProfileLoading } = useGetProfile();
+  const { mutate: updateProfile, isPending: isUpdatingProfile } =
+    useUpdateProfile();
+  const { mutate: logout, isPending: isLoggingOut } = useLogout();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<ProfileForm>({
+    defaultValues: {
+      firstName: profileData?.firstName || "",
+      lastName: profileData?.lastName || "",
+    },
+    resolver: zodResolver(ProfileSchema),
+  });
 
   const router = useRouter();
 
-  const handleEdit = () => {
-    setIsEditing(true);
-    setEditedData(userData);
-  };
-
-  const handleCancel = () => {
-    setIsEditing(false);
-    setEditedData(userData);
-  };
-
-  const handleSave = async () => {
-    setIsSaving(true);
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Update user data
-      setUserData(editedData);
-      setIsEditing(false);
-
-      // You would make your actual API call here
-      console.log("Saving user data:", editedData);
-    } catch (error) {
-      console.error("Error saving user data:", error);
-    } finally {
-      setIsSaving(false);
+  function handleEdit() {
+    if (profileData) {
+      reset({
+        firstName: profileData.firstName,
+        lastName: profileData.lastName,
+      });
     }
-  };
+    setIsEditing(true);
+  }
 
-  const handleGoBack = () => {
-    router.back();
-  };
+  function handleCancel() {
+    setIsEditing(false);
+    if (profileData) {
+      reset({
+        firstName: profileData.firstName,
+        lastName: profileData.lastName,
+      });
+    }
+  }
+
+  function onSubmit(data: ProfileForm) {
+    updateProfile(data, {
+      onSuccess: () => {
+        setIsEditing(false);
+      },
+    });
+  }
+
+  if (isProfileLoading || isLoadingUser) {
+    return <LoadingPage message="Loading profile..." />;
+  }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6 sm:space-y-8 px-2 sm:px-0 pt-6 sm:pt-8">
-      {/* Header with Back Button */}
+    <div className="max-w-2xl mx-auto space-y-6 sm:space-y-8 p-4 pt-6 sm:pt-8">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <Button
-            onClick={handleGoBack}
+            onClick={() => router.back()}
             variant="ghost"
             size="sm"
             className="p-2 hover:bg-slate-100"
@@ -71,7 +91,6 @@ function ProfilePage() {
         </div>
       </div>
 
-      {/* Profile Information */}
       <div className="bg-white rounded-lg border border-slate-200 p-4 sm:p-6">
         <div className="flex items-center justify-between mb-4 sm:mb-6">
           <h2 className="text-base sm:text-lg font-semibold text-slate-800">
@@ -84,19 +103,20 @@ function ProfilePage() {
           )}
         </div>
 
-        <div className="space-y-4 sm:space-y-6">
-          {/* Profile Avatar Placeholder */}
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-4 sm:space-y-6"
+        >
           <div className="flex items-center space-x-4">
             <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-white text-xl font-medium">
-              {userData.firstName[0]}
-              {userData.lastName[0]}
+              {profileData?.firstName?.[0] || "F"}
+              {profileData?.lastName?.[0] || "L"}
             </div>
             <div className="text-sm text-slate-600">
               Profile picture coming soon
             </div>
           </div>
 
-          {/* First Name */}
           <div className="space-y-2">
             <Label
               htmlFor="firstName"
@@ -105,24 +125,28 @@ function ProfilePage() {
               First Name
             </Label>
             {isEditing ? (
-              <Input
-                id="firstName"
-                type="text"
-                value={editedData.firstName}
-                onChange={(e) =>
-                  setEditedData({ ...editedData, firstName: e.target.value })
-                }
-                placeholder="Enter your first name"
-                className="w-full"
-              />
+              <div className="space-y-2">
+                <Input
+                  {...register("firstName")}
+                  id="firstName"
+                  type="text"
+                  placeholder="Enter your first name"
+                  className="w-full"
+                  autoComplete="given-name"
+                />
+                {errors.firstName && (
+                  <p className="text-red-500 text-xs">
+                    {errors.firstName.message}
+                  </p>
+                )}
+              </div>
             ) : (
-              <div className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-md text-slate-900">
-                {userData.firstName}
+              <div className="px-3 py-2 border border-slate-200 rounded-md text-slate-900">
+                {profileData?.firstName}
               </div>
             )}
           </div>
 
-          {/* Last Name */}
           <div className="space-y-2">
             <Label
               htmlFor="lastName"
@@ -131,56 +155,57 @@ function ProfilePage() {
               Last Name
             </Label>
             {isEditing ? (
-              <Input
-                id="lastName"
-                type="text"
-                value={editedData.lastName}
-                onChange={(e) =>
-                  setEditedData({ ...editedData, lastName: e.target.value })
-                }
-                placeholder="Enter your last name"
-                className="w-full"
-              />
+              <div className="space-y-2">
+                <Input
+                  {...register("lastName")}
+                  id="lastName"
+                  type="text"
+                  placeholder="Enter your last name"
+                  className="w-full"
+                  autoComplete="family-name"
+                />
+                {errors.lastName && (
+                  <p className="text-red-500 text-xs">
+                    {errors.lastName.message}
+                  </p>
+                )}
+              </div>
             ) : (
-              <div className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-md text-slate-900">
-                {userData.lastName}
+              <div className="px-3 py-2 border border-slate-200 rounded-md text-slate-900">
+                {profileData?.lastName}
               </div>
             )}
           </div>
 
-          {/* Email (Read-only) */}
           <div className="space-y-2">
             <Label className="text-sm font-medium text-slate-700">
               Email Address
             </Label>
             <div className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-md text-slate-600">
-              {userData.email}
+              {user.email}
             </div>
             <p className="text-xs text-slate-500">
               Contact support to change your email address
             </p>
           </div>
 
-          {/* Edit Controls */}
           {isEditing && (
             <div className="flex items-center justify-end space-x-3 pt-4 border-t border-slate-200">
-              <Button onClick={handleCancel} variant="outline">
+              <Button
+                onClick={handleCancel}
+                variant="outline"
+                disabled={isUpdatingProfile}
+              >
                 Cancel
               </Button>
-              <Button
-                onClick={handleSave}
-                disabled={
-                  isSaving || !editedData.firstName || !editedData.lastName
-                }
-              >
-                {isSaving ? "Saving..." : "Save Changes"}
+              <Button type="submit" disabled={isUpdatingProfile}>
+                {isUpdatingProfile ? "Saving..." : "Save Changes"}
               </Button>
             </div>
           )}
-        </div>
+        </form>
       </div>
 
-      {/* Logout Section */}
       <div className="bg-white rounded-lg border border-slate-200 p-4 sm:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="flex-1 pr-0 sm:pr-6">
@@ -193,7 +218,11 @@ function ProfilePage() {
             </p>
           </div>
 
-          <Button variant="destructive">
+          <Button
+            onClick={() => logout()}
+            variant="destructive"
+            disabled={isLoggingOut}
+          >
             <LogOut className="w-4 h-4" />
             Logout
           </Button>

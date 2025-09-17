@@ -1,46 +1,86 @@
 "use client";
-import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import useDialogContext from "@/hooks/Dialog";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { LoginSchema } from "@/zod-schema/Auth";
+import * as z from "zod";
+import { useLogin } from "@/hooks/Auth";
+import { useForm } from "react-hook-form";
+import { useState } from "react";
+
+type FormData = z.infer<typeof LoginSchema>;
 
 function SignIn() {
-  const [isLoading, setIsLoading] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
   const { openDialog } = useDialogContext();
+  const { mutate: login, isPending } = useLogin();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormData>({ resolver: zodResolver(LoginSchema) });
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-
-    console.log("Form submitted");
+  function onSubmit(data: FormData) {
+    setLoginError(null);
+    login(data, {
+      onError: (err: any) => {
+        setLoginError(err?.message || "Login failed. Please try again.");
+      },
+    });
   }
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center px-2 py-6 sm:p-4">
       <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8 w-full max-w-xs sm:max-w-md">
-        <div className="text-center mb-4 sm:mb-7">
+        <div className="text-center mb-4">
           <h1 className="text-2xl sm:text-3xl font-bold text-blue-600 mb-2">
             Due It
           </h1>
           <p className="text-slate-600 text-sm sm:text-base">
             Sign in to your account
           </p>
+
+          {loginError && (
+            <div className="mt-3 text-red-600 text-sm font-medium">
+              {loginError}
+            </div>
+          )}
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-4"
+          noValidate
+        >
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" placeholder="Enter your email" />
+            <Input
+              {...register("email")}
+              id="email"
+              type="email"
+              placeholder="Enter your email"
+              disabled={isPending}
+            />
+            {errors.email && (
+              <p className="text-red-500 text-xs">{errors.email.message}</p>
+            )}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
             <Input
+              {...register("password")}
               id="password"
               type="password"
               placeholder="Enter your password"
+              disabled={isPending}
             />
+            {errors.password && (
+              <p className="text-red-500 text-xs">{errors.password.message}</p>
+            )}
           </div>
 
           <div className="text-right">
@@ -53,8 +93,8 @@ function SignIn() {
             </Button>
           </div>
 
-          <Button disabled={isLoading} className="w-full" type="submit">
-            {isLoading ? "Signing in..." : "Sign in"}
+          <Button disabled={isPending} className="w-full" type="submit">
+            {isPending ? "Signing in..." : "Sign in"}
           </Button>
         </form>
 

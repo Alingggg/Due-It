@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "react";
-import { getCurrentUser, getCurrentUserRole } from "@/data/mockData";
 import { Crown, User, UserCog, MoreVertical } from "lucide-react";
 import useDialogContext from "@/hooks/Dialog";
 import {
@@ -11,18 +10,27 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { Profile } from "@/types/Profile";
+import { WorkspaceMemberWithProfile } from "@/types/Member";
+import { Database } from "@/types/supabase";
+import { useDeleteMembership, useUpdateRole } from "@/hooks/Members";
+
+type Roles = Database["public"]["Enums"]["workspace_role"];
 
 interface MemberCardProps {
-  member: any;
-  workspaceId: string;
+  member: WorkspaceMemberWithProfile;
+  currentUser: Profile;
+  currentUserRole: Roles;
 }
 
-function MemberCard({ member, workspaceId }: MemberCardProps) {
+function MemberCard({ member, currentUser, currentUserRole }: MemberCardProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const currentUser = getCurrentUser();
   const { openDialog, closeDialog } = useDialogContext();
+  const { mutate: kickMember, isPending: isKickingMember } =
+    useDeleteMembership();
+  const { mutate: updateRole, isPending: isUpdatingRole } = useUpdateRole();
 
-  const getRoleInfo = (role: string) => {
+  function getRoleInfo(role: Roles) {
     switch (role) {
       case "admin":
         return {
@@ -30,7 +38,7 @@ function MemberCard({ member, workspaceId }: MemberCardProps) {
           text: "Admin",
           color: "text-red-600 bg-red-50",
         };
-      case "co":
+      case "co-admin":
         return {
           icon: UserCog,
           text: "Co-Admin",
@@ -49,17 +57,17 @@ function MemberCard({ member, workspaceId }: MemberCardProps) {
           color: "text-slate-600 bg-slate-50",
         };
     }
-  };
+  }
 
-  const getInitials = (firstName: string, lastName: string) => {
+  function getInitials(firstName: string, lastName: string) {
     return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
-  };
+  }
 
-  const handleRoleChange = (newRole: string) => {
+  function handleRoleChange(newRole: Roles) {
     const action = newRole === "member" ? "demote" : "promote";
-    const memberName = `${member.profile.firstName} ${member.profile.lastName}`;
+    const memberName = `${member.firstName} ${member.lastName}`;
 
-    const getActionDetails = () => {
+    function getActionDetails() {
       switch (action) {
         case "promote":
           if (newRole === "admin") {
@@ -69,7 +77,7 @@ function MemberCard({ member, workspaceId }: MemberCardProps) {
               buttonText: "Promote to Admin",
               buttonVariant: "destructive",
             };
-          } else if (newRole === "co") {
+          } else if (newRole === "co-admin") {
             return {
               title: "Promote to Co-Admin",
               description: `Are you sure you want to promote ${memberName} to Co-Admin? They will be able to manage members and tasks.`,
@@ -93,60 +101,51 @@ function MemberCard({ member, workspaceId }: MemberCardProps) {
             buttonVariant: "default",
           };
       }
-    };
+    }
 
-    const actionDetails = getActionDetails() ?? {
-      title: "Confirm Action",
-      description: "Are you sure you want to perform this action?",
-      buttonText: "Confirm",
-      buttonVariant: "default",
-    };
-
-    const handleAction = () => {
-      console.log(`Changing role of ${memberName} to ${newRole}`);
-      closeDialog();
-    };
+    const actionDetails = getActionDetails();
 
     openDialog("CONFIRM_ACTION", {
-      title: actionDetails.title,
-      description: actionDetails.description,
-      actionButtonVariant: actionDetails.buttonVariant,
-      actionButtonText: actionDetails.buttonText,
-      handleAction,
+      isPending: isUpdatingRole,
+      title: actionDetails?.title,
+      description: actionDetails?.description,
+      actionButtonVariant: actionDetails?.buttonVariant,
+      actionButtonText: actionDetails?.buttonText,
+      handleAction: () =>
+        updateRole(
+          { userId: member.userId, role: newRole },
+          { onSuccess: closeDialog }
+        ),
     });
-  };
+  }
 
-  const handleKickMember = () => {
-    const memberName = `${member.profile.firstName} ${member.profile.lastName}`;
-
-    const handleAction = () => {
-      console.log(`Kicking member ${memberName}`);
-      closeDialog();
-    };
+  function handleKickMember() {
+    const memberName = `${member.firstName} ${member.lastName}`;
 
     openDialog("CONFIRM_ACTION", {
+      isPending: isKickingMember,
       title: "Kick Member",
-      description: `Are you sure you want to kick ${memberName} from this workspace? They will lose access immediately and will need to be re-invited to rejoin.`,
+      description: `Are you sure you want to kick ${memberName} from this workspace? They will lose access immediately and will need to join again if they wish to return.`,
       actionButtonVariant: "destructive",
       actionButtonText: "Kick Member",
-      handleAction,
+      handleAction: () => {
+        kickMember(member.userId);
+        closeDialog();
+      },
     });
-  };
+  }
 
-  const canManageMember = (
-    targetMemberRole: string,
-    currentUserRole: string
-  ) => {
+  function canManageMember(targetMemberRole: Roles, currentUserRole: Roles) {
     if (currentUserRole === "admin") {
-      return true; // Admins can manage everyone
+      return true;
     }
-    if (currentUserRole === "co") {
-      return targetMemberRole === "member"; // Co-admins can only manage members
+    if (currentUserRole === "co-admin") {
+      return targetMemberRole === "member";
     }
-    return false; // Members can't manage anyone
-  };
+    return false;
+  }
 
-  const getAvailableActions = (currentUserRole: string) => {
+  function getAvailableActions(currentUserRole: Roles) {
     let actions: {
       label: string;
       action: () => void;
@@ -170,10 +169,10 @@ function MemberCard({ member, workspaceId }: MemberCardProps) {
           },
           {
             label: "Promote to Co-Admin",
-            action: () => handleRoleChange("co"),
+            action: () => handleRoleChange("co-admin"),
           },
         ];
-      } else if (member.role === "co") {
+      } else if (member.role === "co-admin") {
         actions = [
           {
             label: "Promote to Admin",
@@ -190,7 +189,7 @@ function MemberCard({ member, workspaceId }: MemberCardProps) {
         action: handleKickMember,
         danger: true,
       });
-    } else if (currentUserRole === "co") {
+    } else if (currentUserRole === "co-admin") {
       // Co-admins can only kick members
       if (member.role === "member") {
         actions = [
@@ -204,21 +203,16 @@ function MemberCard({ member, workspaceId }: MemberCardProps) {
     }
 
     return actions;
-  };
+  }
 
   const roleInfo = getRoleInfo(member.role);
   const RoleIcon = roleInfo.icon;
-  const initials = getInitials(
-    member.profile.firstName,
-    member.profile.lastName
-  );
-  const currentUserRole = getCurrentUserRole(workspaceId);
+  const initials = getInitials(member.firstName, member.lastName);
   const availableActions = getAvailableActions(currentUserRole);
 
   return (
     <div className="bg-white rounded-lg border border-slate-200 p-3 sm:p-4 hover:shadow-md hover:border-blue-200 transition-all relative">
       <div className="flex items-center justify-between">
-        {/* Left Section */}
         <div className="flex items-center flex-1">
           <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-full flex items-center justify-center mr-3 sm:mr-4">
             <span className="text-blue-700 font-semibold text-xs sm:text-sm">
@@ -227,23 +221,16 @@ function MemberCard({ member, workspaceId }: MemberCardProps) {
           </div>
           <div className="flex-1">
             <h3 className="text-base sm:text-lg font-semibold text-slate-800 mb-0.5 sm:mb-1">
-              {member.profile.firstName} {member.profile.lastName}
+              {member.firstName} {member.lastName}
               {member.userId === currentUser?.id && (
                 <span className="text-xs sm:text-sm text-slate-500 ml-1 sm:ml-2">
                   (You)
                 </span>
               )}
             </h3>
-            <div className="flex items-center space-x-2 sm:space-x-4 text-xs sm:text-sm text-slate-600">
-              <span>
-                @{member.profile.firstName.toLowerCase()}
-                {member.profile.lastName.toLowerCase()}
-              </span>
-            </div>
           </div>
         </div>
 
-        {/* Right Section */}
         <div className="flex items-center space-x-2 sm:space-x-4">
           <div className="text-right">
             <span
@@ -254,7 +241,7 @@ function MemberCard({ member, workspaceId }: MemberCardProps) {
             </span>
           </div>
 
-          {/* Actions Menu */}
+          {/* Actions Menu - Only for Admins */}
           {availableActions.length > 0 && (
             <DropdownMenu
               open={isMenuOpen}

@@ -12,6 +12,7 @@ import { buttonVariants } from "@/components/ui/button";
 
 interface ConfirmActionDialogProps {
   onClose: () => void;
+  isPending: boolean;
   title: string;
   description: string;
   actionButtonVariant?: "default" | "destructive";
@@ -21,6 +22,7 @@ interface ConfirmActionDialogProps {
 
 function ConfirmActionDialog({
   onClose,
+  isPending,
   title,
   description,
   actionButtonVariant = "default",
@@ -36,10 +38,13 @@ function ConfirmActionDialog({
         </AlertDialogDescription>
 
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={onClose}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel onClick={onClose} disabled={isPending}>
+            Cancel
+          </AlertDialogCancel>
           <AlertDialogAction
             className={cn(buttonVariants({ variant: actionButtonVariant }))}
             onClick={handleAction}
+            disabled={isPending}
           >
             {actionButtonText}
           </AlertDialogAction>
