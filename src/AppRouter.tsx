@@ -12,14 +12,14 @@ import {
   TaskDetails,
   Tasks,
 } from "@/pages";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router";
+import { BrowserRouter, Routes, Route } from "react-router";
 
 function AppRouter() {
   return (
     <BrowserRouter>
       <Routes>
         <Route element={<PublicLayout />}>
-          <Route index element={<Navigate to="/sign-in" replace />} />
+          <Route index element={null} />
           <Route path="sign-in" element={<SignIn />} />
           <Route path="sign-up" element={<SignUp />} />
         </Route>
