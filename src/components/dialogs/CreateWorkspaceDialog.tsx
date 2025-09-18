@@ -1,22 +1,21 @@
-"use client";
 import {
+  Button,
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+  Input,
+  Label,
+} from "@/components";
+import { useCreateWorkspace } from "@/hooks";
+import { WorkspaceSchema } from "@/zod-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { workspaceSchema } from "@/zod-schema/Workspace";
 import { useForm } from "react-hook-form";
-import { useCreateWorkspace } from "@/hooks/Workspace";
+import * as z from "zod";
 
-type CreateWorkspaceForm = z.infer<typeof workspaceSchema>;
+type CreateWorkspaceForm = z.infer<typeof WorkspaceSchema>;
 
 interface CreateWorkspaceDialogProps {
   onClose: () => void;
@@ -28,7 +27,7 @@ function CreateWorkspaceDialog({ onClose }: CreateWorkspaceDialogProps) {
     handleSubmit,
     formState: { errors },
   } = useForm<CreateWorkspaceForm>({
-    resolver: zodResolver(workspaceSchema),
+    resolver: zodResolver(WorkspaceSchema),
   });
   const { mutate: createWorkspace, isPending: isSubmitting } =
     useCreateWorkspace();

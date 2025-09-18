@@ -1,6 +1,4 @@
-"use client";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { NavLink } from "react-router";
 import { useState } from "react";
 import {
   CheckSquare,
@@ -14,7 +12,6 @@ import {
 } from "lucide-react";
 
 function Sidebar({ workspaceId }: { workspaceId: string }) {
-  const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navigationItems = [
@@ -103,24 +100,23 @@ function Sidebar({ workspaceId }: { workspaceId: string }) {
           <ul className="space-y-2">
             {navigationItems.map((item) => {
               const Icon = item.icon;
-              // Highlight if pathname starts with the item's href (and next char is / or end)
-              const isActive =
-                pathname === item.href || pathname.startsWith(item.href + "/");
 
               return (
                 <li key={item.name}>
-                  <Link
-                    href={item.href}
+                  <NavLink
+                    to={item.href}
                     onClick={closeMobileMenu}
-                    className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
-                      isActive
-                        ? "bg-blue-100 text-blue-800 border-l-4 border-blue-600"
-                        : "text-slate-700 hover:bg-slate-200 hover:text-slate-900"
-                    }`}
+                    className={({ isActive }) =>
+                      `flex items-center px-4 py-3 rounded-lg transition-colors ${
+                        isActive
+                          ? "bg-blue-100 text-blue-800 border-l-4 border-blue-600"
+                          : "text-slate-700 hover:bg-slate-200 hover:text-slate-900"
+                      }`
+                    }
                   >
                     <Icon className="w-5 h-5 mr-3" />
                     <span className="font-medium">{item.name}</span>
-                  </Link>
+                  </NavLink>
                 </li>
               );
             })}
@@ -129,18 +125,20 @@ function Sidebar({ workspaceId }: { workspaceId: string }) {
 
         {/* Profile Link */}
         <div className="p-4 border-t border-slate-200 mt-auto">
-          <Link
-            href="/profile"
+          <NavLink
+            to="/profile"
             onClick={closeMobileMenu}
-            className={`flex items-center w-full px-4 py-3 rounded-lg transition-colors ${
-              pathname === "/profile"
-                ? "bg-blue-100 text-blue-800 border-l-4 border-blue-600"
-                : "text-slate-700 hover:bg-slate-200 hover:text-slate-900"
-            }`}
+            className={({ isActive }) =>
+              `flex items-center w-full px-4 py-3 rounded-lg transition-colors ${
+                isActive
+                  ? "bg-blue-100 text-blue-800 border-l-4 border-blue-600"
+                  : "text-slate-700 hover:bg-slate-200 hover:text-slate-900"
+              }`
+            }
           >
             <User className="w-5 h-5 mr-3" />
             <span className="font-medium">Profile</span>
-          </Link>
+          </NavLink>
         </div>
       </div>
     </>

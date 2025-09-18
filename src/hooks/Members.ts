@@ -1,18 +1,16 @@
-"use client";
-import { useGetSession } from "@/hooks/Auth";
 import {
+  useGetSession,
   useGetUserWorkspace,
   useGetUserWorkspaceRole,
-} from "@/hooks/Workspace";
-import { queryKeys } from "@/lib/queryKeys";
-import supabase from "@/lib/supabase";
-import { Database } from "@/types/supabase";
+} from "@/hooks";
+import { supabase, queryKeys } from "@/lib";
+import type { Database } from "@/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "react-router";
 
 function useDeleteMembership() {
   const queryClient = useQueryClient();
-  const router = useRouter();
+  const navigate = useNavigate();
   const { user } = useGetSession();
   const { data: workspace } = useGetUserWorkspace();
 
@@ -31,7 +29,7 @@ function useDeleteMembership() {
         queryClient.invalidateQueries({
           queryKey: queryKeys.workspaces.all,
         });
-        router.push("/get-started");
+        navigate("/get-started");
       } else {
         queryClient.invalidateQueries({
           queryKey: queryKeys.members.list(workspace?.id!),

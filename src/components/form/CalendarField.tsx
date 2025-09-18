@@ -1,23 +1,19 @@
-"use client";
-
-import { useState } from "react";
-import { Control, FieldPath, FieldValues } from "react-hook-form";
-import { format } from "date-fns";
-import { ChevronDownIcon } from "lucide-react";
 import {
+  Button,
+  Calendar,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Button } from "@/components/ui/button";
-import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
+} from "@/components";
+import { format } from "date-fns";
+import { ChevronDownIcon } from "lucide-react";
+import { useState } from "react";
+import type { Control, FieldPath, FieldValues } from "react-hook-form";
 
 interface CalendarFieldProps<
   TFieldValues extends FieldValues = FieldValues,
@@ -31,7 +27,7 @@ interface CalendarFieldProps<
   disabled?: boolean;
 }
 
-export function CalendarField<
+function CalendarField<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
 >({
@@ -96,3 +92,5 @@ export function CalendarField<
     />
   );
 }
+
+export default CalendarField;

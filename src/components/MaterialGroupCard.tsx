@@ -1,8 +1,7 @@
-"use client";
-import { useRouter } from "next/navigation";
-import { Folder, Paperclip } from "lucide-react";
+import type { SemesterMaterialGroup } from "@/types";
 import { format } from "date-fns";
-import { SemesterMaterialGroup } from "@/types/Material";
+import { Folder, Paperclip } from "lucide-react";
+import { useNavigate } from "react-router";
 
 interface MaterialGroupCardProps {
   materialGroup: SemesterMaterialGroup;
@@ -13,10 +12,10 @@ function MaterialGroupCard({
   materialGroup,
   workspaceId,
 }: MaterialGroupCardProps) {
-  const router = useRouter();
+  const navigate = useNavigate();
 
   function handleCardClick() {
-    router.push(`/workspace/${workspaceId}/materials/${materialGroup.id}`);
+    navigate(`/workspace/${workspaceId}/materials/${materialGroup.id}`);
   }
 
   return (

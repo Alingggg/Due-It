@@ -1,21 +1,19 @@
-"use client";
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import {
-  Upload,
-  Link as LucideLink,
-  File as LucideFile,
-  Trash2,
-} from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { useFieldArray, useForm } from "react-hook-form";
-import { Form } from "@/components/ui/form";
-import * as z from "zod";
+import { useAddMaterials } from "@/hooks";
+import { MaterialsSchema } from "@/zod-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useAddMaterials } from "@/hooks/Material";
-import { MaterialsSchema } from "@/zod-schema/Material";
+import { LucideFile, LucideLink, Trash2, Upload } from "lucide-react";
+import { useState } from "react";
+import { useFieldArray, useForm } from "react-hook-form";
+import * as z from "zod";
+import {
+  Button,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Form,
+  Input,
+  Label,
+} from "@/components";
 
 type FormValues = z.infer<typeof MaterialsSchema>;
 

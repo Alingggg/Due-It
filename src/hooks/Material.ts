@@ -1,14 +1,11 @@
-"use client";
-import useSemesterContext from "@/hooks/Semester";
-import { useGetUserWorkspace } from "@/hooks/Workspace";
-import { queryKeys } from "@/lib/queryKeys";
-import supabase from "@/lib/supabase";
-import { Material, SemesterMaterialGroup } from "@/types/Material";
-import { toCamelCase, toSnakeCase } from "@/utils/caseConversion";
-import { MaterialSchema } from "@/zod-schema/Material";
+import { useGetUserWorkspace, useSemesterContext } from "@/hooks";
+import { queryKeys, supabase } from "@/lib";
+import type { Material, SemesterMaterialGroup } from "@/types";
+import { toCamelCase, toSnakeCase } from "@/utils";
+import type { MaterialSchema } from "@/zod-schema";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
-import * as z from "zod";
+import { useNavigate } from "react-router";
+import type z from "zod";
 
 function useGetMaterialGroups() {
   const { data: workspace, isLoading: isLoadingWorkspace } =
@@ -105,7 +102,7 @@ function useAddMaterialGroup() {
   const queryClient = useQueryClient();
   const { data: workspace } = useGetUserWorkspace();
   const { semester } = useSemesterContext();
-  const router = useRouter();
+  const navigate = useNavigate();
 
   return useMutation({
     mutationFn: async (newMaterialGroup: {
@@ -130,7 +127,7 @@ function useAddMaterialGroup() {
       return toCamelCase(data);
     },
     onSuccess: (materialGroup) => {
-      router.push(`/workspace/${workspace?.id}/materials/${materialGroup.id}`);
+      navigate(`/workspace/${workspace?.id}/materials/${materialGroup.id}`);
       queryClient.invalidateQueries({
         queryKey: queryKeys.materialGroups.list(workspace?.id!, semester),
       });
@@ -189,7 +186,7 @@ function useDeleteMaterialGroup() {
   const queryClient = useQueryClient();
   const { data: workspace } = useGetUserWorkspace();
   const { semester } = useSemesterContext();
-  const router = useRouter();
+  const navigate = useNavigate();
 
   return useMutation({
     mutationFn: async (materialGroupId: string) => {
@@ -217,7 +214,7 @@ function useDeleteMaterialGroup() {
       if (removeError) throw new Error(removeError.message);
     },
     onSuccess: () => {
-      router.push(`/workspace/${workspace?.id}/materials`);
+      navigate(`/workspace/${workspace?.id}/materials`);
       queryClient.invalidateQueries({
         queryKey: queryKeys.materialGroups.list(workspace?.id!, semester),
       });

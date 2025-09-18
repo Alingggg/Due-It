@@ -1,14 +1,15 @@
-"use client";
-import useDialogContext from "@/hooks/Dialog";
-import RequestResetPasswordDialog from "@/components/dialogs/RequestResetPasswordDialog";
-import UpsertMaterialGroupDialog from "@/components/dialogs/UpsertMaterialGroupDialog";
-import UpsertTaskDialog from "@/components/dialogs/UpsertTaskDialog";
-import UpsertSubjectDialog from "@/components/dialogs/UpsertSubjectDialog";
-import ConfirmActionDialog from "@/components/dialogs/ConfirmActionDialog";
-import UpsertScheduleDialog from "@/components/dialogs/UpsertScheduleDialog";
-import AddMaterialDialog from "@/components/dialogs/AddMaterialDialog";
-import ConfirmDeleteWorkspace from "@/components/dialogs/ConfirmDeleteWorkspace";
-import CreateWorkspaceDialog from "@/components/dialogs/CreateWorkspaceDialog";
+import {
+  AddMaterialDialog,
+  ConfirmActionDialog,
+  ConfirmDeleteWorkspaceDialog,
+  CreateWorkspaceDialog,
+  RequestResetPasswordDialog,
+  UpsertMaterialGroupDialog,
+  UpsertScheduleDialog,
+  UpsertSubjectDialog,
+  UpsertTaskDialog,
+} from "@/components";
+import { useDialogContext } from "@/hooks";
 
 export default function DialogContainer() {
   const { dialogType, dialogProps, closeDialog } = useDialogContext();
@@ -23,7 +24,7 @@ export default function DialogContainer() {
     CONFIRM_ACTION: ConfirmActionDialog,
     UPSERT_SCHEDULE: UpsertScheduleDialog,
     ADD_MATERIAL: AddMaterialDialog,
-    CONFIRM_DELETE_WORKSPACE: ConfirmDeleteWorkspace,
+    CONFIRM_DELETE_WORKSPACE: ConfirmDeleteWorkspaceDialog,
     CREATE_WORKSPACE: CreateWorkspaceDialog,
   };
 

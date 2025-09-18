@@ -1,15 +1,14 @@
-"use client";
-import { useRouter } from "next/navigation";
-import { ClipboardList, HelpCircle } from "lucide-react";
+import type { SemesterTask } from "@/types";
 import {
+  differenceInCalendarDays,
   format,
+  isBefore,
   isToday,
   isTomorrow,
-  differenceInCalendarDays,
-  isBefore,
   parseISO,
 } from "date-fns";
-import { SemesterTask } from "@/types/Task";
+import { HelpCircle, ClipboardList } from "lucide-react";
+import { useNavigate } from "react-router";
 
 interface TaskCardProps {
   task: SemesterTask;
@@ -18,10 +17,10 @@ interface TaskCardProps {
 }
 
 function TaskCard({ task, workspaceId, subjectName }: TaskCardProps) {
-  const router = useRouter();
+  const navigate = useNavigate();
 
   function handleCardClick() {
-    router.push(`/workspace/${workspaceId}/tasks/${task.id}`);
+    navigate(`/workspace/${workspaceId}/tasks/${task.id}`);
   }
 
   function getDueDateTime(dueDate: string, dueTime: string) {

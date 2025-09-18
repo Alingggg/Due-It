@@ -1,5 +1,4 @@
-"use client";
-import DialogContainer from "@/components/DialogContainer";
+import { DialogContainer } from "@/components";
 import { createContext, useState } from "react";
 
 type DialogType =

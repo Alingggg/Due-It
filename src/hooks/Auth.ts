@@ -1,12 +1,10 @@
-"use client";
-import { useGetUserWorkspace } from "@/hooks/Workspace";
-import { queryKeys } from "@/lib/queryKeys";
-import supabase from "@/lib/supabase";
-import { Profile } from "@/types/Profile";
-import { toCamelCase, toSnakeCase } from "@/utils/caseConversion";
+import { useGetUserWorkspace } from "@/hooks";
+import { queryKeys, supabase } from "@/lib";
+import type { Profile } from "@/types";
+import { toCamelCase, toSnakeCase } from "@/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 
 function useRegister() {
   return useMutation({
@@ -35,7 +33,7 @@ function useRegister() {
         email,
         password,
         options: {
-          emailRedirectTo: `${process.env.NEXT_PUBLIC_FRONTEND_URL}/sign-in`,
+          emailRedirectTo: `${import.meta.env.VITE_FRONTEND_URL}/sign-in`,
           data: {
             first_name: firstName,
             last_name: lastName,
@@ -52,7 +50,7 @@ function useRegister() {
 }
 
 function useLogin() {
-  const router = useRouter();
+  const navigate = useNavigate();
   return useMutation({
     mutationFn: async ({
       email,
@@ -69,7 +67,7 @@ function useLogin() {
       if (error) throw new Error(error.message);
     },
     onSuccess: () => {
-      router.push("/get-started");
+      navigate("/get-started");
     },
     onError: (error) => {
       console.log("Error during login:", error);
@@ -79,7 +77,7 @@ function useLogin() {
 
 function useLogout() {
   const queryClient = useQueryClient();
-  const router = useRouter();
+  const navigate = useNavigate();
 
   return useMutation({
     mutationFn: async () => {
@@ -88,7 +86,7 @@ function useLogout() {
       if (error) throw new Error(error.message);
     },
     onSuccess: () => {
-      router.push("/sign-in");
+      navigate("/sign-in");
       queryClient.invalidateQueries({
         queryKey: ["userWorkspace"],
       });

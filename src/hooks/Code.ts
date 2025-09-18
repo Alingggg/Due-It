@@ -1,11 +1,7 @@
-"use client";
-import useSemesterContext from "@/hooks/Semester";
-import { useGetUserWorkspace } from "@/hooks/Workspace";
-import { queryKeys } from "@/lib/queryKeys";
-import supabase from "@/lib/supabase";
-import { Code } from "@/types/Code";
-import { toCamelCase } from "@/utils/caseConversion";
-import generateJoinCode from "@/utils/generateJoinCode";
+import { useGetUserWorkspace, useSemesterContext } from "@/hooks";
+import { queryKeys, supabase } from "@/lib";
+import type { Code } from "@/types";
+import { generateJoinCode, toCamelCase } from "@/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 function useGetCode() {

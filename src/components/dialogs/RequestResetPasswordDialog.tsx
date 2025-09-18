@@ -1,9 +1,12 @@
-"use client";
-import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import {
+  Button,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Input,
+} from "@/components";
 import { Check } from "lucide-react";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { useState } from "react";
 
 function RequestResetPasswordDialog({ onClose }: { onClose: () => void }) {
   const [submitted, setSubmitted] = useState(false);

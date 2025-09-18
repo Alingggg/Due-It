@@ -1,16 +1,13 @@
-"use client";
-import { useGetSession } from "@/hooks/Auth";
-import { queryKeys } from "@/lib/queryKeys";
-import supabase from "@/lib/supabase";
-import { WorkspaceMemberWithProfile } from "@/types/Member";
-import { toCamelCase } from "@/utils/caseConversion";
-import generateJoinCode from "@/utils/generateJoinCode";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
+import { useGetSession } from "@/hooks";
+import { supabase, queryKeys } from "@/lib";
+import type { WorkspaceMemberWithProfile } from "@/types";
+import { generateJoinCode, toCamelCase } from "@/utils";
+import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router";
 
 function useJoinWorkspace() {
   const queryClient = useQueryClient();
-  const router = useRouter();
+  const navigate = useNavigate();
   const { user } = useGetSession();
 
   return useMutation({
@@ -40,7 +37,7 @@ function useJoinWorkspace() {
       queryClient.invalidateQueries({
         queryKey: ["userWorkspace"],
       });
-      router.push(`/workspace/${workspaceId}/tasks`);
+      navigate(`/workspace/${workspaceId}/tasks`);
     },
     onError: (error: any) => {
       console.log("Error joining workspace:", error);
@@ -49,7 +46,7 @@ function useJoinWorkspace() {
 }
 
 function useCreateWorkspace() {
-  const router = useRouter();
+  const navigate = useNavigate();
 
   return useMutation({
     mutationFn: async (workspaceName: string) => {
@@ -66,7 +63,7 @@ function useCreateWorkspace() {
 
       if (error) throw new Error(error.message);
 
-      router.push(`/workspace/${workspaceId}/tasks`);
+      navigate(`/workspace/${workspaceId}/tasks`);
     },
     onError: (error: any) => {
       console.log("Error creating workspace:", error);
@@ -205,7 +202,7 @@ function useUpdateDefaultSemester() {
 
 function useDeleteWorkspace() {
   const queryClient = useQueryClient();
-  const router = useRouter();
+  const navigate = useNavigate();
   const { data: workspace } = useGetUserWorkspace();
 
   return useMutation({
@@ -223,7 +220,7 @@ function useDeleteWorkspace() {
       queryClient.invalidateQueries({
         queryKey: queryKeys.workspaces.all,
       });
-      router.push("/get-started");
+      navigate("/get-started");
     },
     onError: (error: any) => {
       console.log("Error deleting workspace:", error);

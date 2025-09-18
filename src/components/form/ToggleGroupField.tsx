@@ -1,14 +1,13 @@
-"use client";
-
-import { Control, FieldPath, FieldValues } from "react-hook-form";
 import {
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+  ToggleGroup,
+  ToggleGroupItem,
+} from "@/components";
+import type { Control, FieldPath, FieldValues } from "react-hook-form";
 
 interface ToggleGroupOption {
   value: string;
@@ -33,7 +32,7 @@ interface ToggleGroupFieldProps<
   toggleItemClassName?: string;
 }
 
-export function ToggleGroupField<
+function ToggleGroupField<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
 >({
@@ -95,3 +94,5 @@ export function ToggleGroupField<
     />
   );
 }
+
+export default ToggleGroupField;
