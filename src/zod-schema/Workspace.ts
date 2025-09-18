@@ -1,6 +1,6 @@
 import * as z from "zod";
 
-const workspaceSchema = z.object({
+const WorkspaceSchema = z.object({
   workspaceName: z
     .string()
     .trim()
@@ -16,4 +16,4 @@ const WorkspaceNameSchema = z.object({
     .max(100, { error: "Workspace name is too long" }),
 });
 
-export { workspaceSchema, WorkspaceNameSchema };
+export { WorkspaceSchema, WorkspaceNameSchema };

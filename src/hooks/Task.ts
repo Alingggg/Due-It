@@ -1,13 +1,12 @@
-"use client";
-import { useGetSession } from "@/hooks/Auth";
-import useSemesterContext from "@/hooks/Semester";
-import { useGetUserWorkspace } from "@/hooks/Workspace";
-import { queryKeys } from "@/lib/queryKeys";
-import supabase from "@/lib/supabase";
-import { Database } from "@/types/supabase";
-import { SemesterTask, Task } from "@/types/Task";
-import { toCamelCase, toSnakeCase } from "@/utils/caseConversion";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useGetSession,
+  useGetUserWorkspace,
+  useSemesterContext,
+} from "@/hooks";
+import { queryKeys, supabase } from "@/lib";
+import type { SemesterTask, Task, Database } from "@/types";
+import { toCamelCase, toSnakeCase } from "@/utils";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 
 function useGetTasks(
   filters?: Array<{ column: string; operator: string; value: any }>
@@ -65,7 +64,6 @@ function useGetTasks(
 }
 
 function useGetTask(taskId: string) {
-  const queryClient = useQueryClient();
   const { data: workspace, isLoading: isLoadingWorkspace } =
     useGetUserWorkspace();
   const { semester } = useSemesterContext();
@@ -91,11 +89,6 @@ function useGetTask(taskId: string) {
 
       return toCamelCase<SemesterTask>(data);
     },
-    // initialData: queryClient
-    //   .getQueryData<SemesterTask[]>(
-    //     queryKeys.tasks.list(workspace?.id!, semester)
-    //   )
-    //   ?.find((task) => task.id === taskId),
     enabled: !isLoadingWorkspace && !!workspace && !!semester && !!taskId,
   });
 }

@@ -1,18 +1,15 @@
-"use client";
-import { MoreVertical, Edit2, Trash2 } from "lucide-react";
-import { format, parse } from "date-fns";
-import { Button } from "@/components/ui/button";
 import {
+  Button,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { SemesterSchedule } from "@/types/Schedule";
-import { Subject } from "@/types/Subject";
-import useDialogContext from "@/hooks/Dialog";
-import { useDeleteSchedule } from "@/hooks/Schedule";
+} from "@/components";
+import { useDeleteSchedule, useDialogContext } from "@/hooks";
+import type { SemesterSchedule, Subject } from "@/types";
+import { format, parse } from "date-fns";
+import { MoreVertical, Edit2, Trash2 } from "lucide-react";
 
 interface ScheduleItemProps {
   schedule: SemesterSchedule;

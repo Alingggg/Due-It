@@ -1,17 +1,15 @@
 import {
+  FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-  FormControl,
-} from "@/components/ui/form";
-import {
   Select,
-  SelectTrigger,
-  SelectValue,
   SelectContent,
   SelectItem,
-} from "@/components/ui/select";
+  SelectTrigger,
+  SelectValue,
+} from "@/components";
 
 type Option = { label: string; value: string | number };
 
@@ -25,7 +23,7 @@ interface SelectFieldProps {
   disabled?: boolean;
 }
 
-export function SelectField({
+export default function SelectField({
   control,
   name,
   label,

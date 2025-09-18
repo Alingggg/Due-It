@@ -1,17 +1,19 @@
-"use client";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Subject } from "@/types/Subject";
-import { useForm } from "react-hook-form";
+import {
+  Button,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Form,
+  Input,
+  Label,
+  SelectField,
+} from "@/components";
+import { useAddSchedule, useUpdateSchedule } from "@/hooks";
+import type { SemesterSchedule, Subject } from "@/types";
+import { ScheduleSchema } from "@/zod-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ScheduleSchema } from "@/zod-schema/Schedule";
+import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { useAddSchedule, useUpdateSchedule } from "@/hooks/Schedule";
-import { SelectField } from "@/components/SelectField";
-import { Form } from "@/components/ui/form";
-import { SemesterSchedule } from "@/types/Schedule";
 
 type ScheduleFormData = z.infer<typeof ScheduleSchema>;
 

@@ -1,14 +1,17 @@
-"use client";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { SubjectSchema } from "@/zod-schema/Subject";
-import * as z from "zod";
-import { useForm } from "react-hook-form";
+import {
+  Button,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Input,
+  Label,
+} from "@/components";
+import { useAddSubject, useUpdateSubject } from "@/hooks";
+import type { Subject } from "@/types";
+import { SubjectSchema } from "@/zod-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Subject } from "@/types/Subject";
-import { useAddSubject, useUpdateSubject } from "@/hooks/Subject";
+import { useForm } from "react-hook-form";
+import z from "zod";
 
 type SubjectFormData = z.infer<typeof SubjectSchema>;
 

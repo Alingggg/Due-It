@@ -1,13 +1,12 @@
-"use client";
-import { Label } from "@/components/ui/label";
 import {
+  Label,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import useSemesterContext from "@/hooks/Semester";
+} from "@/components";
+import { useSemesterContext } from "@/hooks";
 
 const semesterOptions = [
   { value: 1, label: "1" },

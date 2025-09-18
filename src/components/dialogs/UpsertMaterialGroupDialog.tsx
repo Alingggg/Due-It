@@ -1,19 +1,21 @@
-"use client";
-import { Button } from "@/components/ui/button";
-import { Upload } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { SemesterMaterialGroup } from "@/types/Material";
-import { Subject } from "@/types/Subject";
-import { useForm } from "react-hook-form";
-import { Form } from "@/components/ui/form";
-import { SelectField } from "@/components/SelectField";
-import * as z from "zod";
+import {
+  Button,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Form,
+  Input,
+  Label,
+  SelectField,
+  Textarea,
+} from "@/components";
+import { useAddMaterialGroup, useUpdateMaterialGroup } from "@/hooks";
+import type { SemesterMaterialGroup, Subject } from "@/types";
+import { MaterialGroupSchema } from "@/zod-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useAddMaterialGroup, useUpdateMaterialGroup } from "@/hooks/Material";
-import { MaterialGroupSchema } from "@/zod-schema/Material";
+import { Upload } from "lucide-react";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 
 type FormValues = z.infer<typeof MaterialGroupSchema>;
 

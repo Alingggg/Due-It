@@ -1,5 +1,4 @@
-"use client";
-import { SemesterContext } from "@/context/SemesterProvider";
+import { SemesterContext } from "@/context";
 import { useContext } from "react";
 
 function useSemesterContext() {

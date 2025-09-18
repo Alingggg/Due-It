@@ -1,13 +1,11 @@
 type Semester = 1 | 2;
 
 const queryKeys = {
-  // Profile (outside workspace)
   profile: {
     all: ["profile"] as const,
     detail: () => [...queryKeys.profile.all, "detail"] as const,
   },
 
-  // Workspace info
   workspaces: {
     all: ["workspaces"] as const,
     list: () => [...queryKeys.workspaces.all, "list"] as const,
@@ -15,7 +13,6 @@ const queryKeys = {
       [...queryKeys.workspaces.all, "detail", workspaceId] as const,
   },
 
-  // Semesters within workspace
   defaultSemesters: {
     all: (workspaceId: string) =>
       ["workspaces", workspaceId, "default_semesters"] as const,
@@ -23,7 +20,6 @@ const queryKeys = {
       [...queryKeys.defaultSemesters.all(workspaceId), "detail"] as const,
   },
 
-  // Tasks within semester
   tasks: {
     all: (workspaceId: string, semester: Semester) =>
       ["workspaces", workspaceId, "semesters", semester, "tasks"] as const,
@@ -45,7 +41,6 @@ const queryKeys = {
       ] as const,
   },
 
-  // Material Groups within semester
   materialGroups: {
     all: (workspaceId: string, semester: Semester) =>
       [
@@ -65,7 +60,6 @@ const queryKeys = {
       ] as const,
   },
 
-  // Materials within semester (and optionally within a group)
   materials: {
     all: (workspaceId: string, semester: Semester, groupId: string) =>
       [
@@ -84,7 +78,6 @@ const queryKeys = {
       ] as const,
   },
 
-  // Subjects within semester
   subjects: {
     all: (workspaceId: string, semester: Semester) =>
       ["workspaces", workspaceId, "semesters", semester, "subjects"] as const,
@@ -92,7 +85,6 @@ const queryKeys = {
       [...queryKeys.subjects.all(workspaceId, semester), "list"] as const,
   },
 
-  // Schedule within semester
   schedule: {
     all: (workspaceId: string, semester: Semester) =>
       ["workspaces", workspaceId, "semesters", semester, "schedule"] as const,
@@ -100,7 +92,6 @@ const queryKeys = {
       [...queryKeys.schedule.all(workspaceId, semester), "list"] as const,
   },
 
-  // Code within semester
   code: {
     all: (workspaceId: string, semester: Semester) =>
       ["workspaces", workspaceId, "semesters", semester, "code"] as const,
@@ -108,7 +99,6 @@ const queryKeys = {
       [...queryKeys.code.all(workspaceId, semester), "detail"] as const,
   },
 
-  // Workspace members
   members: {
     all: (workspaceId: string) =>
       ["workspaces", workspaceId, "members"] as const,
@@ -116,7 +106,6 @@ const queryKeys = {
       [...queryKeys.members.all(workspaceId), "list"] as const,
   },
 
-  // Workspace roles
   roles: {
     all: (workspaceId: string) => ["workspaces", workspaceId, "roles"] as const,
     detail: (workspaceId: string) =>

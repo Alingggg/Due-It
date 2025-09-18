@@ -1,19 +1,15 @@
-"use client";
-import { useState } from "react";
-import { Crown, User, UserCog, MoreVertical } from "lucide-react";
-import useDialogContext from "@/hooks/Dialog";
 import {
+  Button,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { Profile } from "@/types/Profile";
-import { WorkspaceMemberWithProfile } from "@/types/Member";
-import { Database } from "@/types/supabase";
-import { useDeleteMembership, useUpdateRole } from "@/hooks/Members";
+} from "@/components";
+import { useDeleteMembership, useDialogContext, useUpdateRole } from "@/hooks";
+import type { Database, Profile, WorkspaceMemberWithProfile } from "@/types";
+import { Crown, MoreVertical, User, UserCog } from "lucide-react";
+import { useState } from "react";
 
 type Roles = Database["public"]["Enums"]["workspace_role"];
 

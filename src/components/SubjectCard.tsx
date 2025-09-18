@@ -1,16 +1,14 @@
-"use client";
-import { BookOpen, MoreVertical, Edit2, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import {
+  Button,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Subject } from "@/types/Subject";
-import useDialogContext from "@/hooks/Dialog";
-import { useDeleteSubject } from "@/hooks/Subject";
+} from "@/components";
+import { useDeleteSubject, useDialogContext } from "@/hooks";
+import type { Subject } from "@/types";
+import { BookOpen, Edit2, MoreVertical, Trash2 } from "lucide-react";
 
 interface SubjectCardProps {
   subject: Subject;

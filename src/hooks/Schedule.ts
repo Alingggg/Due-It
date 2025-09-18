@@ -1,12 +1,8 @@
-"use client";
-import useSemesterContext from "@/hooks/Semester";
-import { useGetUserWorkspace } from "@/hooks/Workspace";
-import { queryKeys } from "@/lib/queryKeys";
-import supabase from "@/lib/supabase";
-import { SemesterSchedule } from "@/types/Schedule";
-import { Database } from "@/types/supabase";
-import { toCamelCase, toSnakeCase } from "@/utils/caseConversion";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useGetUserWorkspace, useSemesterContext } from "@/hooks";
+import { queryKeys, supabase } from "@/lib";
+import type { Database, SemesterSchedule } from "@/types";
+import { toCamelCase, toSnakeCase } from "@/utils";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 
 function useGetSchedules() {
   const { data: workspace, isLoading: isLoadingWorkspace } =

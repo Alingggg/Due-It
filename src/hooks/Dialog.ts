@@ -1,5 +1,4 @@
-"use client";
-import { DialogContext } from "@/context/DialogProvider";
+import { DialogContext } from "@/context";
 import { useContext } from "react";
 
 function useDialogContext() {

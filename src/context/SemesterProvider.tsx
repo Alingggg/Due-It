@@ -1,5 +1,4 @@
-"use client";
-import { useGetDefaultSemester } from "@/hooks/Workspace";
+import { useGetDefaultSemester } from "@/hooks";
 import { createContext, useEffect, useState } from "react";
 
 type Semester = 1 | 2;

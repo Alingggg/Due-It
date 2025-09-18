@@ -6,9 +6,9 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { cn } from "@/lib/utils";
-import { buttonVariants } from "@/components/ui/button";
+  buttonVariants,
+} from "@/components";
+import { cn } from "@/lib";
 
 interface ConfirmActionDialogProps {
   onClose: () => void;
