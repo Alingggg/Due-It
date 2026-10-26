@@ -2,7 +2,6 @@ import { DialogContainer } from "@/components";
 import { createContext, useState } from "react";
 
 type DialogType =
-  | "REQUEST_RESET_PASSWORD"
   | "UPSERT_TASK"
   | "UPSERT_MATERIAL"
   | "UPSERT_SUBJECT"

@@ -7,16 +7,19 @@ import {
   DropdownMenuTrigger,
 } from "@/components";
 import { useDeleteMembership, useDialogContext, useUpdateRole } from "@/hooks";
-import type { Database, Profile, WorkspaceMemberWithProfile } from "@/types";
+import type {
+  Profile,
+  WorkspaceMemberWithProfile,
+  WorkspaceRole,
+} from "@/types";
 import { Crown, MoreVertical, User, UserCog } from "lucide-react";
 import { useState } from "react";
 
-type Roles = Database["public"]["Enums"]["workspace_role"];
 
 interface MemberCardProps {
   member: WorkspaceMemberWithProfile;
   currentUser: Profile;
-  currentUserRole: Roles;
+  currentUserRole: WorkspaceRole;
 }
 
 function MemberCard({ member, currentUser, currentUserRole }: MemberCardProps) {
@@ -26,7 +29,7 @@ function MemberCard({ member, currentUser, currentUserRole }: MemberCardProps) {
     useDeleteMembership();
   const { mutate: updateRole, isPending: isUpdatingRole } = useUpdateRole();
 
-  function getRoleInfo(role: Roles) {
+  function getRoleInfo(role: WorkspaceRole) {
     switch (role) {
       case "admin":
         return {
@@ -59,7 +62,7 @@ function MemberCard({ member, currentUser, currentUserRole }: MemberCardProps) {
     return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
   }
 
-  function handleRoleChange(newRole: Roles) {
+  function handleRoleChange(newRole: WorkspaceRole) {
     const action = newRole === "member" ? "demote" : "promote";
     const memberName = `${member.firstName} ${member.lastName}`;
 
@@ -131,7 +134,7 @@ function MemberCard({ member, currentUser, currentUserRole }: MemberCardProps) {
     });
   }
 
-  function canManageMember(targetMemberRole: Roles, currentUserRole: Roles) {
+  function canManageMember(targetMemberRole: WorkspaceRole, currentUserRole: WorkspaceRole) {
     if (currentUserRole === "admin") {
       return true;
     }
@@ -141,7 +144,7 @@ function MemberCard({ member, currentUser, currentUserRole }: MemberCardProps) {
     return false;
   }
 
-  function getAvailableActions(currentUserRole: Roles) {
+  function getAvailableActions(currentUserRole: WorkspaceRole) {
     let actions: {
       label: string;
       action: () => void;

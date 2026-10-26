@@ -7,7 +7,7 @@ import {
   Label,
 } from "@/components";
 import { useAddSubject, useUpdateSubject } from "@/hooks";
-import type { Subject } from "@/types";
+import type { Semester, Subject } from "@/types";
 import { SubjectSchema } from "@/zod-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -18,15 +18,13 @@ type SubjectFormData = z.infer<typeof SubjectSchema>;
 interface UpsertSubjectDialogProps {
   initialData?: Partial<Subject>;
   onClose: () => void;
-  semester: 1 | 2;
-  workspaceId: string;
+  semester: Semester;
 }
 
 function UpsertSubjectDialog({
   initialData = {},
   onClose,
   semester,
-  workspaceId,
 }: UpsertSubjectDialogProps) {
   const { mutate: addSubject, isPending: isAdding } = useAddSubject();
   const { mutate: updateSubject, isPending: isUpdating } = useUpdateSubject();
@@ -48,8 +46,7 @@ function UpsertSubjectDialog({
       updateSubject(
         {
           id: initialData.id,
-          workspaceId,
-          semester,
+          semester: initialData.semester ?? semester,
           name: data.name,
           subjectCode: data.subjectCode,
           instructorName: data.instructorName,
@@ -60,7 +57,6 @@ function UpsertSubjectDialog({
       addSubject(
         {
           name: data.name,
-          workspaceId,
           semester,
           subjectCode: data.subjectCode,
           instructorName: data.instructorName,

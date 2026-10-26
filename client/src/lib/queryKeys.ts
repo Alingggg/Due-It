@@ -1,4 +1,4 @@
-type Semester = 1 | 2;
+import type { Semester, TaskFilters } from "@/types";
 
 const queryKeys = {
   profile: {
@@ -8,26 +8,13 @@ const queryKeys = {
 
   workspaces: {
     all: ["workspaces"] as const,
-    list: () => [...queryKeys.workspaces.all, "list"] as const,
-    detail: (workspaceId: string) =>
-      [...queryKeys.workspaces.all, "detail", workspaceId] as const,
-  },
-
-  defaultSemesters: {
-    all: (workspaceId: string) =>
-      ["workspaces", workspaceId, "default_semesters"] as const,
-    detail: (workspaceId: string) =>
-      [...queryKeys.defaultSemesters.all(workspaceId), "detail"] as const,
+    mine: () => [...queryKeys.workspaces.all, "mine"] as const,
   },
 
   tasks: {
     all: (workspaceId: string, semester: Semester) =>
       ["workspaces", workspaceId, "semesters", semester, "tasks"] as const,
-    list: (
-      workspaceId: string,
-      semester: Semester,
-      filters?: Array<{ column: string; operator: string; value: any }>
-    ) =>
+    list: (workspaceId: string, semester: Semester, filters?: TaskFilters) =>
       [
         ...queryKeys.tasks.all(workspaceId, semester),
         "list",
@@ -60,24 +47,6 @@ const queryKeys = {
       ] as const,
   },
 
-  materials: {
-    all: (workspaceId: string, semester: Semester, groupId: string) =>
-      [
-        "workspaces",
-        workspaceId,
-        "semesters",
-        semester,
-        "materialGroups",
-        groupId,
-        "materials",
-      ] as const,
-    list: (workspaceId: string, semester: Semester, groupId: string) =>
-      [
-        ...queryKeys.materials.all(workspaceId, semester, groupId),
-        "list",
-      ] as const,
-  },
-
   subjects: {
     all: (workspaceId: string, semester: Semester) =>
       ["workspaces", workspaceId, "semesters", semester, "subjects"] as const,
@@ -104,12 +73,6 @@ const queryKeys = {
       ["workspaces", workspaceId, "members"] as const,
     list: (workspaceId: string) =>
       [...queryKeys.members.all(workspaceId), "list"] as const,
-  },
-
-  roles: {
-    all: (workspaceId: string) => ["workspaces", workspaceId, "roles"] as const,
-    detail: (workspaceId: string) =>
-      [...queryKeys.roles.all(workspaceId), "detail"] as const,
   },
 } as const;
 

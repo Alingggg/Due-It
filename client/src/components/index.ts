@@ -106,7 +106,6 @@ export { default as AddMaterialDialog } from "./dialogs/AddMaterialDialog";
 export { default as ConfirmActionDialog } from "./dialogs/ConfirmActionDialog";
 export { default as ConfirmDeleteWorkspaceDialog } from "./dialogs/ConfirmDeleteWorkspaceDialog";
 export { default as CreateWorkspaceDialog } from "./dialogs/CreateWorkspaceDialog";
-export { default as RequestResetPasswordDialog } from "./dialogs/RequestResetPasswordDialog";
 export { default as UpsertMaterialGroupDialog } from "./dialogs/UpsertMaterialGroupDialog";
 export { default as UpsertScheduleDialog } from "./dialogs/UpsertScheduleDialog";
 export { default as UpsertSubjectDialog } from "./dialogs/UpsertSubjectDialog";

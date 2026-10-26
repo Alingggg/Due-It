@@ -1,15 +1,19 @@
-import type { Database } from "@/types";
+import type { Semester } from "./Semester";
+
+type TaskType = "activity" | "exam";
+
+type CompletionType = "individual" | "pair" | "group";
 
 interface SemesterTask {
   id: string;
   subjectId: string;
   title: string;
-  description: string;
-  completionType: Database["public"]["Enums"]["completion_type"];
-  taskType: Database["public"]["Enums"]["task_type"];
+  description: string | null;
+  completionType: CompletionType;
+  taskType: TaskType;
   dueDate: string;
   dueTime: string;
-  semester: number;
+  semester: Semester;
   subjectName: string;
   isCompleted: boolean;
 }
@@ -19,10 +23,16 @@ interface Task {
   subjectId: string;
   title: string;
   description: string;
-  completionType: Database["public"]["Enums"]["completion_type"];
-  taskType: Database["public"]["Enums"]["task_type"];
+  completionType: CompletionType;
+  taskType: TaskType;
   dueDate: string;
   dueTime: string;
 }
 
-export type { SemesterTask, Task };
+interface TaskFilters {
+  dueFrom?: string;
+  dueTo?: string;
+  completed?: boolean;
+}
+
+export type { CompletionType, SemesterTask, Task, TaskFilters, TaskType };

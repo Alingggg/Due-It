@@ -7,6 +7,7 @@ import {
   SelectValue,
 } from "@/components";
 import { useSemesterContext } from "@/hooks";
+import type { Semester } from "@/types";
 
 const semesterOptions = [
   { value: 1, label: "1" },
@@ -27,7 +28,7 @@ function WorkspaceHeader({ workspaceName }: { workspaceName: string }) {
           <Label htmlFor="semester">Semester:</Label>
           <Select
             value={semester.toString()}
-            onValueChange={(val) => setSemester(Number(val) as 1 | 2)}
+            onValueChange={(val) => setSemester(Number(val) as Semester)}
           >
             <SelectTrigger id="semester">
               <SelectValue placeholder="Select an option" />

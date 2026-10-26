@@ -1,4 +1,4 @@
-import type { Database } from "@/types";
+import type { WorkspaceRole } from "./Workspace";
 
 interface WorkspaceMemberWithProfile {
   workspaceId: string;
@@ -6,7 +6,7 @@ interface WorkspaceMemberWithProfile {
   email: string;
   firstName: string;
   lastName: string;
-  role: Database["public"]["Enums"]["workspace_role"];
+  role: WorkspaceRole;
 }
 
 export type { WorkspaceMemberWithProfile };

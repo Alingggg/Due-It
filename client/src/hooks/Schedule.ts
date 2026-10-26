@@ -1,33 +1,27 @@
 import { useGetUserWorkspace, useSemesterContext } from "@/hooks";
-import { queryKeys, supabase } from "@/lib";
-import type { Database, SemesterSchedule } from "@/types";
-import { toCamelCase, toSnakeCase } from "@/utils";
+import { api, queryKeys } from "@/lib";
+import type { SemesterSchedule } from "@/types";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 
+type ScheduleInput = Pick<
+  SemesterSchedule,
+  "subjectId" | "dayOfWeek" | "startTime" | "endTime"
+>;
+
 function useGetSchedules() {
-  const { data: workspace, isLoading: isLoadingWorkspace } =
-    useGetUserWorkspace();
+  const { data: workspace } = useGetUserWorkspace();
   const { semester } = useSemesterContext();
 
   return useQuery({
     queryKey: queryKeys.schedule.list(workspace?.id!, semester),
-    queryFn: async () => {
-      if (!workspace?.id || !semester)
-        throw new Error("Workspace or semester is not available");
-
-      const { data, error } = await supabase
-        .from("semester_schedules")
-        .select("*")
-        .eq("semester", semester);
-
-      if (error) {
-        console.log(error);
-        throw new Error(error.message);
-      }
-
-      return data.map<SemesterSchedule>(toCamelCase);
-    },
-    enabled: !isLoadingWorkspace && !!workspace && !!semester,
+    queryFn: async () =>
+      (
+        await api.get<SemesterSchedule[]>(
+          `/workspaces/${workspace!.id}/schedules`,
+          { params: { semester } }
+        )
+      ).data,
+    enabled: !!workspace && !!semester,
   });
 }
 
@@ -37,19 +31,8 @@ function useAddSchedule() {
   const { semester } = useSemesterContext();
 
   return useMutation({
-    mutationFn: async (
-      newSchedule: Omit<SemesterSchedule, "id" | "semester" | "subjectName">
-    ) => {
-      const snakeCaseData = toSnakeCase(newSchedule) as {
-        subject_id: string;
-        day_of_week: Database["public"]["Enums"]["day_of_week"];
-        start_time: string;
-        end_time: string;
-      };
-
-      const { error } = await supabase.from("schedules").insert(snakeCaseData);
-
-      if (error) throw new Error(error.message);
+    mutationFn: async (newSchedule: ScheduleInput) => {
+      await api.post(`/workspaces/${workspace!.id}/schedules`, newSchedule);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -68,22 +51,8 @@ function useUpdateSchedule() {
   const { semester } = useSemesterContext();
 
   return useMutation({
-    mutationFn: async (
-      newSchedule: Omit<SemesterSchedule, "semester" | "subjectName">
-    ) => {
-      const snakeCaseData = toSnakeCase(newSchedule) as {
-        subject_id: string;
-        day_of_week: Database["public"]["Enums"]["day_of_week"];
-        start_time: string;
-        end_time: string;
-      };
-
-      const { error } = await supabase
-        .from("schedules")
-        .update(snakeCaseData)
-        .eq("id", newSchedule.id);
-
-      if (error) throw new Error(error.message);
+    mutationFn: async ({ id, ...schedule }: ScheduleInput & { id: string }) => {
+      await api.patch(`/workspaces/${workspace!.id}/schedules/${id}`, schedule);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -103,12 +72,7 @@ function useDeleteSchedule() {
 
   return useMutation({
     mutationFn: async (scheduleId: string) => {
-      const { error } = await supabase
-        .from("schedules")
-        .delete()
-        .eq("id", scheduleId);
-
-      if (error) throw new Error(error.message);
+      await api.delete(`/workspaces/${workspace!.id}/schedules/${scheduleId}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({

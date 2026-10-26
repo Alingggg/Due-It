@@ -13,8 +13,8 @@ import {
   useDeleteMembership,
   useDialogContext,
   useGetCode,
+  useGetProfile,
   useGetDefaultSemester,
-  useGetSession,
   useGetUserWorkspace,
   useGetUserWorkspaceRole,
   useRenewCode,
@@ -22,6 +22,7 @@ import {
   useUpdateDefaultSemester,
   useUpdateWorkspaceName,
 } from "@/hooks";
+import type { Semester } from "@/types";
 import { WorkspaceNameSchema } from "@/zod-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -48,14 +49,11 @@ function Settings() {
   const [copied, setCopied] = useState(false);
   const [isEditingName, setIsEditingName] = useState(false);
   const { openDialog, closeDialog } = useDialogContext();
-  const { user, isLoading: isUserLoading } = useGetSession();
-  const { data: workspace, isLoading: isWorkspaceLoading } =
-    useGetUserWorkspace();
+  const { data: user } = useGetProfile();
+  const { data: workspace } = useGetUserWorkspace();
   const { data: codeData, isLoading: isCodeLoading } = useGetCode();
-  const { data: defaultSemester, isLoading: isDefaultSemesterLoading } =
-    useGetDefaultSemester();
-  const { data: currentUserRole, isLoading: isCurrentUserRoleLoading } =
-    useGetUserWorkspaceRole();
+  const defaultSemester = useGetDefaultSemester();
+  const currentUserRole = useGetUserWorkspaceRole();
   const { mutate: renewCode, isPending: isRenewingCode } = useRenewCode();
   const { mutate: updateCodeStatus, isPending: isUpdatingCodeStatus } =
     useUpdateCodeStatus();
@@ -80,12 +78,7 @@ function Settings() {
     },
   });
   const isAdmin = currentUserRole === "admin";
-  const isPageLoading =
-    isWorkspaceLoading ||
-    isCodeLoading ||
-    isDefaultSemesterLoading ||
-    isCurrentUserRoleLoading ||
-    isUserLoading;
+  const isPageLoading = isCodeLoading;
 
   function handleEditName() {
     setValue("name", workspace?.name || "");
@@ -129,12 +122,12 @@ function Settings() {
         "Are you sure you want to leave this workspace? You will lose access to all its content. You can rejoin at any time using a valid invite code.",
       actionButtonVariant: "destructive",
       actionButtonText: "Leave",
-      handleAction: () => leaveWorkspace(user?.id, { onSuccess: closeDialog }),
+      handleAction: () => leaveWorkspace(user!.id, { onSuccess: closeDialog }),
     });
   }
 
   function handleDefaultSemesterChange(value: string) {
-    const newSemester = Number(value) as 1 | 2;
+    const newSemester = Number(value) as Semester;
     updateDefaultSemester(newSemester);
   }
 

@@ -1,33 +1,26 @@
 import { useGetUserWorkspace, useSemesterContext } from "@/hooks";
-import { queryKeys, supabase } from "@/lib";
+import { api, queryKeys } from "@/lib";
 import type { Subject } from "@/types";
-import { toCamelCase, toSnakeCase } from "@/utils";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 
+type SubjectInput = Pick<
+  Subject,
+  "name" | "subjectCode" | "instructorName" | "semester"
+>;
+
 function useGetSubjects() {
-  const { data: workspace, isLoading: isLoadingWorkspace } =
-    useGetUserWorkspace();
+  const { data: workspace } = useGetUserWorkspace();
   const { semester } = useSemesterContext();
 
   return useQuery({
     queryKey: queryKeys.subjects.list(workspace?.id!, semester),
-    queryFn: async () => {
-      if (!workspace?.id || !semester)
-        throw new Error("Workspace or semester is not available");
-
-      const { data, error } = await supabase
-        .from("subjects")
-        .select("*")
-        .eq("semester", semester);
-
-      if (error) {
-        console.log(error);
-        throw new Error(error.message);
-      }
-
-      return data.map<Subject>(toCamelCase);
-    },
-    enabled: !isLoadingWorkspace && !!workspace && !!semester,
+    queryFn: async () =>
+      (
+        await api.get<Subject[]>(`/workspaces/${workspace!.id}/subjects`, {
+          params: { semester },
+        })
+      ).data,
+    enabled: !!workspace && !!semester,
   });
 }
 
@@ -37,18 +30,8 @@ function useAddSubject() {
   const { semester } = useSemesterContext();
 
   return useMutation({
-    mutationFn: async (subject: Omit<Subject, "id">) => {
-      const snakeCaseData = toSnakeCase(subject) as {
-        instructor_name: string;
-        name: string;
-        semester: 1 | 2;
-        subject_code: string;
-        workspace_id: string;
-      };
-
-      const { error } = await supabase.from("subjects").insert(snakeCaseData);
-
-      if (error) throw new Error(error.message);
+    mutationFn: async (subject: SubjectInput) => {
+      await api.post(`/workspaces/${workspace!.id}/subjects`, subject);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -67,22 +50,8 @@ function useUpdateSubject() {
   const { semester } = useSemesterContext();
 
   return useMutation({
-    mutationFn: async (subject: Subject) => {
-      const snakeCaseData = toSnakeCase(subject) as {
-        id: string;
-        instructor_name: string;
-        name: string;
-        semester: number;
-        subject_code: string;
-        workspace_id: string;
-      };
-
-      const { error } = await supabase
-        .from("subjects")
-        .update(snakeCaseData)
-        .eq("id", subject.id);
-
-      if (error) throw new Error(error.message);
+    mutationFn: async ({ id, ...subject }: SubjectInput & { id: string }) => {
+      await api.patch(`/workspaces/${workspace!.id}/subjects/${id}`, subject);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -102,16 +71,21 @@ function useDeleteSubject() {
 
   return useMutation({
     mutationFn: async (subjectId: string) => {
-      const { error } = await supabase
-        .from("subjects")
-        .delete()
-        .eq("id", subjectId);
-
-      if (error) throw new Error(error.message);
+      await api.delete(`/workspaces/${workspace!.id}/subjects/${subjectId}`);
     },
     onSuccess: () => {
+      // the server also deletes the subject's tasks, schedules and materials
       queryClient.invalidateQueries({
         queryKey: queryKeys.subjects.list(workspace?.id!, semester),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.tasks.all(workspace?.id!, semester),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.schedule.all(workspace?.id!, semester),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.materialGroups.all(workspace?.id!, semester),
       });
     },
     onError: (error) => {

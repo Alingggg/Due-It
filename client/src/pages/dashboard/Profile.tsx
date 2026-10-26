@@ -1,6 +1,5 @@
-import { Button, Input, Label, LoadingPage } from "@/components";
+import { Button, Input, Label } from "@/components";
 import {
-  useGetSession,
   useGetProfile,
   useUpdateProfile,
   useLogout,
@@ -17,8 +16,7 @@ type ProfileForm = z.infer<typeof ProfileSchema>;
 
 function Profile() {
   const [isEditing, setIsEditing] = useState(false);
-  const { user, isLoading: isLoadingUser } = useGetSession();
-  const { data: profileData, isLoading: isProfileLoading } = useGetProfile();
+  const { data: profileData } = useGetProfile();
   const { mutate: updateProfile, isPending: isUpdatingProfile } =
     useUpdateProfile();
   const { mutate: logout, isPending: isLoggingOut } = useLogout();
@@ -63,10 +61,6 @@ function Profile() {
         setIsEditing(false);
       },
     });
-  }
-
-  if (isProfileLoading || isLoadingUser) {
-    return <LoadingPage message="Loading profile..." />;
   }
 
   return (
@@ -178,7 +172,7 @@ function Profile() {
               Email Address
             </Label>
             <div className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-md text-slate-600">
-              {user.email}
+              {profileData?.email}
             </div>
             <p className="text-xs text-slate-500">
               Contact support to change your email address

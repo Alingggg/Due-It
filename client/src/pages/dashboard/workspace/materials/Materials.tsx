@@ -32,19 +32,15 @@ function Materials() {
   const [filterSubject, setFilterSubject] = useState(
     searchParams.get("subject") || "all"
   );
-  const { data: workspace, isLoading: isLoadingWorkspace } =
-    useGetUserWorkspace();
+  const { data: workspace } = useGetUserWorkspace();
   const workspaceId = workspace?.id!;
   const { data: materialGroups, isLoading: isLoadingMaterialGroups } =
     useGetMaterialGroups();
-  const { data: currentUserRole, isLoading: isLoadingUserRole } =
-    useGetUserWorkspaceRole();
+  const currentUserRole = useGetUserWorkspaceRole();
   const { data: subjects, isLoading: isLoadingSubject } = useGetSubjects();
   const { openDialog } = useDialogContext();
   const isPageLoading =
-    isLoadingWorkspace ||
     isLoadingMaterialGroups ||
-    isLoadingUserRole ||
     isLoadingSubject;
 
   // Update URL when filters change

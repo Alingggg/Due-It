@@ -1,34 +1,22 @@
-import {
-  useGetSession,
-  useGetUserWorkspace,
-  useGetUserWorkspaceRole,
-} from "@/hooks";
-import { supabase, queryKeys } from "@/lib";
-import type { Database } from "@/types";
+import { useGetProfile, useGetUserWorkspace } from "@/hooks";
+import { api, queryKeys } from "@/lib";
+import type { WorkspaceRole } from "@/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 
 function useDeleteMembership() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const { user } = useGetSession();
+  const { data: user } = useGetProfile();
   const { data: workspace } = useGetUserWorkspace();
 
   return useMutation({
     mutationFn: async (userId: string) => {
-      const { error } = await supabase
-        .from("workspace_members")
-        .delete()
-        .eq("user_id", userId);
-
-      if (error) throw new Error(error.message);
+      await api.delete(`/workspaces/${workspace!.id}/members/${userId}`);
     },
     onSuccess: (_, userId) => {
       if (user?.id === userId) {
-        queryClient.invalidateQueries({ queryKey: ["userWorkspace"] });
-        queryClient.invalidateQueries({
-          queryKey: queryKeys.workspaces.all,
-        });
+        queryClient.setQueryData(queryKeys.workspaces.mine(), null);
         navigate("/get-started");
       } else {
         queryClient.invalidateQueries({
@@ -45,8 +33,6 @@ function useDeleteMembership() {
 function useUpdateRole() {
   const queryClient = useQueryClient();
   const { data: workspace } = useGetUserWorkspace();
-  const { user: currentUser } = useGetSession();
-  const { data: currentUserRole } = useGetUserWorkspaceRole();
 
   return useMutation({
     mutationFn: async ({
@@ -54,28 +40,18 @@ function useUpdateRole() {
       role,
     }: {
       userId: string;
-      role: Database["public"]["Enums"]["workspace_role"];
+      role: WorkspaceRole;
     }) => {
-      const { error: updateError } = await supabase
-        .from("workspace_members")
-        .update({ role })
-        .eq("user_id", userId);
-
-      if (updateError) throw new Error(updateError.message);
-
-      if (role === "admin" && currentUserRole === "admin" && currentUser?.id) {
-        const { error: demoteError } = await supabase
-          .from("workspace_members")
-          .update({ role: "co-admin" })
-          .eq("user_id", currentUser.id);
-
-        if (demoteError) throw new Error(demoteError.message);
-      }
+      await api.patch(`/workspaces/${workspace!.id}/members/${userId}`, {
+        role,
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.members.list(workspace?.id!),
       });
+      // promoting someone to admin demotes the current user
+      queryClient.invalidateQueries({ queryKey: queryKeys.workspaces.mine() });
     },
     onError: (error) => {
       console.error("Error updating role:", error);

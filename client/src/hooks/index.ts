@@ -2,7 +2,6 @@ export {
   useRegister,
   useLogin,
   useLogout,
-  useGetSession,
   useGetProfile,
   useUpdateProfile,
 } from "./Auth";

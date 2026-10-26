@@ -1,5 +1,5 @@
 import { Button, Label, Input } from "@/components";
-import { useDialogContext, useLogin } from "@/hooks";
+import { useLogin } from "@/hooks";
 import { LoginSchema } from "@/zod-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
@@ -11,7 +11,6 @@ type FormData = z.infer<typeof LoginSchema>;
 
 function SignIn() {
   const [loginError, setLoginError] = useState<string | null>(null);
-  const { openDialog } = useDialogContext();
   const { mutate: login, isPending } = useLogin();
   const {
     register,
@@ -77,16 +76,6 @@ function SignIn() {
             {errors.password && (
               <p className="text-red-500 text-xs">{errors.password.message}</p>
             )}
-          </div>
-
-          <div className="text-right">
-            <Button
-              onClick={() => openDialog("REQUEST_RESET_PASSWORD")}
-              variant="link"
-              className="pr-0 underline-offset-0 hover:no-underline focus:no-underline"
-            >
-              Forgot Password?
-            </Button>
           </div>
 
           <Button disabled={isPending} className="w-full" type="submit">

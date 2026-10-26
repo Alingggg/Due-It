@@ -3,7 +3,6 @@ import {
   ConfirmActionDialog,
   ConfirmDeleteWorkspaceDialog,
   CreateWorkspaceDialog,
-  RequestResetPasswordDialog,
   UpsertMaterialGroupDialog,
   UpsertScheduleDialog,
   UpsertSubjectDialog,
@@ -17,7 +16,6 @@ export default function DialogContainer() {
   if (!dialogType) return null;
 
   const dialogMap = {
-    REQUEST_RESET_PASSWORD: RequestResetPasswordDialog,
     UPSERT_TASK: UpsertTaskDialog,
     UPSERT_MATERIAL: UpsertMaterialGroupDialog,
     UPSERT_SUBJECT: UpsertSubjectDialog,

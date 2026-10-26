@@ -12,36 +12,34 @@ import {
   TaskDetails,
   Tasks,
 } from "@/pages";
-import { BrowserRouter, Routes, Route } from "react-router";
+import { Routes, Route } from "react-router";
 
 function AppRouter() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route element={<PublicLayout />}>
-          <Route index element={null} />
-          <Route path="sign-in" element={<SignIn />} />
-          <Route path="sign-up" element={<SignUp />} />
-        </Route>
-        <Route element={<ProtectedLayout />}>
-          <Route path="get-started" element={<GetStarted />} />
-          <Route path="profile" element={<Profile />} />
-          <Route path="workspace/:workspaceId" element={<WorkspaceLayout />}>
-            <Route path="tasks">
-              <Route index element={<Tasks />} />
-              <Route path=":taskId" element={<TaskDetails />} />
-            </Route>
-            <Route path="materials">
-              <Route index element={<Materials />} />
-              <Route path=":materialGroupId" element={<MaterialDetails />} />
-            </Route>
-            <Route path="subjects" element={<Subjects />} />
-            <Route path="members" element={<Members />} />
-            <Route path="settings" element={<Settings />} />
+    <Routes>
+      <Route element={<PublicLayout />}>
+        <Route index element={null} />
+        <Route path="sign-in" element={<SignIn />} />
+        <Route path="sign-up" element={<SignUp />} />
+      </Route>
+      <Route element={<ProtectedLayout />}>
+        <Route path="get-started" element={<GetStarted />} />
+        <Route path="profile" element={<Profile />} />
+        <Route path="workspace/:workspaceId" element={<WorkspaceLayout />}>
+          <Route path="tasks">
+            <Route index element={<Tasks />} />
+            <Route path=":taskId" element={<TaskDetails />} />
           </Route>
+          <Route path="materials">
+            <Route index element={<Materials />} />
+            <Route path=":materialGroupId" element={<MaterialDetails />} />
+          </Route>
+          <Route path="subjects" element={<Subjects />} />
+          <Route path="members" element={<Members />} />
+          <Route path="settings" element={<Settings />} />
         </Route>
-      </Routes>
-    </BrowserRouter>
+      </Route>
+    </Routes>
   );
 }
 

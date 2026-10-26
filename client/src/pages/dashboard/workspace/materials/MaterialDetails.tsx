@@ -33,8 +33,7 @@ function MaterialDetails() {
     materialGroupId!
   );
   const { data: subjects, isLoading: isLoadingSubject } = useGetSubjects();
-  const { data: currentUserRole, isLoading: isLoadingUserRole } =
-    useGetUserWorkspaceRole();
+  const currentUserRole = useGetUserWorkspaceRole();
   const { mutate: deleteMaterialGroup, isPending: isDeletingMaterialGroup } =
     useDeleteMaterialGroup();
   const { mutate: downloadMaterial, isPending: isDownloadingMaterial } =
@@ -46,8 +45,7 @@ function MaterialDetails() {
   const isPageLoading =
     isLoadingMaterialGroup ||
     isLoadingMaterials ||
-    isLoadingSubject ||
-    isLoadingUserRole;
+    isLoadingSubject;
 
   function handleDeleteMaterialGroup() {
     deleteMaterialGroup(materialGroupId!, {

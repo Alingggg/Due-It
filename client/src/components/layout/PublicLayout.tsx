@@ -1,10 +1,11 @@
 import { LoadingPage } from "@/components";
-import { useGetSession } from "@/hooks";
+import { useGetProfile } from "@/hooks";
 import { useEffect, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router";
 
 function PublicLayout() {
-  const { isAuthenticated, isLoading: isSessionLoading } = useGetSession();
+  const { data: user, isLoading: isSessionLoading } = useGetProfile();
+  const isAuthenticated = !!user;
   const [isRedirecting, setIsRedirecting] = useState(false);
   const navigate = useNavigate();
   const { pathname } = useLocation();

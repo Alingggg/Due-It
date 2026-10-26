@@ -8,14 +8,10 @@ import {
 function Members() {
   const { data: members, isLoading: isLoadingMembers } =
     useGetWorkspaceMembers();
-  const { data: currentUser, isLoading: isLoadingCurrentUser } =
-    useGetProfile();
-  const { data: currentUserRole, isLoading: isLoadingCurrentUserRole } =
-    useGetUserWorkspaceRole();
-  const isPageLoading =
-    isLoadingMembers || isLoadingCurrentUser || isLoadingCurrentUserRole;
+  const { data: currentUser } = useGetProfile();
+  const currentUserRole = useGetUserWorkspaceRole();
 
-  if (isPageLoading) {
+  if (isLoadingMembers) {
     return <LoadingPage message="Loading members..." />;
   }
 

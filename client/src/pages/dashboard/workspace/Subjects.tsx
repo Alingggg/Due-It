@@ -1,19 +1,17 @@
 import { Button, LoadingPage, ScheduleItem, SubjectCard } from "@/components";
 import {
-  useGetUserWorkspace,
   useSemesterContext,
   useDialogContext,
   useGetUserWorkspaceRole,
   useGetSchedules,
   useGetSubjects,
 } from "@/hooks";
-import type { Database, SemesterSchedule } from "@/types";
+import type { DayOfWeek, SemesterSchedule } from "@/types";
 import { BookOpen, Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 
-type DaysOfWeek = Database["public"]["Enums"]["day_of_week"];
 
-const DAYS: DaysOfWeek[] = [
+const DAYS: DayOfWeek[] = [
   "sunday",
   "monday",
   "tuesday",
@@ -26,14 +24,14 @@ const DAYS: DaysOfWeek[] = [
 // Group and sort schedules by day, then by time
 function useGroupedSchedules(schedules: SemesterSchedule[]) {
   return useMemo(() => {
-    // grouped: { [day in DaysOfWeek]: Array<{ subjectName: string; time: string; schedule: SemesterSchedule }> }
+    // grouped: { [day in DayOfWeek]: Array<{ subjectName: string; time: string; schedule: SemesterSchedule }> }
     const grouped: Record<
-      DaysOfWeek,
+      DayOfWeek,
       { subjectName: string; schedule: SemesterSchedule }[]
     > = DAYS.reduce((acc, day) => {
       acc[day] = [];
       return acc;
-    }, {} as Record<DaysOfWeek, { subjectName: string; schedule: SemesterSchedule }[]>);
+    }, {} as Record<DayOfWeek, { subjectName: string; schedule: SemesterSchedule }[]>);
 
     schedules.forEach((sched) => {
       grouped[sched.dayOfWeek].push({
@@ -55,26 +53,20 @@ function Subjects() {
   const [activeTab, setActiveTab] = useState<"subjects" | "schedule">(
     "subjects"
   );
-  const { data: workspace, isLoading: isLoadingWorkspace } =
-    useGetUserWorkspace();
-  const workspaceId = workspace?.id!;
   const { semester } = useSemesterContext();
   const { openDialog } = useDialogContext();
-  const { data: currentUserRole, isLoading: isLoadingUserRole } =
-    useGetUserWorkspaceRole();
+  const currentUserRole = useGetUserWorkspaceRole();
   const { data: schedules, isLoading: isLoadingSchedules } = useGetSchedules();
   const schedulesByDay = useGroupedSchedules(schedules ?? []);
   const { data: subjects, isLoading: isLoadingSubjects } = useGetSubjects();
   const canManageSubjects =
     currentUserRole === "admin" || currentUserRole === "co-admin";
   const isPageLoading =
-    isLoadingWorkspace ||
-    isLoadingUserRole ||
     isLoadingSubjects ||
     isLoadingSchedules;
 
   function handleAddSubject() {
-    openDialog("UPSERT_SUBJECT", { semester, workspaceId });
+    openDialog("UPSERT_SUBJECT", { semester });
   }
   function handleAddSchedule() {
     openDialog("UPSERT_SCHEDULE", {

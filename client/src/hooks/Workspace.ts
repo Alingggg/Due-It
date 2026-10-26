@@ -1,43 +1,23 @@
-import { useGetSession } from "@/hooks";
-import { supabase, queryKeys } from "@/lib";
-import type { WorkspaceMemberWithProfile } from "@/types";
-import { generateJoinCode, toCamelCase } from "@/utils";
+import { useGetProfile } from "@/hooks";
+import { api, queryKeys } from "@/lib";
+import type {
+  Semester,
+  UserWorkspace,
+  WorkspaceMemberWithProfile,
+} from "@/types";
 import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 
 function useJoinWorkspace() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const { user } = useGetSession();
 
   return useMutation({
-    mutationFn: async (code: string) => {
-      if (!user) throw new Error("You must be logged in to join a workspace");
-
-      const { data: codeData, error: fetchError } = await supabase
-        .from("codes")
-        .select("workspace_id, enabled")
-        .eq("code", code)
-        .maybeSingle();
-
-      if (fetchError) throw new Error(fetchError.message);
-
-      if (!codeData?.workspace_id) throw new Error("Invalid join code");
-      if (!codeData.enabled) throw new Error("Join code is disabled");
-
-      const { error: addError } = await supabase
-        .from("workspace_members")
-        .insert({ workspace_id: codeData.workspace_id, user_id: user.id });
-
-      if (addError) throw new Error(addError.message);
-
-      return codeData.workspace_id;
-    },
-    onSuccess: (workspaceId) => {
-      queryClient.invalidateQueries({
-        queryKey: ["userWorkspace"],
-      });
-      navigate(`/workspace/${workspaceId}/tasks`);
+    mutationFn: async (code: string) =>
+      (await api.post<UserWorkspace>("/workspaces/join", { code })).data,
+    onSuccess: (workspace) => {
+      queryClient.setQueryData(queryKeys.workspaces.mine(), workspace);
+      navigate(`/workspace/${workspace.id}/tasks`);
     },
     onError: (error: any) => {
       console.log("Error joining workspace:", error);
@@ -46,24 +26,15 @@ function useJoinWorkspace() {
 }
 
 function useCreateWorkspace() {
+  const queryClient = useQueryClient();
   const navigate = useNavigate();
 
   return useMutation({
-    mutationFn: async (workspaceName: string) => {
-      const code = generateJoinCode();
-
-      const { data: workspaceId, error } = await supabase.rpc(
-        "create_workspace_with_member_code_and_default_semester",
-        {
-          workspace_name: workspaceName,
-          invite_code: code,
-          member_role: "admin",
-        }
-      );
-
-      if (error) throw new Error(error.message);
-
-      navigate(`/workspace/${workspaceId}/tasks`);
+    mutationFn: async (name: string) =>
+      (await api.post<UserWorkspace>("/workspaces", { name })).data,
+    onSuccess: (workspace) => {
+      queryClient.setQueryData(queryKeys.workspaces.mine(), workspace);
+      navigate(`/workspace/${workspace.id}/tasks`);
     },
     onError: (error: any) => {
       console.log("Error creating workspace:", error);
@@ -71,107 +42,42 @@ function useCreateWorkspace() {
   });
 }
 
-function useGetUserWorkspace(isAuthenticated: boolean = true) {
-  const { user, isLoading: isUserLoading } = useGetSession();
+function useGetUserWorkspace() {
+  const { data: user } = useGetProfile();
 
   return useQuery({
-    queryKey: ["userWorkspace"],
-    queryFn: async () => {
-      if (!user?.id) throw new Error("User is not authenticated");
-
-      const { data, error } = await supabase
-        .from("workspace_members")
-        .select("workspace:workspaces(*)")
-        .eq("user_id", user.id)
-        .maybeSingle();
-
-      if (error) {
-        console.log(error);
-        throw error;
-      }
-
-      return data?.workspace || null;
-    },
-    enabled: isAuthenticated && !isUserLoading && !!user?.id,
+    queryKey: queryKeys.workspaces.mine(),
+    queryFn: async () =>
+      (await api.get<UserWorkspace | null>("/workspaces/mine")).data,
+    enabled: !!user,
   });
 }
 
 function useGetWorkspaceMembers() {
-  const { data: workspace, isLoading: isLoadingWorkspace } =
-    useGetUserWorkspace();
+  const { data: workspace } = useGetUserWorkspace();
 
   return useQuery({
     queryKey: queryKeys.members.list(workspace?.id!),
-    queryFn: async () => {
-      if (!workspace?.id) throw new Error("Workspace is not available");
-
-      const { data, error } = await supabase
-        .from("workspace_members_with_profile")
-        .select("*")
-        .eq("workspace_id", workspace.id);
-
-      if (error) {
-        console.log(error);
-        throw error;
-      }
-
-      return data.map<WorkspaceMemberWithProfile>(toCamelCase);
-    },
-    enabled: !isLoadingWorkspace && !!workspace,
+    queryFn: async () =>
+      (
+        await api.get<WorkspaceMemberWithProfile[]>(
+          `/workspaces/${workspace!.id}/members`
+        )
+      ).data,
+    enabled: !!workspace,
   });
 }
 
 function useGetUserWorkspaceRole() {
-  const { data: workspace, isLoading: isLoadingWorkspace } =
-    useGetUserWorkspace();
-  const { user } = useGetSession();
+  const { data: workspace } = useGetUserWorkspace();
 
-  return useQuery({
-    queryKey: queryKeys.roles.detail(workspace?.id!),
-    queryFn: async () => {
-      if (!workspace?.id) throw new Error("Workspace is not available");
-
-      if (!user) throw new Error("User is not authenticated");
-
-      const { data, error } = await supabase
-        .from("workspace_members")
-        .select("role")
-        .eq("workspace_id", workspace.id)
-        .eq("user_id", user.id)
-        .maybeSingle();
-
-      if (error) {
-        console.log(error);
-        throw error;
-      }
-
-      return data?.role || null;
-    },
-    enabled: !isLoadingWorkspace && !!workspace,
-  });
+  return workspace?.role ?? null;
 }
 
 function useGetDefaultSemester() {
-  const { data: workspace, isLoading: isLoadingWorkspace } =
-    useGetUserWorkspace();
+  const { data: workspace } = useGetUserWorkspace();
 
-  return useQuery({
-    queryKey: queryKeys.defaultSemesters.detail(workspace?.id!),
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("default_semester")
-        .select("semester")
-        .maybeSingle();
-
-      if (error) {
-        console.log(error);
-        throw error;
-      }
-
-      return data?.semester || null;
-    },
-    enabled: !isLoadingWorkspace && !!workspace,
-  });
+  return workspace?.defaultSemester ?? null;
 }
 
 function useUpdateDefaultSemester() {
@@ -179,20 +85,15 @@ function useUpdateDefaultSemester() {
   const { data: workspace } = useGetUserWorkspace();
 
   return useMutation({
-    mutationFn: async (semester: 1 | 2) => {
-      if (!workspace?.id) throw new Error("Workspace is not available");
-
-      const { error } = await supabase
-        .from("default_semester")
-        .update({ semester })
-        .eq("workspace_id", workspace.id);
-
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.defaultSemesters.detail(workspace?.id || ""),
-      });
+    mutationFn: async (semester: Semester) =>
+      (
+        await api.patch<UserWorkspace>(
+          `/workspaces/${workspace!.id}/default-semester`,
+          { semester }
+        )
+      ).data,
+    onSuccess: (updated) => {
+      queryClient.setQueryData(queryKeys.workspaces.mine(), updated);
     },
     onError: (error: any) => {
       console.log("Error changing default semester:", error);
@@ -207,19 +108,10 @@ function useDeleteWorkspace() {
 
   return useMutation({
     mutationFn: async () => {
-      if (!workspace?.id) throw new Error("Workspace is not available");
-
-      const { error } = await supabase
-        .from("workspaces")
-        .delete()
-        .eq("id", workspace.id);
-
-      if (error) throw new Error(error.message);
+      await api.delete(`/workspaces/${workspace!.id}`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.workspaces.all,
-      });
+      queryClient.setQueryData(queryKeys.workspaces.mine(), null);
       navigate("/get-started");
     },
     onError: (error: any) => {
@@ -233,20 +125,14 @@ function useUpdateWorkspaceName() {
   const { data: workspace } = useGetUserWorkspace();
 
   return useMutation({
-    mutationFn: async (name: string) => {
-      if (!workspace?.id) throw new Error("Workspace is not available");
-
-      const { error } = await supabase
-        .from("workspaces")
-        .update({ name })
-        .eq("id", workspace.id);
-
-      if (error) throw new Error(error.message);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["userWorkspace"],
-      });
+    mutationFn: async (name: string) =>
+      (
+        await api.patch<UserWorkspace>(`/workspaces/${workspace!.id}`, {
+          name,
+        })
+      ).data,
+    onSuccess: (updated) => {
+      queryClient.setQueryData(queryKeys.workspaces.mine(), updated);
     },
     onError: (error: any) => {
       console.log("Error updating workspace name:", error);

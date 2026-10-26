@@ -1,43 +1,38 @@
 import { useGetUserWorkspace, useSemesterContext } from "@/hooks";
-import { queryKeys, supabase } from "@/lib";
-import type { Material, SemesterMaterialGroup } from "@/types";
-import { toCamelCase, toSnakeCase } from "@/utils";
+import { api, queryKeys } from "@/lib";
+import type {
+  Material,
+  MaterialGroupDetail,
+  SemesterMaterialGroup,
+} from "@/types";
 import type { MaterialSchema } from "@/zod-schema";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import type z from "zod";
 
 function useGetMaterialGroups() {
-  const { data: workspace, isLoading: isLoadingWorkspace } =
-    useGetUserWorkspace();
+  const { data: workspace } = useGetUserWorkspace();
   const { semester } = useSemesterContext();
 
   return useQuery({
     queryKey: queryKeys.materialGroups.list(workspace?.id!, semester),
-    queryFn: async () => {
-      if (!workspace?.id || !semester)
-        throw new Error("Workspace or semester is not available");
-
-      const { data, error } = await supabase
-        .from("semester_materials")
-        .select("*")
-        .eq("semester", semester);
-
-      if (error) {
-        console.log(error);
-        throw new Error(error.message);
-      }
-
-      return data.map<SemesterMaterialGroup>(toCamelCase);
-    },
-    enabled: !!workspace && !!semester && !isLoadingWorkspace,
+    queryFn: async () =>
+      (
+        await api.get<SemesterMaterialGroup[]>(
+          `/workspaces/${workspace!.id}/material-groups`,
+          { params: { semester } }
+        )
+      ).data,
+    enabled: !!workspace && !!semester,
   });
 }
 
-function useGetMaterialGroup(materialGroupId: string) {
-  const queryClient = useQueryClient();
-  const { data: workspace, isLoading: isLoadingWorkspace } =
-    useGetUserWorkspace();
+// the group and its materials come from the same endpoint
+function useMaterialGroupQuery<T = MaterialGroupDetail>(
+  materialGroupId: string,
+  select?: (group: MaterialGroupDetail) => T
+) {
+  const { data: workspace } = useGetUserWorkspace();
   const { semester } = useSemesterContext();
 
   return useQuery({
@@ -46,56 +41,24 @@ function useGetMaterialGroup(materialGroupId: string) {
       semester,
       materialGroupId
     ),
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("semester_materials")
-        .select("*")
-        .eq("id", materialGroupId)
-        .single();
-
-      if (error) {
-        console.log(error);
-        throw new Error(error.message);
-      }
-
-      return toCamelCase(data);
-    },
-    initialData: queryClient
-      .getQueryData<SemesterMaterialGroup[]>(
-        queryKeys.materialGroups.list(workspace?.id!, semester)
-      )
-      ?.find((mg) => mg.id === materialGroupId),
+    queryFn: async () =>
+      (
+        await api.get<MaterialGroupDetail>(
+          `/workspaces/${workspace!.id}/material-groups/${materialGroupId}`
+        )
+      ).data,
+    select,
     enabled:
-      !!workspace && !!semester && !isLoadingWorkspace && !!materialGroupId,
+      !!workspace && !!semester && !!materialGroupId,
   });
 }
 
+function useGetMaterialGroup(materialGroupId: string) {
+  return useMaterialGroupQuery(materialGroupId);
+}
+
 function useGetMaterials(materialGroupId: string) {
-  const { data: workspace, isLoading: isLoadingWorkspace } =
-    useGetUserWorkspace();
-  const { semester } = useSemesterContext();
-
-  return useQuery({
-    queryKey: queryKeys.materials.list(
-      workspace?.id!,
-      semester,
-      materialGroupId
-    ),
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("materials")
-        .select("*")
-        .eq("material_group_id", materialGroupId);
-
-      if (error) {
-        console.log(error);
-        throw new Error(error.message);
-      }
-
-      return data.map<Material>(toCamelCase);
-    },
-    enabled: !!workspace && !!semester && !isLoadingWorkspace,
-  });
+  return useMaterialGroupQuery(materialGroupId, (group) => group.materials);
 }
 
 function useAddMaterialGroup() {
@@ -109,23 +72,13 @@ function useAddMaterialGroup() {
       subjectId: string;
       title: string;
       description?: string | undefined;
-    }) => {
-      const snakeCaseData = toSnakeCase(newMaterialGroup) as {
-        subject_id: string;
-        title: string;
-        description?: string | undefined;
-      };
-
-      const { data, error } = await supabase
-        .from("material_groups")
-        .insert(snakeCaseData)
-        .select()
-        .single();
-
-      if (error) throw new Error(error.message);
-
-      return toCamelCase(data);
-    },
+    }) =>
+      (
+        await api.post<{ id: string }>(
+          `/workspaces/${workspace!.id}/material-groups`,
+          newMaterialGroup
+        )
+      ).data,
     onSuccess: (materialGroup) => {
       navigate(`/workspace/${workspace?.id}/materials/${materialGroup.id}`);
       queryClient.invalidateQueries({
@@ -144,25 +97,19 @@ function useUpdateMaterialGroup() {
   const { semester } = useSemesterContext();
 
   return useMutation({
-    mutationFn: async (updatedMaterialGroup: {
+    mutationFn: async ({
+      id,
+      ...materialGroup
+    }: {
       id: string;
       subjectId: string;
       title: string;
       description?: string | undefined;
     }) => {
-      const snakeCaseData = toSnakeCase(updatedMaterialGroup) as {
-        id: string;
-        subject_id: string;
-        title: string;
-        description?: string | undefined;
-      };
-
-      const { error } = await supabase
-        .from("material_groups")
-        .update(snakeCaseData)
-        .eq("id", updatedMaterialGroup.id);
-
-      if (error) throw new Error(error.message);
+      await api.patch(
+        `/workspaces/${workspace!.id}/material-groups/${id}`,
+        materialGroup
+      );
     },
     onSuccess: (_, updatedMaterialGroup) => {
       queryClient.invalidateQueries({
@@ -190,31 +137,19 @@ function useDeleteMaterialGroup() {
 
   return useMutation({
     mutationFn: async (materialGroupId: string) => {
-      const { error: deleteError } = await supabase
-        .from("material_groups")
-        .delete()
-        .eq("id", materialGroupId);
-
-      if (deleteError) throw new Error(deleteError.message);
-
-      const storagePrefix = `${workspace?.id}/${materialGroupId}/`;
-
-      const { data: files, error: listError } = await supabase.storage
-        .from("Materials")
-        .list(storagePrefix);
-
-      if (listError) throw new Error(listError.message);
-
-      const paths = files.map((file) => `${storagePrefix}${file.name}`);
-
-      const { error: removeError } = await supabase.storage
-        .from("Materials")
-        .remove(paths);
-
-      if (removeError) throw new Error(removeError.message);
+      await api.delete(
+        `/workspaces/${workspace!.id}/material-groups/${materialGroupId}`
+      );
     },
-    onSuccess: () => {
+    onSuccess: (_, materialGroupId) => {
       navigate(`/workspace/${workspace?.id}/materials`);
+      queryClient.removeQueries({
+        queryKey: queryKeys.materialGroups.detail(
+          workspace?.id!,
+          semester,
+          materialGroupId
+        ),
+      });
       queryClient.invalidateQueries({
         queryKey: queryKeys.materialGroups.list(workspace?.id!, semester),
       });
@@ -240,83 +175,24 @@ function useAddMaterials() {
       links: z.infer<typeof MaterialSchema>[];
       materialGroupId: string;
     }) => {
-      const materialsToInsert = [
-        ...files.map((file) => ({ ...file, materialGroupId })),
-        ...links.map((link) => ({ ...link, materialGroupId })),
-      ];
-
-      const snakeCaseData = materialsToInsert.map(toSnakeCase) as {
-        material_group_id: string;
-        is_link: boolean;
-        name: string;
-        url: string;
-        size?: number | undefined;
-        type?: string | undefined;
-        original_file?: File | undefined;
-      }[];
-
-      const { data: insertedMaterials, error: insertError } = await supabase
-        .from("materials")
-        .insert(
-          snakeCaseData.map((material) => {
-            const { original_file, ...rest } = material;
-            return rest;
-          })
-        )
-        .select();
-
-      if (insertError) throw new Error(insertError.message);
-
-      const fileMaterials = insertedMaterials.filter(
-        (material) => !material.is_link
+      const formData = new FormData();
+      files.forEach((file) => formData.append("files", file.originalFile));
+      formData.append(
+        "links",
+        JSON.stringify(links.map(({ name, url }) => ({ name, url })))
       );
 
-      const failedUploads = [];
-
-      for (let i = 0; i < fileMaterials.length; i++) {
-        const material = fileMaterials[i];
-        const file = files[i].originalFile;
-
-        try {
-          const fileExt = file.name.split(".").pop();
-          const fileName = `${material.id}.${fileExt}`;
-          const storagePath = `${workspace?.id}/${materialGroupId}/${fileName}`;
-
-          const { error: uploadError } = await supabase.storage
-            .from("Materials")
-            .upload(storagePath, file, {
-              upsert: true,
-            });
-
-          if (uploadError)
-            throw new Error(`Storage upload failed: ${uploadError.message}`);
-
-          // Update material record with actual storage URL
-          await supabase
-            .from("materials")
-            .update({ url: storagePath })
-            .eq("id", material.id);
-        } catch (error) {
-          console.error(`Upload failed for material ${material.id}:`, error);
-          failedUploads.push({
-            materialId: material.id,
-            fileName: file.name,
-          });
-        }
-      }
-
-      if (failedUploads.length > 0) {
-        const failedMaterialIds = failedUploads.map((f) => f.materialId);
-
-        await supabase.from("materials").delete().in("id", failedMaterialIds);
-      }
+      await api.post(
+        `/workspaces/${workspace!.id}/material-groups/${materialGroupId}/materials`,
+        formData
+      );
     },
     onSuccess: (_, newMaterials) => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.materialGroups.list(workspace?.id!, semester),
       });
       queryClient.invalidateQueries({
-        queryKey: queryKeys.materials.list(
+        queryKey: queryKeys.materialGroups.detail(
           workspace?.id!,
           semester,
           newMaterials.materialGroupId
@@ -330,13 +206,14 @@ function useAddMaterials() {
 }
 
 function useDownloadMaterial() {
+  const { data: workspace } = useGetUserWorkspace();
+
   return useMutation({
     mutationFn: async (material: Material) => {
-      const { data, error } = await supabase.storage
-        .from("Materials")
-        .download(material.url);
-
-      if (error) throw new Error(error.message);
+      const { data } = await api.get<Blob>(
+        `/workspaces/${workspace!.id}/materials/${material.id}/download`,
+        { responseType: "blob" }
+      );
 
       const url = URL.createObjectURL(data);
       const link = document.createElement("a");
@@ -360,27 +237,16 @@ function useDeleteMaterial() {
 
   return useMutation({
     mutationFn: async (material: Material) => {
-      const { error: deleteError } = await supabase
-        .from("materials")
-        .delete()
-        .eq("id", material.id);
-
-      if (deleteError) throw new Error(deleteError.message);
-
-      if (!material.isLink) {
-        const { error: removeError } = await supabase.storage
-          .from("Materials")
-          .remove([material.url]);
-
-        if (removeError) throw new Error(removeError.message);
-      }
+      await api.delete(
+        `/workspaces/${workspace!.id}/materials/${material.id}`
+      );
     },
     onSuccess: (_, material) => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.materialGroups.list(workspace?.id!, semester),
       });
       queryClient.invalidateQueries({
-        queryKey: queryKeys.materials.list(
+        queryKey: queryKeys.materialGroups.detail(
           workspace?.id!,
           semester,
           material.materialGroupId

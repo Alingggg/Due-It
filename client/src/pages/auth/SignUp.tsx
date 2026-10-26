@@ -39,20 +39,15 @@ function SignUp() {
             <CheckCircle className="w-8 h-8 text-green-600" />
           </div>
           <h1 className="text-xl sm:text-2xl font-bold text-slate-800 mb-2">
-            Check your email
+            Account created
           </h1>
           <p className="text-slate-600 text-sm sm:text-base mb-6">
-            We've sent you a confirmation link to verify your account. Please
-            check your email and click the link to complete your registration.
+            Your account is ready. Sign in to start using Due It.
           </p>
           <div className="space-y-3">
             <Button asChild className="w-full">
               <Link to="/sign-in">Continue to Sign In</Link>
             </Button>
-            <p className="text-xs text-slate-500">
-              Didn't receive the email? Check your spam folder or try signing up
-              again.
-            </p>
           </div>
         </div>
       </div>

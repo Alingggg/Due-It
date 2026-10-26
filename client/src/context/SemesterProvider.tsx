@@ -1,7 +1,6 @@
 import { useGetDefaultSemester } from "@/hooks";
 import { createContext, useEffect, useState } from "react";
-
-type Semester = 1 | 2;
+import type { Semester } from "@/types";
 
 interface SemesterContextType {
   semester: Semester;
@@ -14,13 +13,13 @@ const SemesterContext = createContext<SemesterContextType | undefined>(
 
 function SemesterProvider({ children }: { children: any }) {
   const [semester, setSemester] = useState<Semester>(1);
-  const { data: defaultSemester, isLoading } = useGetDefaultSemester();
+  const defaultSemester = useGetDefaultSemester();
 
   useEffect(() => {
-    if (!isLoading && defaultSemester) {
-      setSemester(defaultSemester as 1 | 2);
+    if (defaultSemester) {
+      setSemester(defaultSemester);
     }
-  }, [isLoading, defaultSemester, setSemester]);
+  }, [defaultSemester, setSemester]);
 
   return (
     <SemesterContext.Provider value={{ semester, setSemester }}>

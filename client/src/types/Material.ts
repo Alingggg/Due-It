@@ -1,8 +1,10 @@
+import type { Semester } from "./Semester";
+
 interface SemesterMaterialGroup {
   id: string;
-  semester: 1 | 2;
+  semester: Semester;
   title: string;
-  description: string;
+  description: string | null;
   materialCount: number;
   createdAt: string;
   subjectId: string;
@@ -19,4 +21,8 @@ interface Material {
   type: string | null;
 }
 
-export type { SemesterMaterialGroup, Material };
+interface MaterialGroupDetail extends SemesterMaterialGroup {
+  materials: Material[];
+}
+
+export type { SemesterMaterialGroup, Material, MaterialGroupDetail };

@@ -20,6 +20,7 @@ import {
   useGetUserWorkspaceRole,
   useDialogContext,
 } from "@/hooks";
+import type { TaskFilters } from "@/types";
 import { format, parseISO } from "date-fns";
 import { Plus, Filter, ClipboardList } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -55,45 +56,34 @@ function Tasks() {
   const [filterCompletionType, setFilterCompletionType] = useState(
     searchParams.get("completionType") || "all"
   );
-  const { data: workspace, isLoading: isLoadingWorkspace } =
-    useGetUserWorkspace();
+  const { data: workspace } = useGetUserWorkspace();
   const workspaceId = workspace?.id!;
 
   const now = new Date();
   const currentDate = format(now, "yyyy-MM-dd");
   // Generate filters based on active tab
-  const generateFilters = () => {
-    const filters: Array<{ column: string; operator: string; value: any }> = [];
-
+  const generateFilters = (): TaskFilters => {
     if (activeTab === "pending") {
-      filters.push(
-        { column: "dueDate", operator: "gte", value: currentDate },
-        { column: "isCompleted", operator: "eq", value: false }
-      );
-    } else if (activeTab === "past-due") {
-      filters.push(
-        { column: "dueDate", operator: "lte", value: currentDate },
-        { column: "isCompleted", operator: "eq", value: false }
-      );
-    } else if (activeTab === "completed") {
-      filters.push({ column: "isCompleted", operator: "eq", value: true });
+      return { dueFrom: currentDate, completed: false };
     }
-
-    return filters;
+    if (activeTab === "past-due") {
+      return { dueTo: currentDate, completed: false };
+    }
+    if (activeTab === "completed") {
+      return { completed: true };
+    }
+    return {};
   };
 
   const { data: allTasks, isLoading: isLoadingTasks } = useGetTasks(
     generateFilters()
   );
   const { data: subjects, isLoading: isLoadingSubjects } = useGetSubjects();
-  const { data: currentUserRole, isLoading: isLoadingCurrentUserRole } =
-    useGetUserWorkspaceRole();
+  const currentUserRole = useGetUserWorkspaceRole();
   const { openDialog } = useDialogContext();
   const isPageLoading =
-    isLoadingWorkspace ||
     isLoadingTasks ||
-    isLoadingSubjects ||
-    isLoadingCurrentUserRole;
+    isLoadingSubjects;
 
   // Update URL when filters change
   useEffect(() => {

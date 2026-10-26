@@ -1,13 +1,22 @@
-import type { Database } from "@/types";
+import type { Semester } from "./Semester";
+
+type DayOfWeek =
+  | "sunday"
+  | "monday"
+  | "tuesday"
+  | "wednesday"
+  | "thursday"
+  | "friday"
+  | "saturday";
 
 interface SemesterSchedule {
   id: string;
   subjectId: string;
-  semester: number;
-  dayOfWeek: Database["public"]["Enums"]["day_of_week"];
+  semester: Semester;
+  dayOfWeek: DayOfWeek;
   startTime: string;
   endTime: string;
   subjectName: string;
 }
 
-export type { SemesterSchedule };
+export type { DayOfWeek, SemesterSchedule };

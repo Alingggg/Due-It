@@ -1,4 +1,4 @@
-import { isValid, parse } from "date-fns";
+import { format, isValid, parse } from "date-fns";
 import * as z from "zod";
 
 const TaskSchema = z.object({
@@ -32,10 +32,11 @@ const TaskSchema = z.object({
       { error: "Due date must be a valid date" }
     )
     .transform((val) => {
-      if (val instanceof Date && isValid(val)) return val.toLocaleDateString();
+      if (val instanceof Date && isValid(val)) return format(val, "yyyy-MM-dd");
       if (typeof val === "string") {
+        if (/^\d{4}-\d{2}-\d{2}$/.test(val)) return val;
         const parsed = new Date(val);
-        if (isValid(parsed)) return parsed.toLocaleDateString();
+        if (isValid(parsed)) return format(parsed, "yyyy-MM-dd");
       }
       return val;
     }),
