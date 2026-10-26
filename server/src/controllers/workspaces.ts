@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { UserModel, WorkspaceModel, type WorkspaceRole } from "../models/index.ts";
+import { workspaceService } from "../services/index.ts";
 import {
   codeStatusSchema,
   defaultSemesterSchema,
@@ -7,192 +7,80 @@ import {
   memberRoleSchema,
   workspaceNameSchema,
 } from "../zod-schema/index.ts";
-import { deleteSubjects, generateInviteCode, removeUploads } from "../utils/index.ts";
-
-type Workspace = Request["workspace"];
-
-function toUserWorkspace(workspace: Workspace, role: WorkspaceRole) {
-  return {
-    id: workspace.id,
-    name: workspace.name,
-    defaultSemester: workspace.defaultSemester,
-    role,
-  };
-}
-
-function toCode(workspace: Workspace) {
-  const { code, enabled, updatedAt } = workspace.invite;
-  return { workspaceId: workspace.id, code, enabled, updatedAt };
-}
-
-async function uniqueInviteCode() {
-  let code = generateInviteCode();
-  while (await WorkspaceModel.exists({ "invite.code": code })) code = generateInviteCode();
-  return code;
-}
 
 export async function getMyWorkspaces(req: Request, res: Response) {
-  const workspaces = await WorkspaceModel.find({ "members.userId": req.userId }).sort({
-    name: 1,
-  });
-
-  res.json(
-    workspaces.map((workspace) => {
-      const member = workspace.members.find((m) => m.userId.equals(req.userId))!;
-      return toUserWorkspace(workspace, member.role as WorkspaceRole);
-    }),
-  );
+  res.json(await workspaceService.getMyWorkspaces(req.userId));
 }
 
 export async function createWorkspace(req: Request, res: Response) {
   const { name } = workspaceNameSchema.parse(req.body);
 
-  const workspace = await WorkspaceModel.create({
-    name,
-    invite: { code: await uniqueInviteCode() },
-    members: [{ userId: req.userId, role: "admin" }],
-  });
-
-  res.status(201).json(toUserWorkspace(workspace, "admin"));
+  res.status(201).json(await workspaceService.createWorkspace(req.userId, name));
 }
 
 export async function joinWorkspace(req: Request, res: Response) {
   const { code } = inviteCodeSchema.parse(req.body);
 
-  const workspace = await WorkspaceModel.findOne({ "invite.code": code });
-
-  if (!workspace) {
-    res.status(404).json({ message: "Invalid invite code" });
-    return;
-  }
-
-  if (!workspace.invite.enabled) {
-    res.status(403).json({ message: "Invite code is disabled" });
-    return;
-  }
-
-  if (workspace.members.some((m) => m.userId.equals(req.userId))) {
-    res.status(409).json({ message: "You are already a member of this workspace" });
-    return;
-  }
-
-  workspace.members.push({ userId: req.userId, role: "member" });
-  await workspace.save();
-
-  res.json(toUserWorkspace(workspace, "member"));
+  res.json(await workspaceService.joinWorkspace(req.userId, code));
 }
 
 export async function updateWorkspaceName(req: Request, res: Response) {
   const { name } = workspaceNameSchema.parse(req.body);
 
-  req.workspace.name = name;
-  await req.workspace.save();
-
-  res.json(toUserWorkspace(req.workspace, req.role));
+  res.json(await workspaceService.updateWorkspaceName(req.workspace, req.role, name));
 }
 
 export async function updateDefaultSemester(req: Request, res: Response) {
   const { semester } = defaultSemesterSchema.parse(req.body);
 
-  req.workspace.defaultSemester = semester;
-  await req.workspace.save();
-
-  res.json(toUserWorkspace(req.workspace, req.role));
+  res.json(await workspaceService.updateDefaultSemester(req.workspace, req.role, semester));
 }
 
 export async function deleteWorkspace(req: Request, res: Response) {
-  await deleteSubjects({ workspaceId: req.workspace._id });
-  await removeUploads(req.workspace._id);
-  await req.workspace.deleteOne();
+  await workspaceService.deleteWorkspace(req.workspace);
 
   res.status(204).end();
 }
 
 export function getCode(req: Request, res: Response) {
-  res.json(toCode(req.workspace));
+  res.json(workspaceService.getCode(req.workspace));
 }
 
 export async function renewCode(req: Request, res: Response) {
-  req.workspace.invite.code = await uniqueInviteCode();
-  req.workspace.invite.updatedAt = new Date();
-  await req.workspace.save();
-
-  res.json(toCode(req.workspace));
+  res.json(await workspaceService.renewCode(req.workspace));
 }
 
 export async function updateCodeStatus(req: Request, res: Response) {
   const { enabled } = codeStatusSchema.parse(req.body);
 
-  req.workspace.invite.enabled = enabled;
-  await req.workspace.save();
-
-  res.json(toCode(req.workspace));
+  res.json(await workspaceService.updateCodeStatus(req.workspace, enabled));
 }
 
 export async function getMembers(req: Request, res: Response) {
-  const { members } = req.workspace;
-  const users = await UserModel.find({ _id: { $in: members.map((m) => m.userId) } });
-
-  res.json(
-    users.map((user) => ({
-      workspaceId: req.workspace.id,
-      userId: user.id,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      role: members.find((m) => m.userId.equals(user._id))!.role,
-    })),
-  );
+  res.json(await workspaceService.getMembers(req.workspace));
 }
 
 // admin only: promoting someone to admin hands the role over and demotes the caller
 export async function updateMemberRole(req: Request, res: Response) {
   const { role } = memberRoleSchema.parse(req.body);
-  const { members } = req.workspace;
 
-  if (req.params.userId === req.userId) {
-    res.status(400).json({ message: "You can't change your own role" });
-    return;
-  }
-
-  const target = members.find((m) => m.userId.equals(String(req.params.userId)));
-
-  if (!target) {
-    res.status(404).json({ message: "Member not found" });
-    return;
-  }
-
-  target.role = role;
-  if (role === "admin") members.find((m) => m.userId.equals(req.userId))!.role = "co-admin";
-  await req.workspace.save();
+  await workspaceService.updateMemberRole(
+    req.workspace,
+    req.userId,
+    String(req.params.userId),
+    role,
+  );
 
   res.status(204).end();
 }
 
 // leaving yourself, or kicking: admin kicks anyone, co-admin kicks members only
 export async function deleteMember(req: Request, res: Response) {
-  const target = req.workspace.members.find((m) =>
-    m.userId.equals(String(req.params.userId)),
-  );
-
-  if (!target) {
-    res.status(404).json({ message: "Member not found" });
-    return;
-  }
-
-  if (target.userId.equals(req.userId)) {
-    if (req.role === "admin") {
-      res.status(400).json({ message: "Transfer the admin role before leaving" });
-      return;
-    }
-  } else if (!(req.role === "admin" || (req.role === "co-admin" && target.role === "member"))) {
-    res.status(403).json({ message: "You don't have permission to do this" });
-    return;
-  }
-
-  await WorkspaceModel.updateOne(
-    { _id: req.workspace._id },
-    { $pull: { members: { userId: target.userId } } },
+  await workspaceService.deleteMember(
+    req.workspace,
+    req.userId,
+    req.role,
+    String(req.params.userId),
   );
 
   res.status(204).end();

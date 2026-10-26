@@ -6,6 +6,7 @@ import multer from "multer";
 import * as z from "zod";
 import connectDb from "./db.ts";
 import { authRouter, workspaceRouter } from "./routes/index.ts";
+import { HttpError } from "./utils/index.ts";
 
 const PORT = Number(process.env.PORT ?? 3000);
 
@@ -19,6 +20,11 @@ app.use("/api/auth", authRouter);
 app.use("/api/workspaces", workspaceRouter);
 
 app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
+  if (err instanceof HttpError) {
+    res.status(err.status).json({ message: err.message });
+    return;
+  }
+
   if (err instanceof z.ZodError) {
     res.status(400).json({ message: z.prettifyError(err) });
     return;
