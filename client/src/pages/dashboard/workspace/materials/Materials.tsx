@@ -22,10 +22,9 @@ import {
 } from "@/hooks";
 import { Filter, FolderOpen, Plus } from "lucide-react";
 import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router";
+import { useSearchParams } from "react-router";
 
 function Materials() {
-  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [sortBy, setSortBy] = useState(
     searchParams.get("sort") || "createdDate"

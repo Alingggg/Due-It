@@ -1,7 +1,7 @@
 import { useGetUserWorkspace } from "@/hooks";
 import { queryKeys, supabase } from "@/lib";
 import type { Profile } from "@/types";
-import { toCamelCase, toSnakeCase } from "@/utils";
+import { toCamelCase } from "@/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
@@ -150,13 +150,14 @@ function useUpdateProfile() {
       firstName: string;
       lastName: string;
     }) => {
-      const snakeCaseData = toSnakeCase(profileData);
-
       if (!user) throw new Error("User not authenticated");
 
       const { error } = await supabase
         .from("profiles")
-        .update(snakeCaseData)
+        .update({
+          first_name: profileData.firstName,
+          last_name: profileData.lastName,
+        })
         .eq("id", user.id)
         .single();
 
