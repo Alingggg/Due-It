@@ -2,6 +2,8 @@ import { Schema, model } from "mongoose";
 
 const WORKSPACE_ROLES = ["admin", "co-admin", "member"] as const;
 
+export type WorkspaceRole = (typeof WORKSPACE_ROLES)[number];
+
 const memberSchema = new Schema(
   {
     userId: { type: Schema.Types.ObjectId, required: true },
@@ -10,7 +12,7 @@ const memberSchema = new Schema(
   { _id: false },
 );
 
-const joinCodeSchema = new Schema(
+const inviteCodeSchema = new Schema(
   {
     code: { type: String, required: true },
     enabled: { type: Boolean, default: true },
@@ -22,7 +24,7 @@ const joinCodeSchema = new Schema(
 const workspaceSchema = new Schema(
   {
     name: { type: String, required: true },
-    code: { type: joinCodeSchema, required: true },
+    invite: { type: inviteCodeSchema, required: true },
     defaultSemester: { type: Number, default: 1 },
     members: { type: [memberSchema], default: [] },
   },
@@ -30,6 +32,6 @@ const workspaceSchema = new Schema(
 );
 
 workspaceSchema.index({ "members.userId": 1 });
-workspaceSchema.index({ "code.code": 1 }, { unique: true });
+workspaceSchema.index({ "invite.code": 1 }, { unique: true });
 
 export const WorkspaceModel = model("Workspace", workspaceSchema);
