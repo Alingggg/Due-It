@@ -235,12 +235,9 @@ function MaterialDetails() {
             <div className="text-slate-400 mb-4">
               <Folder className="w-10 h-10 sm:w-12 sm:h-12 mx-auto" />
             </div>
-            <h4 className="text-base sm:text-lg font-medium text-slate-800 mb-2">
+            <h4 className="text-base sm:text-lg font-medium text-slate-800">
               No materials yet
             </h4>
-            <p className="text-sm sm:text-base text-slate-600 max-w-sm mx-auto">
-              This material group doesn't have any files or links uploaded yet.
-            </p>
           </div>
         )}
       </div>

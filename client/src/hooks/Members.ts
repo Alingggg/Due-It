@@ -16,8 +16,10 @@ function useDeleteMembership() {
     },
     onSuccess: (_, userId) => {
       if (user?.id === userId) {
-        queryClient.setQueryData(queryKeys.workspaces.mine(), null);
-        navigate("/get-started");
+        navigate("/");
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.workspaces.list(),
+        });
       } else {
         queryClient.invalidateQueries({
           queryKey: queryKeys.members.list(workspace?.id!),
@@ -51,7 +53,7 @@ function useUpdateRole() {
         queryKey: queryKeys.members.list(workspace?.id!),
       });
       // promoting someone to admin demotes the current user
-      queryClient.invalidateQueries({ queryKey: queryKeys.workspaces.mine() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.workspaces.list() });
     },
     onError: (error) => {
       console.error("Error updating role:", error);

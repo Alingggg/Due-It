@@ -31,29 +31,21 @@ async function uniqueInviteCode() {
   return code;
 }
 
-function findUserWorkspace(userId: string) {
-  return WorkspaceModel.findOne({ "members.userId": userId });
-}
+export async function getMyWorkspaces(req: Request, res: Response) {
+  const workspaces = await WorkspaceModel.find({ "members.userId": req.userId }).sort({
+    name: 1,
+  });
 
-export async function getMyWorkspace(req: Request, res: Response) {
-  const workspace = await findUserWorkspace(req.userId);
-
-  if (!workspace) {
-    res.json(null);
-    return;
-  }
-
-  const member = workspace.members.find((m) => m.userId.equals(req.userId))!;
-  res.json(toUserWorkspace(workspace, member.role as WorkspaceRole));
+  res.json(
+    workspaces.map((workspace) => {
+      const member = workspace.members.find((m) => m.userId.equals(req.userId))!;
+      return toUserWorkspace(workspace, member.role as WorkspaceRole);
+    }),
+  );
 }
 
 export async function createWorkspace(req: Request, res: Response) {
   const { name } = workspaceNameSchema.parse(req.body);
-
-  if (await findUserWorkspace(req.userId)) {
-    res.status(409).json({ message: "You are already in a workspace" });
-    return;
-  }
 
   const workspace = await WorkspaceModel.create({
     name,
@@ -67,11 +59,6 @@ export async function createWorkspace(req: Request, res: Response) {
 export async function joinWorkspace(req: Request, res: Response) {
   const { code } = inviteCodeSchema.parse(req.body);
 
-  if (await findUserWorkspace(req.userId)) {
-    res.status(409).json({ message: "You are already in a workspace" });
-    return;
-  }
-
   const workspace = await WorkspaceModel.findOne({ "invite.code": code });
 
   if (!workspace) {
@@ -81,6 +68,11 @@ export async function joinWorkspace(req: Request, res: Response) {
 
   if (!workspace.invite.enabled) {
     res.status(403).json({ message: "Invite code is disabled" });
+    return;
+  }
+
+  if (workspace.members.some((m) => m.userId.equals(req.userId))) {
+    res.status(409).json({ message: "You are already a member of this workspace" });
     return;
   }
 

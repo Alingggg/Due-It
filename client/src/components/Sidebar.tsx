@@ -1,46 +1,20 @@
-import { NavLink } from "react-router";
+import { Link, NavLink } from "react-router";
 import { useState } from "react";
-import {
-  CheckSquare,
-  Book,
-  Users,
-  Menu,
-  X,
-  Settings,
-  Calendar,
-  User,
-} from "lucide-react";
+import { Menu, X, User, House } from "lucide-react";
+import { useGetUserWorkspace, useGetUserWorkspaces } from "@/hooks";
+import { workspaceColor } from "@/utils";
 
-function Sidebar({ workspaceId }: { workspaceId: string }) {
+const linkClass = (isActive: boolean) =>
+  `flex items-center px-4 py-3 rounded-lg transition-colors ${
+    isActive
+      ? "bg-blue-100 text-blue-800"
+      : "text-slate-700 hover:bg-slate-200 hover:text-slate-900"
+  }`;
+
+function Sidebar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  const navigationItems = [
-    {
-      name: "Tasks",
-      href: `/workspace/${workspaceId}/tasks`,
-      icon: CheckSquare,
-    },
-    {
-      name: "Materials",
-      href: `/workspace/${workspaceId}/materials`,
-      icon: Book,
-    },
-    {
-      name: "Subjects",
-      href: `/workspace/${workspaceId}/subjects`,
-      icon: Calendar,
-    },
-    {
-      name: "Members",
-      href: `/workspace/${workspaceId}/members`,
-      icon: Users,
-    },
-    {
-      name: "Settings",
-      href: `/workspace/${workspaceId}/settings`,
-      icon: Settings,
-    },
-  ];
+  const { data: workspaces } = useGetUserWorkspaces();
+  const { data: currentWorkspace } = useGetUserWorkspace();
 
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
@@ -61,7 +35,9 @@ function Sidebar({ workspaceId }: { workspaceId: string }) {
               <Menu className="w-5 h-5 text-slate-700" />
             )}
           </button>
-          <h1 className="text-lg font-bold text-blue-600 ml-3">Due It</h1>
+          <Link to="/" className="text-lg font-bold text-blue-600 ml-3">
+            Due It
+          </Link>
         </div>
       </div>
 
@@ -89,38 +65,54 @@ function Sidebar({ workspaceId }: { workspaceId: string }) {
         `}
       >
         {/* Header */}
-        <div className="p-4 lg:p-6 border-b border-slate-200">
-          <h1 className="text-xl font-bold text-blue-600 hidden lg:block">
+        <div className="p-4 lg:p-6 border-b border-slate-200 hidden lg:block">
+          <Link to="/" className="text-xl font-bold text-blue-600">
             Due It
-          </h1>
+          </Link>
         </div>
 
-        {/* Navigation */}
         <nav className="flex-1 p-4 overflow-y-auto">
-          <ul className="space-y-2">
-            {navigationItems.map((item) => {
-              const Icon = item.icon;
+          <NavLink
+            to="/"
+            end
+            onClick={closeMobileMenu}
+            className={({ isActive }) => linkClass(isActive)}
+          >
+            <House className="w-5 h-5 mr-3" />
+            <span className="font-medium">Home</span>
+          </NavLink>
 
-              return (
-                <li key={item.name}>
-                  <NavLink
-                    to={item.href}
-                    onClick={closeMobileMenu}
-                    className={({ isActive }) =>
-                      `flex items-center px-4 py-3 rounded-lg transition-colors ${
-                        isActive
-                          ? "bg-blue-100 text-blue-800 border-l-4 border-blue-600"
-                          : "text-slate-700 hover:bg-slate-200 hover:text-slate-900"
-                      }`
-                    }
-                  >
-                    <Icon className="w-5 h-5 mr-3" />
-                    <span className="font-medium">{item.name}</span>
-                  </NavLink>
-                </li>
-              );
-            })}
-          </ul>
+          {!!workspaces?.length && (
+            <>
+              <h2 className="px-4 pt-6 pb-2 text-xs font-medium text-slate-500">
+                Workspaces
+              </h2>
+              <ul className="space-y-1">
+                {workspaces.map((workspace) => (
+                  <li key={workspace.id}>
+                    <Link
+                      to={`/workspace/${workspace.id}/tasks`}
+                      onClick={closeMobileMenu}
+                      className={linkClass(
+                        workspace.id === currentWorkspace?.id
+                      )}
+                    >
+                      <span
+                        className={`${workspaceColor(
+                          workspace.id
+                        )} w-7 h-7 mr-3 rounded-full flex items-center justify-center text-white text-xs font-medium shrink-0`}
+                      >
+                        {workspace.name[0]?.toUpperCase()}
+                      </span>
+                      <span className="font-medium truncate">
+                        {workspace.name}
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
         </nav>
 
         {/* Profile Link */}
@@ -128,13 +120,7 @@ function Sidebar({ workspaceId }: { workspaceId: string }) {
           <NavLink
             to="/profile"
             onClick={closeMobileMenu}
-            className={({ isActive }) =>
-              `flex items-center w-full px-4 py-3 rounded-lg transition-colors ${
-                isActive
-                  ? "bg-blue-100 text-blue-800 border-l-4 border-blue-600"
-                  : "text-slate-700 hover:bg-slate-200 hover:text-slate-900"
-              }`
-            }
+            className={({ isActive }) => linkClass(isActive)}
           >
             <User className="w-5 h-5 mr-3" />
             <span className="font-medium">Profile</span>

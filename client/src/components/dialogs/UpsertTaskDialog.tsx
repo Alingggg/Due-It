@@ -106,7 +106,7 @@ function UpsertTaskDialog({
               <Textarea
                 {...form.register("description")}
                 id="task-description"
-                placeholder="Add task description (optional)..."
+                placeholder="Add task description..."
                 disabled={isPending}
                 className="break-all"
               />
@@ -190,7 +190,7 @@ function UpsertTaskDialog({
               />
             </div>
 
-            <div className="pt-4 border-t border-gray-200">
+            <div className="pt-2">
               <Button disabled={isPending} type="submit">
                 {isPending ? (
                   <div className="flex items-center justify-center gap-2">

@@ -6,7 +6,7 @@ import type {
   WorkspaceMemberWithProfile,
 } from "@/types";
 import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
-import { useNavigate } from "react-router";
+import { useMatch, useNavigate } from "react-router";
 
 function useJoinWorkspace() {
   const queryClient = useQueryClient();
@@ -15,8 +15,10 @@ function useJoinWorkspace() {
   return useMutation({
     mutationFn: async (code: string) =>
       (await api.post<UserWorkspace>("/workspaces/join", { code })).data,
-    onSuccess: (workspace) => {
-      queryClient.setQueryData(queryKeys.workspaces.mine(), workspace);
+    onSuccess: async (workspace) => {
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.workspaces.list(),
+      });
       navigate(`/workspace/${workspace.id}/tasks`);
     },
     onError: (error: any) => {
@@ -32,8 +34,10 @@ function useCreateWorkspace() {
   return useMutation({
     mutationFn: async (name: string) =>
       (await api.post<UserWorkspace>("/workspaces", { name })).data,
-    onSuccess: (workspace) => {
-      queryClient.setQueryData(queryKeys.workspaces.mine(), workspace);
+    onSuccess: async (workspace) => {
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.workspaces.list(),
+      });
       navigate(`/workspace/${workspace.id}/tasks`);
     },
     onError: (error: any) => {
@@ -42,13 +46,31 @@ function useCreateWorkspace() {
   });
 }
 
-function useGetUserWorkspace() {
+async function fetchWorkspaces() {
+  return (await api.get<UserWorkspace[]>("/workspaces")).data;
+}
+
+function useGetUserWorkspaces() {
   const { data: user } = useGetProfile();
 
   return useQuery({
-    queryKey: queryKeys.workspaces.mine(),
-    queryFn: async () =>
-      (await api.get<UserWorkspace | null>("/workspaces/mine")).data,
+    queryKey: queryKeys.workspaces.list(),
+    queryFn: fetchWorkspaces,
+    enabled: !!user,
+  });
+}
+
+// the workspace in the current URL; useMatch (not useParams) so it also works
+// in providers that sit above <Routes>
+function useGetUserWorkspace() {
+  const { data: user } = useGetProfile();
+  const workspaceId = useMatch("/workspace/:workspaceId/*")?.params.workspaceId;
+
+  return useQuery({
+    queryKey: queryKeys.workspaces.list(),
+    queryFn: fetchWorkspaces,
+    select: (workspaces) =>
+      workspaces.find((workspace) => workspace.id === workspaceId) ?? null,
     enabled: !!user,
   });
 }
@@ -92,8 +114,8 @@ function useUpdateDefaultSemester() {
           { semester }
         )
       ).data,
-    onSuccess: (updated) => {
-      queryClient.setQueryData(queryKeys.workspaces.mine(), updated);
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.workspaces.list() });
     },
     onError: (error: any) => {
       console.log("Error changing default semester:", error);
@@ -111,8 +133,8 @@ function useDeleteWorkspace() {
       await api.delete(`/workspaces/${workspace!.id}`);
     },
     onSuccess: () => {
-      queryClient.setQueryData(queryKeys.workspaces.mine(), null);
-      navigate("/get-started");
+      navigate("/");
+      queryClient.invalidateQueries({ queryKey: queryKeys.workspaces.list() });
     },
     onError: (error: any) => {
       console.log("Error deleting workspace:", error);
@@ -131,8 +153,8 @@ function useUpdateWorkspaceName() {
           name,
         })
       ).data,
-    onSuccess: (updated) => {
-      queryClient.setQueryData(queryKeys.workspaces.mine(), updated);
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.workspaces.list() });
     },
     onError: (error: any) => {
       console.log("Error updating workspace name:", error);
@@ -143,6 +165,7 @@ function useUpdateWorkspaceName() {
 export {
   useJoinWorkspace,
   useCreateWorkspace,
+  useGetUserWorkspaces,
   useGetUserWorkspace,
   useGetWorkspaceMembers,
   useGetUserWorkspaceRole,

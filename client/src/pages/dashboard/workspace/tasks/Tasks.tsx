@@ -48,7 +48,9 @@ function Tasks() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<
     "pending" | "past-due" | "completed"
-  >("pending");
+  >(
+    (searchParams.get("tab") as "past-due" | "completed" | null) || "pending"
+  );
   const [sortBy, setSortBy] = useState(searchParams.get("sort") || "dueDate");
   const [filterTaskType, setFilterTaskType] = useState(
     searchParams.get("taskType") || "all"
@@ -89,6 +91,7 @@ function Tasks() {
   useEffect(() => {
     const newParams = new URLSearchParams();
 
+    if (activeTab !== "pending") newParams.set("tab", activeTab);
     if (sortBy !== "dueDate") newParams.set("sort", sortBy);
     if (filterTaskType !== "all") newParams.set("taskType", filterTaskType);
     if (filterCompletionType !== "all")
@@ -96,7 +99,7 @@ function Tasks() {
 
     // Replace current URL without page reload
     setSearchParams(newParams, { replace: true });
-  }, [sortBy, filterTaskType, filterCompletionType, setSearchParams]);
+  }, [activeTab, sortBy, filterTaskType, filterCompletionType, setSearchParams]);
 
   function getDueDateTime(dueDate: string, dueTime: string) {
     return parseISO(`${dueDate}T${dueTime}`);
@@ -337,34 +340,13 @@ function Tasks() {
           <div className="text-slate-400 mb-4">
             <ClipboardList className="w-12 h-12 mx-auto" />
           </div>
-          {activeTab === "pending" ? (
-            <>
-              <h3 className="text-lg font-medium text-slate-800 mb-2">
-                No pending tasks
-              </h3>
-              <p className="text-slate-600 max-w-sm mx-auto">
-                There are no upcoming tasks.
-              </p>
-            </>
-          ) : activeTab === "past-due" ? (
-            <>
-              <h3 className="text-lg font-medium text-slate-800 mb-2">
-                No past-due tasks
-              </h3>
-              <p className="text-slate-600 max-w-sm mx-auto">
-                You're all caught up! There are no overdue tasks.
-              </p>
-            </>
-          ) : (
-            <>
-              <h3 className="text-lg font-medium text-slate-800 mb-2">
-                No completed tasks
-              </h3>
-              <p className="text-slate-600 max-w-sm mx-auto">
-                No tasks have been marked as completed yet.
-              </p>
-            </>
-          )}
+          <h3 className="text-lg font-medium text-slate-800">
+            {activeTab === "pending"
+              ? "No pending tasks"
+              : activeTab === "past-due"
+              ? "No past-due tasks"
+              : "No completed tasks"}
+          </h3>
         </div>
       )}
     </div>

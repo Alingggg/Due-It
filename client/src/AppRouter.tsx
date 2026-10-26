@@ -1,6 +1,6 @@
 import { ProtectedLayout, PublicLayout, WorkspaceLayout } from "@/components";
 import {
-  GetStarted,
+  Home,
   MaterialDetails,
   Materials,
   Members,
@@ -18,12 +18,11 @@ function AppRouter() {
   return (
     <Routes>
       <Route element={<PublicLayout />}>
-        <Route index element={null} />
         <Route path="sign-in" element={<SignIn />} />
         <Route path="sign-up" element={<SignUp />} />
       </Route>
       <Route element={<ProtectedLayout />}>
-        <Route path="get-started" element={<GetStarted />} />
+        <Route index element={<Home />} />
         <Route path="profile" element={<Profile />} />
         <Route path="workspace/:workspaceId" element={<WorkspaceLayout />}>
           <Route path="tasks">

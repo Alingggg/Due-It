@@ -115,7 +115,7 @@ function UpsertMaterialDialog({
               />
             </div>
 
-            <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pt-4 border-t border-slate-200">
+            <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pt-2">
               <Button
                 onClick={onClose}
                 variant="outline"

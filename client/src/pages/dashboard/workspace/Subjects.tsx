@@ -86,12 +86,9 @@ function Subjects() {
             <div className="text-slate-400 mb-4">
               <BookOpen className="w-12 h-12 mx-auto" />
             </div>
-            <h3 className="text-lg font-medium text-slate-800 mb-2">
+            <h3 className="text-lg font-medium text-slate-800">
               No subjects yet
             </h3>
-            <p className="text-slate-600 mb-6 max-w-sm mx-auto">
-              No subjects have been added yet.
-            </p>
           </div>
         ) : (
           sortedSubjects.map((subject) => (

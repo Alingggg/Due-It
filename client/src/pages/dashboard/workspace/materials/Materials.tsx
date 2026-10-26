@@ -216,11 +216,11 @@ function Materials() {
           <h3 className="text-lg font-medium text-slate-800 mb-1">
             No materials found
           </h3>
-          <p className="text-slate-600 mb-4">
-            {filterSubject !== "all"
-              ? "Try selecting a different subject to see more materials."
-              : "No materials have been created yet."}
-          </p>
+          {filterSubject !== "all" && (
+            <p className="text-slate-600 mb-4">
+              Try selecting a different subject to see more materials.
+            </p>
+          )}
         </div>
       )}
     </div>

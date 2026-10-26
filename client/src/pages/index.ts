@@ -1,7 +1,7 @@
 export { default as SignIn } from "./auth/SignIn";
 export { default as SignUp } from "./auth/SignUp";
 
-export { default as GetStarted } from "./dashboard/GetStarted";
+export { default as Home } from "./dashboard/Home";
 export { default as Profile } from "./dashboard/Profile";
 export { default as Members } from "./dashboard/workspace/Members";
 export { default as Settings } from "./dashboard/workspace/Settings";

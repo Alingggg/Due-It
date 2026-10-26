@@ -10,6 +10,7 @@ type DialogType =
   | "ADD_MATERIAL"
   | "CONFIRM_DELETE_WORKSPACE"
   | "CREATE_WORKSPACE"
+  | "JOIN_WORKSPACE"
   | null;
 
 interface DialogContextType {

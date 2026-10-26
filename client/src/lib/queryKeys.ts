@@ -8,7 +8,7 @@ const queryKeys = {
 
   workspaces: {
     all: ["workspaces"] as const,
-    mine: () => [...queryKeys.workspaces.all, "mine"] as const,
+    list: () => [...queryKeys.workspaces.all, "list"] as const,
   },
 
   tasks: {

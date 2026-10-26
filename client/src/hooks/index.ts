@@ -43,6 +43,7 @@ export {
 export {
   useJoinWorkspace,
   useCreateWorkspace,
+  useGetUserWorkspaces,
   useGetUserWorkspace,
   useGetWorkspaceMembers,
   useGetUserWorkspaceRole,

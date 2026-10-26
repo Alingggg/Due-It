@@ -1,4 +1,3 @@
-import { useGetUserWorkspace } from "@/hooks";
 import { api, queryKeys } from "@/lib";
 import type { Profile } from "@/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -30,7 +29,7 @@ function useLogin() {
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.profile.all });
-      navigate("/get-started");
+      navigate("/");
     },
     onError: (error) => {
       console.log("Error during login:", error);
@@ -66,7 +65,6 @@ function useGetProfile() {
 
 function useUpdateProfile() {
   const queryClient = useQueryClient();
-  const { data: workspace } = useGetUserWorkspace();
 
   return useMutation({
     mutationFn: async (data: { firstName: string; lastName: string }) => {
@@ -74,9 +72,8 @@ function useUpdateProfile() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.profile.detail() });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.members.list(workspace?.id || ""),
-      });
+      // member lists of every workspace show the user's name
+      queryClient.invalidateQueries({ queryKey: queryKeys.workspaces.all });
     },
     onError: (error) => {
       console.log("Error updating profile:", error);

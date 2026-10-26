@@ -127,7 +127,7 @@ function UpsertScheduleDialog({
               </div>
             </div>
 
-            <div className="pt-4 border-t border-gray-200">
+            <div className="pt-2">
               <Button
                 disabled={isAdding || isUpdating}
                 type="submit"

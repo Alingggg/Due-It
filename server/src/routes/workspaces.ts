@@ -5,7 +5,7 @@ import {
   deleteWorkspace,
   getCode,
   getMembers,
-  getMyWorkspace,
+  getMyWorkspaces,
   joinWorkspace,
   renewCode,
   updateCodeStatus,
@@ -25,7 +25,7 @@ const admin = requireRole("admin");
 
 workspaceRouter.use(requireAuth);
 
-workspaceRouter.get("/mine", getMyWorkspace);
+workspaceRouter.get("/", getMyWorkspaces);
 workspaceRouter.post("/", createWorkspace);
 workspaceRouter.post("/join", joinWorkspace);
 

@@ -3,6 +3,7 @@ import {
   ConfirmActionDialog,
   ConfirmDeleteWorkspaceDialog,
   CreateWorkspaceDialog,
+  JoinWorkspaceDialog,
   UpsertMaterialGroupDialog,
   UpsertScheduleDialog,
   UpsertSubjectDialog,
@@ -24,6 +25,7 @@ export default function DialogContainer() {
     ADD_MATERIAL: AddMaterialDialog,
     CONFIRM_DELETE_WORKSPACE: ConfirmDeleteWorkspaceDialog,
     CREATE_WORKSPACE: CreateWorkspaceDialog,
+    JOIN_WORKSPACE: JoinWorkspaceDialog,
   };
 
   const DialogComponent = dialogMap[dialogType];
