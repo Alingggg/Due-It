@@ -135,7 +135,6 @@ export async function addMaterials(
   return group.materials;
 }
 
-// returns where the uploaded file is on disk and the name to download it as
 export async function getMaterialFile(workspaceId: Types.ObjectId, materialId: string) {
   const found = await findMaterial(workspaceId, materialId);
 

@@ -1,3 +1,4 @@
+export * from "./assistant.ts";
 export * from "./auth.ts";
 export * from "./materials.ts";
 export * from "./subjects.ts";

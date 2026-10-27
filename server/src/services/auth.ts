@@ -11,7 +11,6 @@ export async function register({ password, ...data }: RegisterInput) {
   await UserModel.create({ ...data, passwordHash });
 }
 
-// returns the user when the credentials match
 export async function login({ email, password }: LoginInput) {
   const user = await UserModel.findOne({ email }).select("+passwordHash");
 

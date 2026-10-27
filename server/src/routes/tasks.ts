@@ -8,11 +8,12 @@ import {
   updateTask,
 } from "../controllers/index.ts";
 import { requireRole } from "../middleware/index.ts";
+import { EDITOR_ROLES } from "../models/index.ts";
 
 // mounted by workspaceRouter under /:workspaceId, after requireAuth + requireMember
 export const taskRouter = Router();
 
-const editor = requireRole("admin", "co-admin");
+const editor = requireRole(...EDITOR_ROLES);
 
 taskRouter.get("/tasks", getTasks);
 taskRouter.get("/tasks/:id", getTask);

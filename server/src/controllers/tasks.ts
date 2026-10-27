@@ -30,7 +30,6 @@ export async function deleteTask(req: Request, res: Response) {
   res.status(204).end();
 }
 
-// marks the task done / not done for the signed-in user only
 export async function setTaskCompletion(req: Request, res: Response) {
   const { done } = taskCompletionSchema.parse(req.body);
 

@@ -1,5 +1,15 @@
-import { UserModel, WorkspaceModel, type WorkspaceRole } from "../models/index.ts";
-import { HttpError, deleteSubjects, generateInviteCode, removeUploads } from "../utils/index.ts";
+import { isValidObjectId } from "mongoose";
+import {
+  UserModel,
+  WorkspaceModel,
+  type WorkspaceRole,
+} from "../models/index.ts";
+import {
+  HttpError,
+  deleteSubjects,
+  generateInviteCode,
+  removeUploads,
+} from "../utils/index.ts";
 
 type Workspace = InstanceType<typeof WorkspaceModel>;
 
@@ -19,12 +29,30 @@ function toCode(workspace: Workspace) {
 
 async function uniqueInviteCode() {
   let code = generateInviteCode();
-  while (await WorkspaceModel.exists({ "invite.code": code })) code = generateInviteCode();
+  while (await WorkspaceModel.exists({ "invite.code": code }))
+    code = generateInviteCode();
   return code;
 }
 
+export async function getMembership(workspaceId: string, userId: string) {
+  const workspace = isValidObjectId(workspaceId)
+    ? await WorkspaceModel.findById(workspaceId)
+    : null;
+
+  if (!workspace) throw new HttpError(404, "Workspace not found");
+
+  const member = workspace.members.find((m) => m.userId.equals(userId));
+
+  if (!member)
+    throw new HttpError(403, "You are not a member of this workspace");
+
+  return { workspace, role: member.role as WorkspaceRole };
+}
+
 export async function getMyWorkspaces(userId: string) {
-  const workspaces = await WorkspaceModel.find({ "members.userId": userId }).sort({ name: 1 });
+  const workspaces = await WorkspaceModel.find({
+    "members.userId": userId,
+  }).sort({ name: 1 });
 
   return workspaces.map((workspace) => {
     const member = workspace.members.find((m) => m.userId.equals(userId))!;
@@ -47,7 +75,8 @@ export async function joinWorkspace(userId: string, code: string) {
 
   if (!workspace) throw new HttpError(404, "Invalid invite code");
 
-  if (!workspace.invite.enabled) throw new HttpError(403, "Invite code is disabled");
+  if (!workspace.invite.enabled)
+    throw new HttpError(403, "Invite code is disabled");
 
   if (workspace.members.some((m) => m.userId.equals(userId))) {
     throw new HttpError(409, "You are already a member of this workspace");
@@ -59,7 +88,11 @@ export async function joinWorkspace(userId: string, code: string) {
   return toUserWorkspace(workspace, "member");
 }
 
-export async function updateWorkspaceName(workspace: Workspace, role: WorkspaceRole, name: string) {
+export async function updateWorkspaceName(
+  workspace: Workspace,
+  role: WorkspaceRole,
+  name: string,
+) {
   workspace.name = name;
   await workspace.save();
 
@@ -104,7 +137,9 @@ export async function updateCodeStatus(workspace: Workspace, enabled: boolean) {
 
 export async function getMembers(workspace: Workspace) {
   const { members } = workspace;
-  const users = await UserModel.find({ _id: { $in: members.map((m) => m.userId) } });
+  const users = await UserModel.find({
+    _id: { $in: members.map((m) => m.userId) },
+  });
 
   return users.map((user) => ({
     workspaceId: workspace.id,
@@ -125,14 +160,16 @@ export async function updateMemberRole(
 ) {
   const { members } = workspace;
 
-  if (targetUserId === userId) throw new HttpError(400, "You can't change your own role");
+  if (targetUserId === userId)
+    throw new HttpError(400, "You can't change your own role");
 
   const target = members.find((m) => m.userId.equals(targetUserId));
 
   if (!target) throw new HttpError(404, "Member not found");
 
   target.role = role;
-  if (role === "admin") members.find((m) => m.userId.equals(userId))!.role = "co-admin";
+  if (role === "admin")
+    members.find((m) => m.userId.equals(userId))!.role = "co-admin";
   await workspace.save();
 }
 
@@ -148,8 +185,11 @@ export async function deleteMember(
   if (!target) throw new HttpError(404, "Member not found");
 
   if (target.userId.equals(userId)) {
-    if (role === "admin") throw new HttpError(400, "Transfer the admin role before leaving");
-  } else if (!(role === "admin" || (role === "co-admin" && target.role === "member"))) {
+    if (role === "admin")
+      throw new HttpError(400, "Transfer the admin role before leaving");
+  } else if (
+    !(role === "admin" || (role === "co-admin" && target.role === "member"))
+  ) {
     throw new HttpError(403, "You don't have permission to do this");
   }
 

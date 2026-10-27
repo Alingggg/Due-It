@@ -10,11 +10,12 @@ import {
   updateSubject,
 } from "../controllers/index.ts";
 import { requireRole } from "../middleware/index.ts";
+import { EDITOR_ROLES } from "../models/index.ts";
 
 // mounted by workspaceRouter under /:workspaceId, after requireAuth + requireMember
 export const subjectRouter = Router();
 
-const editor = requireRole("admin", "co-admin");
+const editor = requireRole(...EDITOR_ROLES);
 
 subjectRouter.get("/subjects", getSubjects);
 subjectRouter.post("/subjects", editor, createSubject);

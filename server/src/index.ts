@@ -5,7 +5,7 @@ import mongoose from "mongoose";
 import multer from "multer";
 import * as z from "zod";
 import connectDb from "./db.ts";
-import { authRouter, workspaceRouter } from "./routes/index.ts";
+import { assistantRouter, authRouter, workspaceRouter } from "./routes/index.ts";
 import { HttpError } from "./utils/index.ts";
 
 const PORT = Number(process.env.PORT ?? 3000);
@@ -18,6 +18,7 @@ app.use(cookieParser());
 
 app.use("/api/auth", authRouter);
 app.use("/api/workspaces", workspaceRouter);
+app.use("/api/assistant", assistantRouter);
 
 app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
   if (err instanceof HttpError) {

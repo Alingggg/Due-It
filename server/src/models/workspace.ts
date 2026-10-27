@@ -4,6 +4,10 @@ const WORKSPACE_ROLES = ["admin", "co-admin", "member"] as const;
 
 export type WorkspaceRole = (typeof WORKSPACE_ROLES)[number];
 
+// who can use the editor / admin-only routes and assistant tools
+export const EDITOR_ROLES: WorkspaceRole[] = ["admin", "co-admin"];
+export const ADMIN_ROLES: WorkspaceRole[] = ["admin"];
+
 const memberSchema = new Schema(
   {
     userId: { type: Schema.Types.ObjectId, required: true },

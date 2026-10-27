@@ -18,7 +18,6 @@ export function signToken(userId: string) {
   return jwt.sign({ userId }, JWT_SECRET!, { expiresIn: MAX_AGE_MS / 1000 });
 }
 
-// returns the user id, throws if the token is invalid or expired
 export function verifyToken(token: string) {
   const { userId } = jwt.verify(token, JWT_SECRET!) as jwt.JwtPayload;
   if (typeof userId !== "string") throw new Error("Token has no userId");

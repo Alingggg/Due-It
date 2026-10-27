@@ -86,7 +86,6 @@ export async function deleteTask(workspaceId: Types.ObjectId, taskId: string) {
   if (!deletedCount) throw new HttpError(404, "Task not found");
 }
 
-// marks the task done / not done for the given user only
 export async function setTaskCompletion(
   workspaceId: Types.ObjectId,
   userId: string,

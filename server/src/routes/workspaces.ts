@@ -14,6 +14,7 @@ import {
   updateWorkspaceName,
 } from "../controllers/index.ts";
 import { requireAuth, requireMember, requireRole } from "../middleware/index.ts";
+import { ADMIN_ROLES } from "../models/index.ts";
 // imported directly, not through ./index.ts, to avoid a circular import
 import { materialRouter } from "./materials.ts";
 import { subjectRouter } from "./subjects.ts";
@@ -21,7 +22,7 @@ import { taskRouter } from "./tasks.ts";
 
 export const workspaceRouter = Router();
 
-const admin = requireRole("admin");
+const admin = requireRole(...ADMIN_ROLES);
 
 workspaceRouter.use(requireAuth);
 
