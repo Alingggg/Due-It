@@ -5,6 +5,7 @@ export {
   useGetProfile,
   useUpdateProfile,
 } from "./Auth";
+export { useSendMessage, useClearChat } from "./Chat";
 export { useGetCode, useRenewCode, useUpdateCodeStatus } from "./Code";
 export { default as useDialogContext } from "./Dialog";
 export {
