@@ -1,4 +1,4 @@
-import type { Content, Part } from "@google/genai";
+import { ApiError, type Content, type Part } from "@google/genai";
 import { UserModel } from "../models/index.ts";
 import { workspaceService } from "../services/index.ts";
 import { HttpError } from "../utils/index.ts";
@@ -23,7 +23,6 @@ const MUTATING_TOOLS = [
   "set_invite_code_enabled",
 ];
 
-// dataChanged tells the client to refetch what it's showing
 export async function runChat({
   userId,
   history,
@@ -50,6 +49,12 @@ export async function runChat({
     } catch (error) {
       console.error("Chat failed:", error);
       if (!dataChanged) {
+        if (error instanceof ApiError && error.status === 429) {
+          throw new HttpError(
+            429,
+            "The assistant is getting too many requests. Please try again in a minute.",
+          );
+        }
         throw new HttpError(503, "The assistant is unavailable right now. Please try again later.");
       }
       contents.push({ role: "model", parts: [{ text: PARTIAL_REPLY }] });

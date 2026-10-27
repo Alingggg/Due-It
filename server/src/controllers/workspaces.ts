@@ -60,7 +60,6 @@ export async function getMembers(req: Request, res: Response) {
   res.json(await workspaceService.getMembers(req.workspace));
 }
 
-// admin only: promoting someone to admin hands the role over and demotes the caller
 export async function updateMemberRole(req: Request, res: Response) {
   const { role } = memberRoleSchema.parse(req.body);
 
@@ -74,7 +73,6 @@ export async function updateMemberRole(req: Request, res: Response) {
   res.status(204).end();
 }
 
-// leaving yourself, or kicking: admin kicks anyone, co-admin kicks members only
 export async function deleteMember(req: Request, res: Response) {
   await workspaceService.deleteMember(
     req.workspace,

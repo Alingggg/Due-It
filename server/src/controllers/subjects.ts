@@ -20,7 +20,6 @@ export async function updateSubject(req: Request, res: Response) {
   res.json(await subjectService.updateSubject(req.workspace._id, String(req.params.id), data));
 }
 
-// also deletes the subject's tasks, material groups and their files
 export async function deleteSubject(req: Request, res: Response) {
   await subjectService.deleteSubject(req.workspace._id, String(req.params.id));
 

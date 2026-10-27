@@ -1,5 +1,6 @@
 import * as z from "zod";
 import { defineTool } from "./defineTool.ts";
+import { workspaceArg, workspacesArg } from "./workspaceArgs.ts";
 import { EDITOR_ROLES } from "../../models/index.ts";
 import { subjectService } from "../../services/index.ts";
 import { scheduleSchema, subjectSchema } from "../../zod-schema/index.ts";
@@ -8,7 +9,7 @@ const semesterArg = z
   .number()
   .int()
   .optional()
-  .describe("Semester number. Leave out to use the workspace's default semester");
+  .describe("Semester number. Leave out to use each workspace's default semester");
 
 const subjectArgs = {
   name: z.string().describe("Subject name, e.g. Data Structures"),
@@ -28,9 +29,10 @@ const scheduleArgs = {
 
 export const getSubjects = defineTool({
   name: "get_subjects",
-  description: "List the workspace's subjects for a semester, including their class schedules.",
+  description:
+    "List subjects for a semester in one or more workspaces, including their class schedules.",
   roles: "any",
-  args: z.object({ semester: semesterArg }),
+  args: z.object({ ...workspacesArg, semester: semesterArg }),
   async run({ semester }, ctx) {
     const subjects = await subjectService.getSubjects(
       ctx.workspace._id,
@@ -45,7 +47,7 @@ export const createSubject = defineTool({
   name: "create_subject",
   description: "Create a subject in the workspace.",
   roles: EDITOR_ROLES,
-  args: z.object(subjectArgs),
+  args: z.object({ ...workspaceArg, ...subjectArgs }),
   async run(args, ctx) {
     const data = subjectSchema.parse(args);
     const subject = await subjectService.createSubject(ctx.workspace._id, data);
@@ -61,6 +63,7 @@ export const updateSubject = defineTool({
     "and send the current values for the fields that aren't changing.",
   roles: EDITOR_ROLES,
   args: z.object({
+    ...workspaceArg,
     subjectId: z.string().describe("Id of the subject, from get_subjects"),
     ...subjectArgs,
   }),
@@ -77,9 +80,11 @@ export const updateSubject = defineTool({
 
 export const getSchedules = defineTool({
   name: "get_schedules",
-  description: "List the weekly class schedule for a semester, one entry per class meeting.",
+  description:
+    "List the weekly class schedule for a semester in one or more workspaces, " +
+    "one entry per class meeting.",
   roles: "any",
-  args: z.object({ semester: semesterArg }),
+  args: z.object({ ...workspacesArg, semester: semesterArg }),
   async run({ semester }, ctx) {
     return {
       schedules: await subjectService.getSchedules(
@@ -94,7 +99,7 @@ export const createSchedule = defineTool({
   name: "create_schedule",
   description: "Add a weekly class meeting to a subject.",
   roles: EDITOR_ROLES,
-  args: z.object(scheduleArgs),
+  args: z.object({ ...workspaceArg, ...scheduleArgs }),
   async run(args, ctx) {
     const { subjectId, ...data } = scheduleSchema.parse(args);
     const schedule = await subjectService.createSchedule(ctx.workspace._id, subjectId, data);
@@ -111,6 +116,7 @@ export const updateSchedule = defineTool({
     "for the fields that aren't changing.",
   roles: EDITOR_ROLES,
   args: z.object({
+    ...workspaceArg,
     scheduleId: z.string().describe("Id of the class meeting, from get_schedules"),
     ...scheduleArgs,
   }),

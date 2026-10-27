@@ -1,5 +1,6 @@
 import * as z from "zod";
 import { defineTool } from "./defineTool.ts";
+import { workspaceArg, workspacesArg } from "./workspaceArgs.ts";
 import { EDITOR_ROLES } from "../../models/index.ts";
 import { taskService } from "../../services/index.ts";
 import { taskSchema, tasksQuerySchema } from "../../zod-schema/index.ts";
@@ -21,15 +22,16 @@ const taskArgs = {
 export const getTasks = defineTool({
   name: "get_tasks",
   description:
-    "List the workspace's tasks for a semester, sorted by due date. " +
+    "List tasks for a semester in one or more workspaces, sorted by due date. " +
     "isCompleted tells whether the current user has marked the task as done.",
   roles: "any",
   args: z.object({
+    ...workspacesArg,
     semester: z
       .number()
       .int()
       .optional()
-      .describe("Semester number. Leave out to use the workspace's default semester"),
+      .describe("Semester number. Leave out to use each workspace's default semester"),
     dueFrom: z.string().optional().describe("Only tasks due on or after this date, YYYY-MM-DD"),
     dueTo: z.string().optional().describe("Only tasks due on or before this date, YYYY-MM-DD"),
     completed: z
@@ -53,7 +55,10 @@ export const getTask = defineTool({
   name: "get_task",
   description: "Get one task by id.",
   roles: "any",
-  args: z.object({ taskId: z.string().describe("Id of the task, from get_tasks") }),
+  args: z.object({
+    ...workspaceArg,
+    taskId: z.string().describe("Id of the task, from get_tasks"),
+  }),
   async run({ taskId }, ctx) {
     return taskService.getTask(ctx.workspace._id, ctx.userId, taskId);
   },
@@ -63,7 +68,7 @@ export const createTask = defineTool({
   name: "create_task",
   description: "Create a task under a subject. The task is shared with the whole workspace.",
   roles: EDITOR_ROLES,
-  args: z.object(taskArgs),
+  args: z.object({ ...workspaceArg, ...taskArgs }),
   async run(args, ctx) {
     const task = await taskService.createTask(ctx.workspace._id, taskSchema.parse(args));
 
@@ -78,6 +83,7 @@ export const updateTask = defineTool({
     "and send the current values for the fields that aren't changing.",
   roles: EDITOR_ROLES,
   args: z.object({
+    ...workspaceArg,
     taskId: z.string().describe("Id of the task, from get_tasks"),
     ...taskArgs,
   }),
@@ -93,6 +99,7 @@ export const setTaskCompletion = defineTool({
   description: "Mark a task as done or not done for the current user only.",
   roles: "any",
   args: z.object({
+    ...workspaceArg,
     taskId: z.string().describe("Id of the task, from get_tasks"),
     done: z.boolean().describe("true = done, false = not done"),
   }),

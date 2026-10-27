@@ -30,7 +30,6 @@ export async function updateMaterialGroup(req: Request, res: Response) {
   );
 }
 
-// also deletes the group's uploaded files
 export async function deleteMaterialGroup(req: Request, res: Response) {
   await materialService.deleteMaterialGroup(req.workspace._id, String(req.params.id));
 

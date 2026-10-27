@@ -1,7 +1,6 @@
 import type { Content } from "@google/genai";
 import { Redis } from "@upstash/redis";
 
-// reads UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN
 const redis = Redis.fromEnv();
 
 const TTL_SECONDS = 30 * 60;

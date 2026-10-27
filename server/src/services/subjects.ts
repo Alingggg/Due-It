@@ -74,7 +74,6 @@ export async function createSchedule(
   return subject.schedules.at(-1);
 }
 
-// subjectId can differ from the schedule's current subject to move it
 export async function updateSchedule(
   workspaceId: Types.ObjectId,
   scheduleId: string,
