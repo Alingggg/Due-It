@@ -15,14 +15,16 @@ function WorkspaceLayout() {
   }
 
   return (
-    <div className="flex h-screen bg-slate-50">
+    <div className="flex h-screen bg-wash">
       <Sidebar />
-      <div className="flex-1 overflow-auto p-4 pt-20 sm:px-6 lg:pt-6">
-        <WorkspaceHeader
-          workspaceId={workspace.id}
-          workspaceName={workspace.name}
-        />
-        <Outlet />
+      <div className="flex-1 min-w-0 pt-16 lg:pt-0">
+        {/* the white content sheet, flush with the window so its scrollbar is on the edge */}
+        <main className="h-full overflow-auto rounded-t-[22px] lg:rounded-none lg:rounded-l-[28px] bg-white shadow-xs p-3 sm:p-4">
+          <WorkspaceHeader workspace={workspace} />
+          <div className="px-1 pb-24 sm:px-3">
+            <Outlet />
+          </div>
+        </main>
       </div>
     </div>
   );

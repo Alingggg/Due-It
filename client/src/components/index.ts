@@ -9,6 +9,7 @@ export { default as SelectField } from "./SelectField";
 export { default as Sidebar } from "./Sidebar";
 export { default as SubjectCard } from "./SubjectCard";
 export { default as TaskCard } from "./TaskCard";
+export { default as TodaysClasses } from "./TodaysClasses";
 export { default as WorkspaceHeader } from "./WorkspaceHeader";
 
 // Shadcn/radix components

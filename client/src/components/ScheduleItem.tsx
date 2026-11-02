@@ -8,7 +8,7 @@ import {
 } from "@/components";
 import { useDeleteSchedule, useDialogContext } from "@/hooks";
 import type { SemesterSchedule, Subject } from "@/types";
-import { format, parse } from "date-fns";
+import { formatTime12h } from "@/utils";
 import { MoreVertical, Edit2, Trash2 } from "lucide-react";
 
 interface ScheduleItemProps {
@@ -16,12 +16,6 @@ interface ScheduleItemProps {
   subjectName: string;
   canManage: boolean;
   subjects: Subject[];
-}
-
-// Helper to format "HH:mm:ss" to "h:mm AM/PM"
-function formatTime12h(time: string) {
-  const parsed = parse(time, "HH:mm:ss", new Date());
-  return format(parsed, "h:mm a");
 }
 
 function ScheduleItem({

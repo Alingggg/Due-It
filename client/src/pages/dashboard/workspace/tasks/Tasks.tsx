@@ -4,7 +4,6 @@ import {
   AccordionItem,
   AccordionTrigger,
   Button,
-  Label,
   LoadingPage,
   Select,
   SelectContent,
@@ -12,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
   TaskCard,
+  TodaysClasses,
 } from "@/components";
 import {
   useGetUserWorkspace,
@@ -20,14 +20,22 @@ import {
   useGetUserWorkspaceRole,
   useDialogContext,
 } from "@/hooks";
-import type { TaskFilters } from "@/types";
-import { format, parseISO } from "date-fns";
-import { Plus, Filter, ClipboardList } from "lucide-react";
+import type { SemesterTask } from "@/types";
+import { parseISO } from "date-fns";
+import { Plus, ClipboardList } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router";
 
+type TaskTab = "pending" | "past-due" | "completed";
+
+const TABS: { value: TaskTab; label: string }[] = [
+  { value: "pending", label: "Pending" },
+  { value: "past-due", label: "Past due" },
+  { value: "completed", label: "Completed" },
+];
+
 const SORT_OPTIONS = [
-  { value: "dueDate", label: "Due Date" },
+  { value: "dueDate", label: "Due date" },
   { value: "subject", label: "Subject" },
 ];
 
@@ -44,12 +52,17 @@ const COMPLETION_TYPE_OPTIONS = [
   { value: "group", label: "Group" },
 ];
 
+const filterTriggerClass =
+  "h-[38px]! gap-1.5 rounded-[10px] border-0 bg-blue-50 px-3 text-[13px] font-bold text-slate-800 shadow-none";
+
+function getDueDateTime(dueDate: string, dueTime: string) {
+  return parseISO(`${dueDate}T${dueTime}`);
+}
+
 function Tasks() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [activeTab, setActiveTab] = useState<
-    "pending" | "past-due" | "completed"
-  >(
-    (searchParams.get("tab") as "past-due" | "completed" | null) || "pending"
+  const [activeTab, setActiveTab] = useState<TaskTab>(
+    (searchParams.get("tab") as TaskTab | null) || "pending"
   );
   const [sortBy, setSortBy] = useState(searchParams.get("sort") || "dueDate");
   const [filterTaskType, setFilterTaskType] = useState(
@@ -61,31 +74,12 @@ function Tasks() {
   const { data: workspace } = useGetUserWorkspace();
   const workspaceId = workspace?.id!;
 
-  const now = new Date();
-  const currentDate = format(now, "yyyy-MM-dd");
-  // Generate filters based on active tab
-  const generateFilters = (): TaskFilters => {
-    if (activeTab === "pending") {
-      return { dueFrom: currentDate, completed: false };
-    }
-    if (activeTab === "past-due") {
-      return { dueTo: currentDate, completed: false };
-    }
-    if (activeTab === "completed") {
-      return { completed: true };
-    }
-    return {};
-  };
-
-  const { data: allTasks, isLoading: isLoadingTasks } = useGetTasks(
-    generateFilters()
-  );
+  // fetch every task once; the tabs (and their counts) are split client-side
+  const { data: allTasks, isLoading: isLoadingTasks } = useGetTasks();
   const { data: subjects, isLoading: isLoadingSubjects } = useGetSubjects();
   const currentUserRole = useGetUserWorkspaceRole();
   const { openDialog } = useDialogContext();
-  const isPageLoading =
-    isLoadingTasks ||
-    isLoadingSubjects;
+  const isPageLoading = isLoadingTasks || isLoadingSubjects;
 
   // Update URL when filters change
   useEffect(() => {
@@ -101,25 +95,28 @@ function Tasks() {
     setSearchParams(newParams, { replace: true });
   }, [activeTab, sortBy, filterTaskType, filterCompletionType, setSearchParams]);
 
-  function getDueDateTime(dueDate: string, dueTime: string) {
-    return parseISO(`${dueDate}T${dueTime}`);
+  const now = new Date();
+
+  function getTaskTab(task: SemesterTask): TaskTab {
+    if (task.isCompleted) return "completed";
+    return getDueDateTime(task.dueDate, task.dueTime) < now
+      ? "past-due"
+      : "pending";
   }
 
-  // Filter tasks types and due time
-  const filteredTasks = (allTasks || []).filter((task) => {
-    // Time filtering for pending and past-due tabs
-    if (activeTab === "pending") {
-      const taskDueDateTime = getDueDateTime(task.dueDate, task.dueTime);
-      if (taskDueDateTime < now) {
-        return false;
-      }
-    } else if (activeTab === "past-due") {
-      const taskDueDateTime = getDueDateTime(task.dueDate, task.dueTime);
-      if (taskDueDateTime >= now) {
-        return false;
-      }
-    }
+  const tabCounts: Record<TaskTab, number> = {
+    pending: 0,
+    "past-due": 0,
+    completed: 0,
+  };
+  (allTasks || []).forEach((task) => tabCounts[getTaskTab(task)]++);
 
+  const tabTasks = (allTasks || []).filter(
+    (task) => getTaskTab(task) === activeTab
+  );
+
+  // Filter task types and completion types
+  const filteredTasks = tabTasks.filter((task) => {
     const typeMatch =
       filterTaskType === "all" || task.taskType === filterTaskType;
     const completionMatch =
@@ -161,13 +158,13 @@ function Tasks() {
           }
           groups[subjectName].push(task);
           return groups;
-        }, {} as Record<string, typeof allTasks>)
+        }, {} as Record<string, SemesterTask[]>)
       : null;
 
   // Sort tasks within each subject by due date and time
   if (groupedTasks) {
     Object.keys(groupedTasks).forEach((subjectName) => {
-      groupedTasks[subjectName]?.sort(
+      groupedTasks[subjectName].sort(
         (a, b) =>
           getDueDateTime(a.dueDate, a.dueTime).getTime() -
           getDueDateTime(b.dueDate, b.dueTime).getTime()
@@ -186,13 +183,17 @@ function Tasks() {
         >
           {Object.entries(groupedTasks).map(
             ([subjectName, subjectTasks], index) => (
-              <AccordionItem key={index} value={subjectName}>
-                <AccordionTrigger className="text-xl font-semibold text-slate-800 pr-4 whitespace-nowrap">
+              <AccordionItem
+                key={index}
+                value={subjectName}
+                className="border-line"
+              >
+                <AccordionTrigger className="text-base font-bold text-slate-800 pr-4 whitespace-nowrap">
                   {subjectName}
                 </AccordionTrigger>
                 <AccordionContent>
-                  <div className="space-y-4">
-                    {subjectTasks?.map((task) => (
+                  <div className="space-y-2.5">
+                    {subjectTasks.map((task) => (
                       <TaskCard
                         key={task.id}
                         workspaceId={workspaceId}
@@ -220,135 +221,122 @@ function Tasks() {
   }
 
   if (isPageLoading) {
-    return <LoadingPage message="Loading tasks..." />;
+    return <LoadingPage message="Loading tasks..." fullScreen={false} />;
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-slate-800">Tasks</h1>
-        <div className="flex items-center space-x-4">
-          <div className="text-sm text-slate-500">
-            {sortedTasks.length} of {allTasks?.length} tasks
+    <div className="flex flex-col xl:flex-row xl:items-start gap-6">
+      <section className="flex-1 min-w-0 space-y-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-baseline gap-3">
+            <h2 className="text-xl font-extrabold text-slate-800">Tasks</h2>
+            <span className="text-[13px] text-slate-500">
+              {sortedTasks.length} of {tabTasks.length} tasks
+            </span>
           </div>
           {(currentUserRole === "admin" || currentUserRole === "co-admin") && (
-            <Button onClick={() => openDialog("UPSERT_TASK", { subjects })}>
+            <Button
+              className="h-11 rounded-xl px-5 font-bold"
+              onClick={() => openDialog("UPSERT_TASK", { subjects })}
+            >
               <Plus className="w-4 h-4" />
-              <span>Create</span>
+              <span>Create task</span>
             </Button>
           )}
         </div>
-      </div>
 
-      <div className="border-b border-slate-200">
-        <nav className="flex space-x-8">
-          <button
-            onClick={() => setActiveTab("pending")}
-            className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
-              activeTab === "pending"
-                ? "border-blue-500 text-blue-600"
-                : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
-            }`}
-          >
-            Pending
-          </button>
-          <button
-            onClick={() => setActiveTab("past-due")}
-            className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
-              activeTab === "past-due"
-                ? "border-blue-500 text-blue-600"
-                : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
-            }`}
-          >
-            Past Due
-          </button>
-          <button
-            onClick={() => setActiveTab("completed")}
-            className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
-              activeTab === "completed"
-                ? "border-blue-500 text-blue-600"
-                : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
-            }`}
-          >
-            Completed
-          </button>
-        </nav>
-      </div>
-
-      <div className="flex flex-wrap items-center gap-4">
-        <div className="flex items-center text-sm text-slate-600">
-          <Filter className="w-4 h-4 mr-2" />
-          <span>Filters:</span>
-        </div>
-
-        <div className="flex items-center space-x-2">
-          <Label htmlFor="sortBy">Sort by:</Label>
-          <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger id="sortBy">
-              <SelectValue placeholder="Select an option" />
-            </SelectTrigger>
-            <SelectContent>
-              {SORT_OPTIONS.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex items-center space-x-2">
-          <Label htmlFor="filterTaskType">Task Type:</Label>
-          <Select value={filterTaskType} onValueChange={setFilterTaskType}>
-            <SelectTrigger id="filterTaskType">
-              <SelectValue placeholder="Select an option" />
-            </SelectTrigger>
-            <SelectContent>
-              {TASK_TYPE_OPTIONS.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex items-center space-x-2">
-          <Label htmlFor="filterCompletionType">Completion Type:</Label>
-          <Select
-            value={filterCompletionType}
-            onValueChange={setFilterCompletionType}
-          >
-            <SelectTrigger id="filterCompletionType">
-              <SelectValue placeholder="Select an option" />
-            </SelectTrigger>
-            <SelectContent>
-              {COMPLETION_TYPE_OPTIONS.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      <div className="space-y-6">{renderTasks()}</div>
-
-      {sortedTasks.length === 0 && (
-        <div className="text-center py-12">
-          <div className="text-slate-400 mb-4">
-            <ClipboardList className="w-12 h-12 mx-auto" />
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap gap-2">
+            {TABS.map((tab) => (
+              <button
+                key={tab.value}
+                aria-pressed={activeTab === tab.value}
+                onClick={() => setActiveTab(tab.value)}
+                className={`h-[38px] px-4 rounded-full border text-[13px] transition-colors ${
+                  activeTab === tab.value
+                    ? "border-blue-900 bg-blue-900 text-white font-bold"
+                    : "border-line bg-white text-slate-600 font-semibold hover:border-blue-200 hover:text-slate-800"
+                }`}
+              >
+                {tab.label} · {tabCounts[tab.value]}
+              </button>
+            ))}
           </div>
-          <h3 className="text-lg font-medium text-slate-800">
-            {activeTab === "pending"
-              ? "No pending tasks"
-              : activeTab === "past-due"
-              ? "No past-due tasks"
-              : "No completed tasks"}
-          </h3>
+
+          <div className="flex flex-wrap gap-2">
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger aria-label="Sort by" className={filterTriggerClass}>
+                <span className="font-normal text-slate-600">Sort</span>
+                <SelectValue placeholder="Select an option" />
+              </SelectTrigger>
+              <SelectContent>
+                {SORT_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={filterTaskType} onValueChange={setFilterTaskType}>
+              <SelectTrigger
+                aria-label="Task type"
+                className={filterTriggerClass}
+              >
+                <span className="font-normal text-slate-600">Type</span>
+                <SelectValue placeholder="Select an option" />
+              </SelectTrigger>
+              <SelectContent>
+                {TASK_TYPE_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select
+              value={filterCompletionType}
+              onValueChange={setFilterCompletionType}
+            >
+              <SelectTrigger
+                aria-label="Completion type"
+                className={filterTriggerClass}
+              >
+                <span className="font-normal text-slate-600">Completion</span>
+                <SelectValue placeholder="Select an option" />
+              </SelectTrigger>
+              <SelectContent>
+                {COMPLETION_TYPE_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
-      )}
+
+        <div className="space-y-2.5">{renderTasks()}</div>
+
+        {sortedTasks.length === 0 && (
+          <div className="text-center py-12">
+            <div className="text-slate-400 mb-4">
+              <ClipboardList className="w-12 h-12 mx-auto" />
+            </div>
+            <h3 className="text-lg font-medium text-slate-800">
+              {activeTab === "pending"
+                ? "No pending tasks"
+                : activeTab === "past-due"
+                ? "No past-due tasks"
+                : "No completed tasks"}
+            </h3>
+          </div>
+        )}
+      </section>
+
+      {/* above the list on small screens, a side column on wide ones */}
+      <TodaysClasses className="order-first xl:order-none xl:w-72 shrink-0" />
     </div>
   );
 }

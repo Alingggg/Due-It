@@ -18,7 +18,7 @@ function LoadingPage({
   };
 
   const containerClass = fullScreen
-    ? "min-h-screen flex items-center justify-center bg-slate-50"
+    ? "min-h-screen flex items-center justify-center bg-wash"
     : "flex items-center justify-center p-8";
 
   return (

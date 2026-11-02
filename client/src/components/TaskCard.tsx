@@ -34,19 +34,19 @@ function TaskCard({ task, workspaceId, subjectName }: TaskCardProps) {
     if (isBefore(date, now)) {
       return {
         text: "Overdue",
-        color: "text-red-600 bg-red-50",
+        color: "text-red-700 bg-red-50",
         showBadge: true,
       };
     } else if (isToday(date)) {
       return {
         text: "Due today",
-        color: "text-orange-600 bg-orange-50",
+        color: "text-white bg-red-600",
         showBadge: true,
       };
     } else if (isTomorrow(date)) {
       return {
         text: "Due tomorrow",
-        color: "text-yellow-600 bg-yellow-50",
+        color: "text-amber-800 bg-amber-50",
         showBadge: true,
       };
     } else {
@@ -54,7 +54,7 @@ function TaskCard({ task, workspaceId, subjectName }: TaskCardProps) {
       if (diffDays <= 7) {
         return {
           text: `Due in ${diffDays} days`,
-          color: "text-blue-600 bg-blue-50",
+          color: "text-blue-900 bg-blue-100",
           showBadge: true,
         };
       } else {
@@ -73,56 +73,42 @@ function TaskCard({ task, workspaceId, subjectName }: TaskCardProps) {
 
   const dueInfo = formatDueDate(task.dueDate, task.dueTime);
   const TypeIcon = getTypeIcon(task.taskType);
+  const meta = [
+    subjectName,
+    task.taskType === "exam" ? "Exam" : "Activity",
+    task.completionType[0].toUpperCase() + task.completionType.slice(1),
+  ]
+    .filter(Boolean)
+    .join(" · ");
 
   return (
     <div
       onClick={handleCardClick}
-      className="bg-white rounded-lg border border-slate-200 p-3 sm:p-4 hover:shadow-md hover:border-blue-200 transition-all cursor-pointer"
+      className="bg-white rounded-2xl border border-line px-4 py-3.5 sm:px-[18px] hover:shadow-md hover:border-blue-200 transition-all cursor-pointer"
     >
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
-        <div className="flex items-start sm:items-center flex-1">
-          <div className="p-2 sm:p-3 bg-blue-50 rounded-lg mr-2 sm:mr-4 shrink-0">
-            <TypeIcon className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <h3 className="text-sm sm:text-lg font-semibold text-slate-800 mb-0.5 sm:mb-1 leading-tight">
-              {task.title}
-            </h3>
-
-            <div className="text-xs sm:text-sm text-slate-600 flex flex-col sm:flex-row sm:items-center space-y-0.5 sm:space-y-0 sm:space-x-4">
-              {subjectName && (
-                <>
-                  <span className="truncate">{subjectName}</span>
-                  <span className="text-slate-400 hidden sm:inline">•</span>
-                </>
-              )}
-              <div className="flex items-center space-x-2">
-                <span className="capitalize">
-                  {task.taskType === "exam" ? "Exam" : task.taskType}
-                </span>
-                <span className="text-slate-400">•</span>
-                <span className="capitalize">{task.completionType}</span>
-              </div>
-            </div>
-          </div>
+      <div className="flex flex-wrap items-center gap-x-3.5 gap-y-2">
+        <div className="w-10 h-10 sm:w-11 sm:h-11 bg-blue-100 rounded-xl flex items-center justify-center shrink-0">
+          <TypeIcon className="w-5 h-5 text-blue-600" />
+        </div>
+        <div className="flex-1 min-w-48">
+          <h3 className="text-[15px] font-bold text-slate-800 leading-tight">
+            {task.title}
+          </h3>
+          <p className="mt-1 text-[13px] text-slate-500">{meta}</p>
         </div>
 
         {!task.isCompleted && (
-          <div className="flex items-center justify-between sm:justify-end sm:flex-col sm:items-end space-x-2 sm:space-x-0 sm:min-w-[120px]">
-            <div className="text-xs sm:text-sm text-slate-600 sm:mb-1 sm:text-right">
-              {format(getDueDateTime(task.dueDate, task.dueTime), "MM/dd/yyyy")}
-            </div>
-            <div className="flex justify-end">
-              {dueInfo.showBadge ? (
-                <span
-                  className={`text-xs font-medium px-2 py-1 rounded-full whitespace-nowrap ${dueInfo.color}`}
-                >
-                  {dueInfo.text}
-                </span>
-              ) : (
-                <div className="h-5"></div>
-              )}
-            </div>
+          <div className="flex items-center gap-3 ml-auto">
+            <span className="text-[13px] font-semibold text-slate-600 whitespace-nowrap">
+              {format(getDueDateTime(task.dueDate, task.dueTime), "MMM d, h:mm a")}
+            </span>
+            {dueInfo.showBadge && (
+              <span
+                className={`text-xs font-bold px-2.5 py-1 rounded-full whitespace-nowrap ${dueInfo.color}`}
+              >
+                {dueInfo.text}
+              </span>
+            )}
           </div>
         )}
       </div>
