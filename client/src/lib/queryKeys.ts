@@ -12,60 +12,45 @@ const queryKeys = {
   },
 
   tasks: {
-    all: (workspaceId: string, semester: Semester) =>
-      ["workspaces", workspaceId, "semesters", semester, "tasks"] as const,
+    all: (workspaceId: string) =>
+      ["workspaces", workspaceId, "tasks"] as const,
     list: (workspaceId: string, semester: Semester, filters?: TaskFilters) =>
       [
-        ...queryKeys.tasks.all(workspaceId, semester),
+        ...queryKeys.tasks.all(workspaceId),
         "list",
+        semester,
         ...(filters ? [JSON.stringify(filters)] : []),
       ] as const,
-    detail: (workspaceId: string, semester: Semester, taskId: string) =>
-      [
-        ...queryKeys.tasks.all(workspaceId, semester),
-        "detail",
-        taskId,
-      ] as const,
+    detail: (workspaceId: string, taskId: string) =>
+      [...queryKeys.tasks.all(workspaceId), "detail", taskId] as const,
   },
 
   materialGroups: {
-    all: (workspaceId: string, semester: Semester) =>
-      [
-        "workspaces",
-        workspaceId,
-        "semesters",
-        semester,
-        "materialGroups",
-      ] as const,
+    all: (workspaceId: string) =>
+      ["workspaces", workspaceId, "materialGroups"] as const,
     list: (workspaceId: string, semester: Semester) =>
-      [...queryKeys.materialGroups.all(workspaceId, semester), "list"] as const,
-    detail: (workspaceId: string, semester: Semester, groupId: string) =>
-      [
-        ...queryKeys.materialGroups.all(workspaceId, semester),
-        "detail",
-        groupId,
-      ] as const,
+      [...queryKeys.materialGroups.all(workspaceId), "list", semester] as const,
+    detail: (workspaceId: string, groupId: string) =>
+      [...queryKeys.materialGroups.all(workspaceId), "detail", groupId] as const,
   },
 
   subjects: {
-    all: (workspaceId: string, semester: Semester) =>
-      ["workspaces", workspaceId, "semesters", semester, "subjects"] as const,
+    all: (workspaceId: string) =>
+      ["workspaces", workspaceId, "subjects"] as const,
     list: (workspaceId: string, semester: Semester) =>
-      [...queryKeys.subjects.all(workspaceId, semester), "list"] as const,
+      [...queryKeys.subjects.all(workspaceId), "list", semester] as const,
   },
 
   schedule: {
-    all: (workspaceId: string, semester: Semester) =>
-      ["workspaces", workspaceId, "semesters", semester, "schedule"] as const,
+    all: (workspaceId: string) =>
+      ["workspaces", workspaceId, "schedule"] as const,
     list: (workspaceId: string, semester: Semester) =>
-      [...queryKeys.schedule.all(workspaceId, semester), "list"] as const,
+      [...queryKeys.schedule.all(workspaceId), "list", semester] as const,
   },
 
   code: {
-    all: (workspaceId: string, semester: Semester) =>
-      ["workspaces", workspaceId, "semesters", semester, "code"] as const,
-    detail: (workspaceId: string, semester: Semester) =>
-      [...queryKeys.code.all(workspaceId, semester), "detail"] as const,
+    detail: (workspaceId: string) =>
+      ["workspaces", workspaceId, "code"] as const,
   },
 
   members: {

@@ -21,14 +21,13 @@ function useGetSchedules() {
           { params: { semester } }
         )
       ).data,
-    enabled: !!workspace && !!semester,
+    enabled: !!workspace,
   });
 }
 
 function useAddSchedule() {
   const queryClient = useQueryClient();
   const { data: workspace } = useGetUserWorkspace();
-  const { semester } = useSemesterContext();
 
   return useMutation({
     mutationFn: async (newSchedule: ScheduleInput) => {
@@ -36,7 +35,7 @@ function useAddSchedule() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.schedule.list(workspace?.id!, semester),
+        queryKey: queryKeys.schedule.all(workspace?.id!),
       });
     },
     onError: (error) => {
@@ -48,7 +47,6 @@ function useAddSchedule() {
 function useUpdateSchedule() {
   const queryClient = useQueryClient();
   const { data: workspace } = useGetUserWorkspace();
-  const { semester } = useSemesterContext();
 
   return useMutation({
     mutationFn: async ({ id, ...schedule }: ScheduleInput & { id: string }) => {
@@ -56,7 +54,7 @@ function useUpdateSchedule() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.schedule.list(workspace?.id!, semester),
+        queryKey: queryKeys.schedule.all(workspace?.id!),
       });
     },
     onError: (error) => {
@@ -68,7 +66,6 @@ function useUpdateSchedule() {
 function useDeleteSchedule() {
   const queryClient = useQueryClient();
   const { data: workspace } = useGetUserWorkspace();
-  const { semester } = useSemesterContext();
 
   return useMutation({
     mutationFn: async (scheduleId: string) => {
@@ -76,7 +73,7 @@ function useDeleteSchedule() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.schedule.list(workspace?.id!, semester),
+        queryKey: queryKeys.schedule.all(workspace?.id!),
       });
     },
     onError: (error) => {

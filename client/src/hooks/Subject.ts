@@ -1,12 +1,32 @@
 import { useGetUserWorkspace, useSemesterContext } from "@/hooks";
 import { api, queryKeys } from "@/lib";
 import type { Subject } from "@/types";
-import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
+import {
+  useQuery,
+  useQueryClient,
+  useMutation,
+  type QueryClient,
+} from "@tanstack/react-query";
 
 type SubjectInput = Pick<
   Subject,
   "name" | "subjectCode" | "instructorName" | "semester"
 >;
+
+// tasks, schedules and material groups carry their subject's name and
+// semester, and the server deletes them with their subject
+function invalidateSubjectData(queryClient: QueryClient, workspaceId: string) {
+  queryClient.invalidateQueries({
+    queryKey: queryKeys.subjects.all(workspaceId),
+  });
+  queryClient.invalidateQueries({ queryKey: queryKeys.tasks.all(workspaceId) });
+  queryClient.invalidateQueries({
+    queryKey: queryKeys.schedule.all(workspaceId),
+  });
+  queryClient.invalidateQueries({
+    queryKey: queryKeys.materialGroups.all(workspaceId),
+  });
+}
 
 function useGetSubjects() {
   const { data: workspace } = useGetUserWorkspace();
@@ -20,14 +40,13 @@ function useGetSubjects() {
           params: { semester },
         })
       ).data,
-    enabled: !!workspace && !!semester,
+    enabled: !!workspace,
   });
 }
 
 function useAddSubject() {
   const queryClient = useQueryClient();
   const { data: workspace } = useGetUserWorkspace();
-  const { semester } = useSemesterContext();
 
   return useMutation({
     mutationFn: async (subject: SubjectInput) => {
@@ -35,7 +54,7 @@ function useAddSubject() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.subjects.list(workspace?.id!, semester),
+        queryKey: queryKeys.subjects.all(workspace?.id!),
       });
     },
     onError: (error) => {
@@ -47,16 +66,13 @@ function useAddSubject() {
 function useUpdateSubject() {
   const queryClient = useQueryClient();
   const { data: workspace } = useGetUserWorkspace();
-  const { semester } = useSemesterContext();
 
   return useMutation({
     mutationFn: async ({ id, ...subject }: SubjectInput & { id: string }) => {
       await api.patch(`/workspaces/${workspace!.id}/subjects/${id}`, subject);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.subjects.list(workspace?.id!, semester),
-      });
+      invalidateSubjectData(queryClient, workspace!.id);
     },
     onError: (error) => {
       console.log("Error updating subject:", error);
@@ -67,26 +83,13 @@ function useUpdateSubject() {
 function useDeleteSubject() {
   const queryClient = useQueryClient();
   const { data: workspace } = useGetUserWorkspace();
-  const { semester } = useSemesterContext();
 
   return useMutation({
     mutationFn: async (subjectId: string) => {
       await api.delete(`/workspaces/${workspace!.id}/subjects/${subjectId}`);
     },
     onSuccess: () => {
-      // the server also deletes the subject's tasks, schedules and materials
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.subjects.list(workspace?.id!, semester),
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.tasks.all(workspace?.id!, semester),
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.schedule.all(workspace?.id!, semester),
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.materialGroups.all(workspace?.id!, semester),
-      });
+      invalidateSubjectData(queryClient, workspace!.id);
     },
     onError: (error) => {
       console.log("Error deleting subject:", error);

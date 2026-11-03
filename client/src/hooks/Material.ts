@@ -23,7 +23,7 @@ function useGetMaterialGroups() {
           { params: { semester } }
         )
       ).data,
-    enabled: !!workspace && !!semester,
+    enabled: !!workspace,
   });
 }
 
@@ -33,12 +33,10 @@ function useMaterialGroupQuery<T = MaterialGroupDetail>(
   select?: (group: MaterialGroupDetail) => T
 ) {
   const { data: workspace } = useGetUserWorkspace();
-  const { semester } = useSemesterContext();
 
   return useQuery({
     queryKey: queryKeys.materialGroups.detail(
       workspace?.id!,
-      semester,
       materialGroupId
     ),
     queryFn: async () =>
@@ -48,8 +46,7 @@ function useMaterialGroupQuery<T = MaterialGroupDetail>(
         )
       ).data,
     select,
-    enabled:
-      !!workspace && !!semester && !!materialGroupId,
+    enabled: !!workspace && !!materialGroupId,
   });
 }
 
@@ -64,7 +61,6 @@ function useGetMaterials(materialGroupId: string) {
 function useAddMaterialGroup() {
   const queryClient = useQueryClient();
   const { data: workspace } = useGetUserWorkspace();
-  const { semester } = useSemesterContext();
   const navigate = useNavigate();
 
   return useMutation({
@@ -82,7 +78,7 @@ function useAddMaterialGroup() {
     onSuccess: (materialGroup) => {
       navigate(`/workspace/${workspace?.id}/materials/${materialGroup.id}`);
       queryClient.invalidateQueries({
-        queryKey: queryKeys.materialGroups.list(workspace?.id!, semester),
+        queryKey: queryKeys.materialGroups.all(workspace?.id!),
       });
     },
     onError: (error) => {
@@ -94,7 +90,6 @@ function useAddMaterialGroup() {
 function useUpdateMaterialGroup() {
   const queryClient = useQueryClient();
   const { data: workspace } = useGetUserWorkspace();
-  const { semester } = useSemesterContext();
 
   return useMutation({
     mutationFn: async ({
@@ -111,16 +106,9 @@ function useUpdateMaterialGroup() {
         materialGroup
       );
     },
-    onSuccess: (_, updatedMaterialGroup) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.materialGroups.list(workspace?.id!, semester),
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.materialGroups.detail(
-          workspace?.id!,
-          semester,
-          updatedMaterialGroup.id
-        ),
+        queryKey: queryKeys.materialGroups.all(workspace?.id!),
       });
     },
     onError: (error) => {
@@ -132,7 +120,6 @@ function useUpdateMaterialGroup() {
 function useDeleteMaterialGroup() {
   const queryClient = useQueryClient();
   const { data: workspace } = useGetUserWorkspace();
-  const { semester } = useSemesterContext();
   const navigate = useNavigate();
 
   return useMutation({
@@ -146,12 +133,11 @@ function useDeleteMaterialGroup() {
       queryClient.removeQueries({
         queryKey: queryKeys.materialGroups.detail(
           workspace?.id!,
-          semester,
           materialGroupId
         ),
       });
       queryClient.invalidateQueries({
-        queryKey: queryKeys.materialGroups.list(workspace?.id!, semester),
+        queryKey: queryKeys.materialGroups.all(workspace?.id!),
       });
     },
     onError: (error) => {
@@ -163,7 +149,6 @@ function useDeleteMaterialGroup() {
 function useAddMaterials() {
   const queryClient = useQueryClient();
   const { data: workspace } = useGetUserWorkspace();
-  const { semester } = useSemesterContext();
 
   return useMutation({
     mutationFn: async ({
@@ -187,16 +172,9 @@ function useAddMaterials() {
         formData
       );
     },
-    onSuccess: (_, newMaterials) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.materialGroups.list(workspace?.id!, semester),
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.materialGroups.detail(
-          workspace?.id!,
-          semester,
-          newMaterials.materialGroupId
-        ),
+        queryKey: queryKeys.materialGroups.all(workspace?.id!),
       });
     },
     onError: (error) => {
@@ -233,7 +211,6 @@ function useDownloadMaterial() {
 function useDeleteMaterial() {
   const queryClient = useQueryClient();
   const { data: workspace } = useGetUserWorkspace();
-  const { semester } = useSemesterContext();
 
   return useMutation({
     mutationFn: async (material: Material) => {
@@ -241,16 +218,9 @@ function useDeleteMaterial() {
         `/workspaces/${workspace!.id}/materials/${material.id}`
       );
     },
-    onSuccess: (_, material) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.materialGroups.list(workspace?.id!, semester),
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.materialGroups.detail(
-          workspace?.id!,
-          semester,
-          material.materialGroupId
-        ),
+        queryKey: queryKeys.materialGroups.all(workspace?.id!),
       });
     },
     onError: (error) => {

@@ -15,30 +15,28 @@ function useGetTasks(filters?: TaskFilters) {
           params: { semester, ...filters },
         })
       ).data,
-    enabled: !!workspace && !!semester,
+    enabled: !!workspace,
   });
 }
 
 function useGetTask(taskId: string) {
   const { data: workspace } = useGetUserWorkspace();
-  const { semester } = useSemesterContext();
 
   return useQuery({
-    queryKey: queryKeys.tasks.detail(workspace?.id!, semester, taskId),
+    queryKey: queryKeys.tasks.detail(workspace?.id!, taskId),
     queryFn: async () =>
       (
         await api.get<SemesterTask>(
           `/workspaces/${workspace!.id}/tasks/${taskId}`
         )
       ).data,
-    enabled: !!workspace && !!semester && !!taskId,
+    enabled: !!workspace && !!taskId,
   });
 }
 
 function useAddTask() {
   const queryClient = useQueryClient();
   const { data: workspace } = useGetUserWorkspace();
-  const { semester } = useSemesterContext();
 
   return useMutation({
     mutationFn: async (newTask: Omit<Task, "id">) => {
@@ -46,7 +44,7 @@ function useAddTask() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.tasks.list(workspace?.id!, semester),
+        queryKey: queryKeys.tasks.all(workspace?.id!),
       });
     },
     onError: (error) => {
@@ -58,18 +56,14 @@ function useAddTask() {
 function useUpdateTask() {
   const queryClient = useQueryClient();
   const { data: workspace } = useGetUserWorkspace();
-  const { semester } = useSemesterContext();
 
   return useMutation({
     mutationFn: async ({ id, ...task }: Task) => {
       await api.patch(`/workspaces/${workspace!.id}/tasks/${id}`, task);
     },
-    onSuccess: (_, task) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.tasks.list(workspace?.id!, semester),
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.tasks.detail(workspace?.id!, semester, task.id),
+        queryKey: queryKeys.tasks.all(workspace?.id!),
       });
     },
     onError: (error) => {
@@ -81,18 +75,17 @@ function useUpdateTask() {
 function useDeleteTask() {
   const queryClient = useQueryClient();
   const { data: workspace } = useGetUserWorkspace();
-  const { semester } = useSemesterContext();
 
   return useMutation({
     mutationFn: async (taskId: string) => {
       await api.delete(`/workspaces/${workspace!.id}/tasks/${taskId}`);
     },
     onSuccess: (_, taskId) => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.tasks.list(workspace?.id!, semester),
-      });
       queryClient.removeQueries({
-        queryKey: queryKeys.tasks.detail(workspace?.id!, semester, taskId),
+        queryKey: queryKeys.tasks.detail(workspace?.id!, taskId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.tasks.all(workspace?.id!),
       });
     },
     onError: (error) => {
@@ -104,7 +97,6 @@ function useDeleteTask() {
 function useUpdateCompletionStatus() {
   const queryClient = useQueryClient();
   const { data: workspace } = useGetUserWorkspace();
-  const { semester } = useSemesterContext();
 
   return useMutation({
     mutationFn: async ({
@@ -118,9 +110,9 @@ function useUpdateCompletionStatus() {
         done: markAsDone,
       });
     },
-    onSuccess: (_, { taskId }) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.tasks.detail(workspace?.id!, semester, taskId),
+        queryKey: queryKeys.tasks.all(workspace?.id!),
       });
     },
     onError: (error) => {

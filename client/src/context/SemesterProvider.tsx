@@ -1,5 +1,4 @@
-import { useGetDefaultSemester } from "@/hooks";
-import { createContext, useEffect, useState } from "react";
+import { createContext, useState, type ReactNode } from "react";
 import type { Semester } from "@/types";
 
 interface SemesterContextType {
@@ -11,18 +10,20 @@ const SemesterContext = createContext<SemesterContextType | undefined>(
   undefined
 );
 
-function SemesterProvider({ children }: { children: any }) {
-  const [semester, setSemester] = useState<Semester>(1);
-  const defaultSemester = useGetDefaultSemester();
-
-  useEffect(() => {
-    if (defaultSemester) {
-      setSemester(defaultSemester);
-    }
-  }, [defaultSemester, setSemester]);
+// rendered by WorkspaceLayout with key={workspace.id}, so switching workspaces
+// remounts it and drops the picked semester
+function SemesterProvider({
+  defaultSemester,
+  children,
+}: {
+  defaultSemester: Semester;
+  children: ReactNode;
+}) {
+  const [picked, setPicked] = useState<Semester | null>(null);
+  const semester = picked ?? defaultSemester;
 
   return (
-    <SemesterContext.Provider value={{ semester, setSemester }}>
+    <SemesterContext.Provider value={{ semester, setSemester: setPicked }}>
       {children}
     </SemesterContext.Provider>
   );

@@ -1,33 +1,28 @@
-import { useGetUserWorkspace, useSemesterContext } from "@/hooks";
+import { useGetUserWorkspace } from "@/hooks";
 import { api, queryKeys } from "@/lib";
 import type { Code } from "@/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 function useGetCode() {
   const { data: workspace } = useGetUserWorkspace();
-  const { semester } = useSemesterContext();
 
   return useQuery({
-    queryKey: queryKeys.code.detail(workspace?.id!, semester),
+    queryKey: queryKeys.code.detail(workspace?.id!),
     queryFn: async () =>
       (await api.get<Code>(`/workspaces/${workspace!.id}/code`)).data,
-    enabled: !!workspace && !!semester,
+    enabled: !!workspace,
   });
 }
 
 function useRenewCode() {
   const queryClient = useQueryClient();
   const { data: workspace } = useGetUserWorkspace();
-  const { semester } = useSemesterContext();
 
   return useMutation({
     mutationFn: async () =>
       (await api.post<Code>(`/workspaces/${workspace!.id}/code/renew`)).data,
     onSuccess: (code) => {
-      queryClient.setQueryData(
-        queryKeys.code.detail(workspace?.id!, semester),
-        code
-      );
+      queryClient.setQueryData(queryKeys.code.detail(workspace?.id!), code);
     },
     onError: (error) => {
       console.log("Error renewing code:", error);
@@ -38,17 +33,13 @@ function useRenewCode() {
 function useUpdateCodeStatus() {
   const queryClient = useQueryClient();
   const { data: workspace } = useGetUserWorkspace();
-  const { semester } = useSemesterContext();
 
   return useMutation({
     mutationFn: async (enabled: boolean) =>
       (await api.patch<Code>(`/workspaces/${workspace!.id}/code`, { enabled }))
         .data,
     onSuccess: (code) => {
-      queryClient.setQueryData(
-        queryKeys.code.detail(workspace?.id!, semester),
-        code
-      );
+      queryClient.setQueryData(queryKeys.code.detail(workspace?.id!), code);
     },
     onError: (error) => {
       console.log("Error updating code status:", error);
