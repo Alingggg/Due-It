@@ -81,9 +81,6 @@ function useAddMaterialGroup() {
         queryKey: queryKeys.materialGroups.all(workspace?.id!),
       });
     },
-    onError: (error) => {
-      console.log("Error adding material group:", error);
-    },
   });
 }
 
@@ -111,9 +108,6 @@ function useUpdateMaterialGroup() {
         queryKey: queryKeys.materialGroups.all(workspace?.id!),
       });
     },
-    onError: (error) => {
-      console.log("Error updating material group:", error);
-    },
   });
 }
 
@@ -139,9 +133,6 @@ function useDeleteMaterialGroup() {
       queryClient.invalidateQueries({
         queryKey: queryKeys.materialGroups.all(workspace?.id!),
       });
-    },
-    onError: (error) => {
-      console.log("Error deleting material group:", error);
     },
   });
 }
@@ -177,9 +168,6 @@ function useAddMaterials() {
         queryKey: queryKeys.materialGroups.all(workspace?.id!),
       });
     },
-    onError: (error) => {
-      console.log("Error adding material:", error);
-    },
   });
 }
 
@@ -202,9 +190,6 @@ function useDownloadMaterial() {
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
     },
-    onError: (error) => {
-      console.log("Error downloading material:", error);
-    },
   });
 }
 
@@ -222,9 +207,6 @@ function useDeleteMaterial() {
       queryClient.invalidateQueries({
         queryKey: queryKeys.materialGroups.all(workspace?.id!),
       });
-    },
-    onError: (error) => {
-      console.log("Error deleting material:", error);
     },
   });
 }

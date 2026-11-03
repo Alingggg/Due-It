@@ -13,9 +13,6 @@ function useRegister() {
     }) => {
       await api.post("/auth/register", data);
     },
-    onError: (error) => {
-      console.log("Error during registration:", error);
-    },
   });
 }
 
@@ -31,9 +28,6 @@ function useLogin() {
       await queryClient.invalidateQueries({ queryKey: queryKeys.profile.all });
       navigate("/");
     },
-    onError: (error) => {
-      console.log("Error during login:", error);
-    },
   });
 }
 
@@ -48,9 +42,6 @@ function useLogout() {
     onSuccess: () => {
       queryClient.clear();
       navigate("/sign-in");
-    },
-    onError: (error) => {
-      console.log("Error during logout:", error);
     },
   });
 }
@@ -72,11 +63,7 @@ function useUpdateProfile() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.profile.detail() });
-      // member lists of every workspace show the user's name
       queryClient.invalidateQueries({ queryKey: queryKeys.workspaces.all });
-    },
-    onError: (error) => {
-      console.log("Error updating profile:", error);
     },
   });
 }

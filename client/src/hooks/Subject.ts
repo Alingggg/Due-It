@@ -58,9 +58,6 @@ function useAddSubject() {
         queryKey: queryKeys.subjects.all(workspace?.id!),
       });
     },
-    onError: (error) => {
-      console.log("Error adding subject:", error);
-    },
   });
 }
 
@@ -75,9 +72,6 @@ function useUpdateSubject() {
     onSuccess: () => {
       invalidateSubjectData(queryClient, workspace!.id);
     },
-    onError: (error) => {
-      console.log("Error updating subject:", error);
-    },
   });
 }
 
@@ -91,9 +85,6 @@ function useDeleteSubject() {
     },
     onSuccess: () => {
       invalidateSubjectData(queryClient, workspace!.id);
-    },
-    onError: (error) => {
-      console.log("Error deleting subject:", error);
     },
   });
 }

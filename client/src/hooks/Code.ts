@@ -24,9 +24,6 @@ function useRenewCode() {
     onSuccess: (code) => {
       queryClient.setQueryData(queryKeys.code.detail(workspace?.id!), code);
     },
-    onError: (error) => {
-      console.log("Error renewing code:", error);
-    },
   });
 }
 
@@ -40,9 +37,6 @@ function useUpdateCodeStatus() {
         .data,
     onSuccess: (code) => {
       queryClient.setQueryData(queryKeys.code.detail(workspace?.id!), code);
-    },
-    onError: (error) => {
-      console.log("Error updating code status:", error);
     },
   });
 }

@@ -26,9 +26,6 @@ function useDeleteMembership() {
         });
       }
     },
-    onError: (error) => {
-      console.error("Error deleting membership:", error);
-    },
   });
 }
 
@@ -52,11 +49,7 @@ function useUpdateRole() {
       queryClient.invalidateQueries({
         queryKey: queryKeys.members.list(workspace?.id!),
       });
-      // promoting someone to admin demotes the current user
       queryClient.invalidateQueries({ queryKey: queryKeys.workspaces.list() });
-    },
-    onError: (error) => {
-      console.error("Error updating role:", error);
     },
   });
 }

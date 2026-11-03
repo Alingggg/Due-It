@@ -21,9 +21,8 @@ function useSendMessage() {
     onSuccess: (data) => {
       if (data.dataChanged) refreshWorkspaces();
     },
-    onError: (error) => {
+    onError: () => {
       refreshWorkspaces();
-      console.log("Error sending message:", error);
     },
   });
 }
@@ -32,9 +31,6 @@ function useClearChat() {
   return useMutation({
     mutationFn: async () => {
       await api.delete("/assistant/messages");
-    },
-    onError: (error) => {
-      console.log("Error clearing chat:", error);
     },
   });
 }

@@ -21,9 +21,6 @@ function useJoinWorkspace() {
       });
       navigate(`/workspace/${workspace.id}/tasks`);
     },
-    onError: (error: any) => {
-      console.log("Error joining workspace:", error);
-    },
   });
 }
 
@@ -39,9 +36,6 @@ function useCreateWorkspace() {
         queryKey: queryKeys.workspaces.list(),
       });
       navigate(`/workspace/${workspace.id}/tasks`);
-    },
-    onError: (error: any) => {
-      console.log("Error creating workspace:", error);
     },
   });
 }
@@ -117,9 +111,6 @@ function useUpdateDefaultSemester() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.workspaces.list() });
     },
-    onError: (error: any) => {
-      console.log("Error changing default semester:", error);
-    },
   });
 }
 
@@ -135,9 +126,6 @@ function useDeleteWorkspace() {
     onSuccess: () => {
       navigate("/");
       queryClient.invalidateQueries({ queryKey: queryKeys.workspaces.list() });
-    },
-    onError: (error: any) => {
-      console.log("Error deleting workspace:", error);
     },
   });
 }
@@ -155,9 +143,6 @@ function useUpdateWorkspaceName() {
       ).data,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.workspaces.list() });
-    },
-    onError: (error: any) => {
-      console.log("Error updating workspace name:", error);
     },
   });
 }

@@ -47,9 +47,6 @@ function useAddTask() {
         queryKey: queryKeys.tasks.all(workspace?.id!),
       });
     },
-    onError: (error) => {
-      console.log("Error adding task:", error);
-    },
   });
 }
 
@@ -65,9 +62,6 @@ function useUpdateTask() {
       queryClient.invalidateQueries({
         queryKey: queryKeys.tasks.all(workspace?.id!),
       });
-    },
-    onError: (error) => {
-      console.log("Error updating task:", error);
     },
   });
 }
@@ -87,9 +81,6 @@ function useDeleteTask() {
       queryClient.invalidateQueries({
         queryKey: queryKeys.tasks.all(workspace?.id!),
       });
-    },
-    onError: (error) => {
-      console.log("Error deleting task:", error);
     },
   });
 }
@@ -114,9 +105,6 @@ function useUpdateCompletionStatus() {
       queryClient.invalidateQueries({
         queryKey: queryKeys.tasks.all(workspace?.id!),
       });
-    },
-    onError: (error) => {
-      console.log("Error updating completion status:", error);
     },
   });
 }

@@ -38,9 +38,6 @@ function useAddSchedule() {
         queryKey: queryKeys.schedule.all(workspace?.id!),
       });
     },
-    onError: (error) => {
-      console.log("Error adding schedule:", error);
-    },
   });
 }
 
@@ -57,9 +54,6 @@ function useUpdateSchedule() {
         queryKey: queryKeys.schedule.all(workspace?.id!),
       });
     },
-    onError: (error) => {
-      console.log("Error updating schedule:", error);
-    },
   });
 }
 
@@ -75,9 +69,6 @@ function useDeleteSchedule() {
       queryClient.invalidateQueries({
         queryKey: queryKeys.schedule.all(workspace?.id!),
       });
-    },
-    onError: (error) => {
-      console.log("Error deleting schedule:", error);
     },
   });
 }
