@@ -15,7 +15,7 @@ const subjectArgs = {
   name: z.string().describe("Subject name, e.g. Data Structures"),
   subjectCode: z.string().describe("Short course code, e.g. CS 211"),
   instructorName: z.string().describe("Name of the instructor"),
-  semester: z.number().int().describe("Semester the subject is taken in"),
+  semester: z.number().int().describe("Semester the subject is taken in, 1 or 2"),
 };
 
 const scheduleArgs = {

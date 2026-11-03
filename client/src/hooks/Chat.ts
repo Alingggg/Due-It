@@ -12,7 +12,10 @@ function useSendMessage() {
       (
         await api.post<{ reply: string; dataChanged: boolean }>(
           "/assistant/messages",
-          { message }
+          {
+            message,
+            timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          }
         )
       ).data,
     onSuccess: (data) => {

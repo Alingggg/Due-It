@@ -18,7 +18,7 @@ export const materialRouter = Router();
 
 const editor = requireRole(...EDITOR_ROLES);
 
-const upload = multer({ limits: { fileSize: 50 * 1024 * 1024 } });
+const upload = multer({ defParamCharset: "utf8", limits: { fileSize: 50 * 1024 * 1024 } });
 
 materialRouter.get("/material-groups", getMaterialGroups);
 materialRouter.get("/material-groups/:id", getMaterialGroup);

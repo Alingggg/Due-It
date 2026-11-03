@@ -63,7 +63,7 @@ function Materials() {
     }) ?? [];
 
   const sortedMaterialGroups = [...filteredMaterialGroups].sort((a, b) => {
-    if (sortBy === "createdAt") {
+    if (sortBy === "createdDate") {
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     } else if (sortBy === "subject") {
       const subjectA = subjects?.find((s) => s.id === a.subjectId)?.name || "";

@@ -1,4 +1,4 @@
-import { Button, LoadingPage } from "@/components";
+import { Button, FormError, LoadingPage } from "@/components";
 import {
   useDeleteTask,
   useDialogContext,
@@ -24,15 +24,18 @@ import { useNavigate, useParams } from "react-router";
 function TaskDetails() {
   const { taskId } = useParams();
   const navigate = useNavigate();
-  const { openDialog, closeDialog } = useDialogContext();
+  const { openDialog } = useDialogContext();
   const { data: workspace } = useGetUserWorkspace();
   const { data: task, isLoading: isLoadingTask } = useGetTask(taskId as string);
-  const { data: subjects, isLoading: isLoadingSubjects } = useGetSubjects();
+  const { data: subjects, isLoading: isLoadingSubjects } = useGetSubjects(
+    task?.semester
+  );
   const currentUserRole = useGetUserWorkspaceRole();
-  const { mutate: deleteTask, isPending: isDeletingTask } = useDeleteTask();
+  const { mutateAsync: deleteTask } = useDeleteTask();
   const {
     mutate: updateCompletionStatus,
     isPending: isUpdatingCompletionStatus,
+    error: completionStatusError,
   } = useUpdateCompletionStatus();
   const canManageTask =
     currentUserRole === "admin" || currentUserRole === "co-admin";
@@ -41,41 +44,22 @@ function TaskDetails() {
     isLoadingSubjects;
 
   function handleMarkAsDone() {
-    if (task?.isCompleted) {
-      updateCompletionStatus(
-        {
-          taskId: task?.id as string,
-          markAsDone: false,
-        },
-        { onSuccess: closeDialog }
-      );
-    } else {
-      updateCompletionStatus(
-        {
-          taskId: task?.id as string,
-          markAsDone: true,
-        },
-        { onSuccess: closeDialog }
-      );
-    }
+    if (!task) return;
+
+    updateCompletionStatus({ taskId: task.id, markAsDone: !task.isCompleted });
   }
 
   function handleDeleteTask() {
+    if (!task) return;
+
     openDialog("CONFIRM_ACTION", {
-      isPending: isDeletingTask,
-      title: `Delete "${task?.title}"?`,
-      description: `Are you sure you want to delete "${task?.title}"? This action cannot be undone.`,
+      title: `Delete "${task.title}"?`,
+      description: `Are you sure you want to delete "${task.title}"? This action cannot be undone.`,
       actionButtonVariant: "destructive",
       actionButtonText: "Delete",
-      handleAction: () => {
-        if (task?.id) {
-          deleteTask(task.id, {
-            onSuccess: () => {
-              closeDialog();
-              navigate(`/workspace/${workspace?.id}/tasks`);
-            },
-          });
-        }
+      handleAction: async () => {
+        await deleteTask(task.id);
+        navigate(`/workspace/${workspace?.id}/tasks`);
       },
     });
   }
@@ -194,6 +178,7 @@ function TaskDetails() {
               >
                 {task?.isCompleted ? "Unmark as done" : "Mark as Done"}
               </Button>
+              <FormError error={completionStatusError} className="mt-2" />
             </div>
           </div>
         </div>

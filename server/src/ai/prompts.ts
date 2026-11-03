@@ -5,14 +5,16 @@ type UserWorkspace = { id: string; name: string; defaultSemester: number; role: 
 export function buildSystemPrompt({
   userName,
   workspaces,
+  timeZone,
   today = new Date(),
 }: {
   userName: string;
   workspaces: UserWorkspace[];
+  timeZone?: string;
   today?: Date;
 }) {
-  const weekday = today.toLocaleDateString("en-US", { weekday: "long" });
-  const date = today.toLocaleDateString("en-CA"); // YYYY-MM-DD
+  const weekday = today.toLocaleDateString("en-US", { weekday: "long", timeZone });
+  const date = today.toLocaleDateString("en-CA", { timeZone }); // YYYY-MM-DD
   const workspaceList = workspaces.length
     ? workspaces
         .map((w) => `- ${w.name} (id: ${w.id}): ${w.role}, default semester ${w.defaultSemester}`)

@@ -6,36 +6,55 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogTitle,
+  FormError,
   buttonVariants,
 } from "@/components";
 import { cn } from "@/lib";
+import { useState, type MouseEvent } from "react";
 
 interface ConfirmActionDialogProps {
   onClose: () => void;
-  isPending: boolean;
   title: string;
   description: string;
   actionButtonVariant?: "default" | "destructive";
   actionButtonText: string;
-  handleAction: () => void;
+  handleAction: () => Promise<unknown>;
 }
 
 function ConfirmActionDialog({
   onClose,
-  isPending,
   title,
   description,
   actionButtonVariant = "default",
   actionButtonText,
   handleAction,
 }: ConfirmActionDialogProps) {
+  const [isPending, setIsPending] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  async function handleConfirm(e: MouseEvent) {
+    e.preventDefault();
+    setIsPending(true);
+    setError(null);
+
+    try {
+      await handleAction();
+      onClose();
+    } catch (err) {
+      setError(err as Error);
+      setIsPending(false);
+    }
+  }
+
   return (
-    <AlertDialog open onOpenChange={onClose}>
+    <AlertDialog open onOpenChange={() => !isPending && onClose()}>
       <AlertDialogContent>
         <AlertDialogTitle className="text-slate-800">{title}</AlertDialogTitle>
         <AlertDialogDescription className="text-slate-600">
           {description}
         </AlertDialogDescription>
+
+        <FormError error={error} />
 
         <AlertDialogFooter>
           <AlertDialogCancel onClick={onClose} disabled={isPending}>
@@ -43,7 +62,7 @@ function ConfirmActionDialog({
           </AlertDialogCancel>
           <AlertDialogAction
             className={cn(buttonVariants({ variant: actionButtonVariant }))}
-            onClick={handleAction}
+            onClick={handleConfirm}
             disabled={isPending}
           >
             {actionButtonText}

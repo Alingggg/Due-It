@@ -27,17 +27,23 @@ export async function runChat({
   userId,
   history,
   message,
+  timeZone,
 }: {
   userId: string;
   history: Content[];
   message: string;
+  timeZone?: string;
 }) {
   const user = await UserModel.findById(userId);
   const workspaces = await workspaceService.getMyWorkspaces(userId);
 
   const contents: Content[] = [...history, { role: "user", parts: [{ text: message }] }];
   const config = {
-    systemInstruction: buildSystemPrompt({ userName: user?.firstName ?? "the user", workspaces }),
+    systemInstruction: buildSystemPrompt({
+      userName: user?.firstName ?? "the user",
+      workspaces,
+      timeZone,
+    }),
     tools: geminiTools,
   };
   let dataChanged = false;

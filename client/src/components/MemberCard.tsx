@@ -24,10 +24,9 @@ interface MemberCardProps {
 
 function MemberCard({ member, currentUser, currentUserRole }: MemberCardProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { openDialog, closeDialog } = useDialogContext();
-  const { mutate: kickMember, isPending: isKickingMember } =
-    useDeleteMembership();
-  const { mutate: updateRole, isPending: isUpdatingRole } = useUpdateRole();
+  const { openDialog } = useDialogContext();
+  const { mutateAsync: kickMember } = useDeleteMembership();
+  const { mutateAsync: updateRole } = useUpdateRole();
 
   function getRoleInfo(role: WorkspaceRole) {
     switch (role) {
@@ -105,16 +104,11 @@ function MemberCard({ member, currentUser, currentUserRole }: MemberCardProps) {
     const actionDetails = getActionDetails();
 
     openDialog("CONFIRM_ACTION", {
-      isPending: isUpdatingRole,
       title: actionDetails?.title,
       description: actionDetails?.description,
       actionButtonVariant: actionDetails?.buttonVariant,
       actionButtonText: actionDetails?.buttonText,
-      handleAction: () =>
-        updateRole(
-          { userId: member.userId, role: newRole },
-          { onSuccess: closeDialog }
-        ),
+      handleAction: () => updateRole({ userId: member.userId, role: newRole }),
     });
   }
 
@@ -122,15 +116,11 @@ function MemberCard({ member, currentUser, currentUserRole }: MemberCardProps) {
     const memberName = `${member.firstName} ${member.lastName}`;
 
     openDialog("CONFIRM_ACTION", {
-      isPending: isKickingMember,
       title: "Kick Member",
       description: `Are you sure you want to kick ${memberName} from this workspace? They will lose access immediately and will need to join again if they wish to return.`,
       actionButtonVariant: "destructive",
       actionButtonText: "Kick Member",
-      handleAction: () => {
-        kickMember(member.userId);
-        closeDialog();
-      },
+      handleAction: () => kickMember(member.userId),
     });
   }
 

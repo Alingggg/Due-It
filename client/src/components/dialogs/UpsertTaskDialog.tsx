@@ -5,6 +5,7 @@ import {
   DialogContent,
   DialogTitle,
   Form,
+  FormError,
   Input,
   Label,
   SelectField,
@@ -54,12 +55,20 @@ function UpsertTaskDialog({
       taskType: initialData.taskType || "activity",
       completionType: initialData.completionType || "individual",
       dueDate: initialData.dueDate ? initialData.dueDate : "",
-      dueTime: initialData.dueTime ? initialData.dueTime : "00:00",
+      dueTime: initialData.dueTime ? initialData.dueTime : "23:59",
     },
     resolver: zodResolver(TaskSchema),
   });
-  const { mutate: addTask, isPending: isAddingTask } = useAddTask();
-  const { mutate: updateTask, isPending: isUpdatingTask } = useUpdateTask();
+  const {
+    mutate: addTask,
+    isPending: isAddingTask,
+    error: addTaskError,
+  } = useAddTask();
+  const {
+    mutate: updateTask,
+    isPending: isUpdatingTask,
+    error: updateTaskError,
+  } = useUpdateTask();
   const isPending = isAddingTask || isUpdatingTask;
 
   function onSubmit(data: TaskFormValues) {
@@ -189,6 +198,8 @@ function UpsertTaskDialog({
                 disabled={isPending}
               />
             </div>
+
+            <FormError error={addTaskError ?? updateTaskError} />
 
             <div className="pt-2">
               <Button disabled={isPending} type="submit">

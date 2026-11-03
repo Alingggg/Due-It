@@ -11,4 +11,11 @@ export const materialLinksSchema = z
   .string()
   .default("[]")
   .transform((value) => JSON.parse(value))
-  .pipe(z.array(z.object({ name: z.string().trim().min(1).max(100), url: z.url() })));
+  .pipe(
+    z.array(
+      z.object({
+        name: z.string().trim().min(1).max(100),
+        url: z.url({ protocol: /^https?$/ }),
+      }),
+    ),
+  );

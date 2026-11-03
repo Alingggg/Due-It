@@ -42,7 +42,7 @@ const RegisterSchema = z
 
 const LoginSchema = z.object({
   email: AuthFields.email,
-  password: AuthFields.password,
+  password: z.string().min(1, { error: "Password is required" }),
 });
 
 export { RegisterSchema, LoginSchema };

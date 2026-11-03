@@ -1,6 +1,6 @@
 import { useGetUserWorkspace, useSemesterContext } from "@/hooks";
 import { api, queryKeys } from "@/lib";
-import type { Subject } from "@/types";
+import type { Semester, Subject } from "@/types";
 import {
   useQuery,
   useQueryClient,
@@ -28,9 +28,10 @@ function invalidateSubjectData(queryClient: QueryClient, workspaceId: string) {
   });
 }
 
-function useGetSubjects() {
+function useGetSubjects(semesterOverride?: Semester) {
   const { data: workspace } = useGetUserWorkspace();
-  const { semester } = useSemesterContext();
+  const { semester: selectedSemester } = useSemesterContext();
+  const semester = semesterOverride ?? selectedSemester;
 
   return useQuery({
     queryKey: queryKeys.subjects.list(workspace?.id!, semester),

@@ -5,6 +5,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogTitle,
+  FormError,
   Input,
   Label,
 } from "@/components";
@@ -24,8 +25,11 @@ function ConfirmDeleteWorkspaceDialog({
   const { register, watch } = useForm({
     defaultValues: { confirmWorkspaceName: "" },
   });
-  const { mutate: deleteWorkspace, isPending: isDeletingWorkspace } =
-    useDeleteWorkspace();
+  const {
+    mutate: deleteWorkspace,
+    isPending: isDeletingWorkspace,
+    error: deleteWorkspaceError,
+  } = useDeleteWorkspace();
 
   const inputWorkspace = watch("confirmWorkspaceName");
   const isDeleteEnabled = workspaceName === inputWorkspace;
@@ -79,6 +83,8 @@ function ConfirmDeleteWorkspaceDialog({
               disabled={isDeletingWorkspace}
             />
           </form>
+
+          <FormError error={deleteWorkspaceError} />
         </div>
 
         <DialogFooter>

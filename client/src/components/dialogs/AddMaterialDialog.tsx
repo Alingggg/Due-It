@@ -11,6 +11,7 @@ import {
   DialogContent,
   DialogTitle,
   Form,
+  FormError,
   Input,
   Label,
 } from "@/components";
@@ -32,8 +33,11 @@ function AddMaterialDialog({
   const [tempLinkName, setTempLinkName] = useState("");
   const [urlError, setUrlError] = useState("");
   const [fileMap, setFileMap] = useState<Map<number, File>>(new Map());
-  const { mutate: addMaterials, isPending: isAddingMaterials } =
-    useAddMaterials();
+  const {
+    mutate: addMaterials,
+    isPending: isAddingMaterials,
+    error: addMaterialsError,
+  } = useAddMaterials();
 
   const form = useForm<FormValues>({
     defaultValues: {
@@ -342,7 +346,7 @@ function AddMaterialDialog({
                         Click to select files
                       </p>
                       <p className="text-xs text-slate-500">
-                        or drag and drop (multiple files allowed)
+                        Multiple files allowed
                       </p>
                     </Label>
                   </div>
@@ -399,6 +403,8 @@ function AddMaterialDialog({
                 <div className="space-y-3">{renderAllItems()}</div>
               </div>
             )}
+
+            <FormError error={addMaterialsError} />
 
             <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pt-2">
               <Button

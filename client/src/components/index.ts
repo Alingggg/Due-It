@@ -1,6 +1,7 @@
 // Custom
 export { default as ChatWidget } from "./chat/ChatWidget";
 export { default as DialogContainer } from "./DialogContainer";
+export { default as FormError } from "./FormError";
 export { default as LoadingPage } from "./LoadingPage";
 export { default as MaterialGroupCard } from "./MaterialGroupCard";
 export { default as MemberCard } from "./MemberCard";

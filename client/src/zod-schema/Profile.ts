@@ -5,12 +5,12 @@ const ProfileSchema = z.object({
     .string()
     .trim()
     .min(1, { error: "First name is required" })
-    .max(50, { error: "First name is too long" }),
+    .max(32, { error: "First name is too long" }),
   lastName: z
     .string()
     .trim()
     .min(1, { error: "Last name is required" })
-    .max(50, { error: "Last name is too long" }),
+    .max(32, { error: "Last name is too long" }),
 });
 
 export { ProfileSchema };

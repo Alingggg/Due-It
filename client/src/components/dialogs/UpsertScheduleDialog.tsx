@@ -4,6 +4,7 @@ import {
   DialogContent,
   DialogTitle,
   Form,
+  FormError,
   Input,
   Label,
   SelectField,
@@ -50,8 +51,16 @@ function UpsertScheduleDialog({
     },
     resolver: zodResolver(ScheduleSchema),
   });
-  const { mutate: addSchedule, isPending: isAdding } = useAddSchedule();
-  const { mutate: updateSchedule, isPending: isUpdating } = useUpdateSchedule();
+  const {
+    mutate: addSchedule,
+    isPending: isAdding,
+    error: addScheduleError,
+  } = useAddSchedule();
+  const {
+    mutate: updateSchedule,
+    isPending: isUpdating,
+    error: updateScheduleError,
+  } = useUpdateSchedule();
 
   function onSubmit(data: ScheduleFormData) {
     if (initialData.id) {
@@ -126,6 +135,8 @@ function UpsertScheduleDialog({
                 )}
               </div>
             </div>
+
+            <FormError error={addScheduleError ?? updateScheduleError} />
 
             <div className="pt-2">
               <Button

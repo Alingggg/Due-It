@@ -4,6 +4,7 @@ import {
   DialogContent,
   DialogTitle,
   Form,
+  FormError,
   Input,
   Label,
   SelectField,
@@ -33,10 +34,16 @@ function UpsertMaterialDialog({
   const sortedSubjects = [...subjects].sort((a, b) =>
     a.name.localeCompare(b.name)
   );
-  const { mutate: addMaterialGroup, isPending: isAddingMaterialGroup } =
-    useAddMaterialGroup();
-  const { mutate: updateMaterialGroup, isPending: isUpdatingMaterialGroup } =
-    useUpdateMaterialGroup();
+  const {
+    mutate: addMaterialGroup,
+    isPending: isAddingMaterialGroup,
+    error: addMaterialGroupError,
+  } = useAddMaterialGroup();
+  const {
+    mutate: updateMaterialGroup,
+    isPending: isUpdatingMaterialGroup,
+    error: updateMaterialGroupError,
+  } = useUpdateMaterialGroup();
   const form = useForm<FormValues>({
     defaultValues: {
       title: materialGroup?.title || "",
@@ -114,6 +121,10 @@ function UpsertMaterialDialog({
                 required
               />
             </div>
+
+            <FormError
+              error={addMaterialGroupError ?? updateMaterialGroupError}
+            />
 
             <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pt-2">
               <Button

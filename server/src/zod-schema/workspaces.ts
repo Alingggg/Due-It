@@ -1,10 +1,9 @@
 import * as z from "zod";
+import { semesterSchema } from "./common.ts";
 
 export const workspaceNameSchema = z.object({ name: z.string().trim().min(1).max(100) });
 
-export const defaultSemesterSchema = z.object({
-  semester: z.union([z.literal(1), z.literal(2)]),
-});
+export const defaultSemesterSchema = z.object({ semester: semesterSchema });
 
 export const inviteCodeSchema = z.object({ code: z.string().trim().min(1) });
 

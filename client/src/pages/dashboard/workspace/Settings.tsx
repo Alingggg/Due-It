@@ -1,5 +1,6 @@
 import {
   Button,
+  FormError,
   Input,
   Label,
   LoadingPage,
@@ -48,23 +49,34 @@ type WorkspaceNameForm = z.infer<typeof WorkspaceNameSchema>;
 function Settings() {
   const [copied, setCopied] = useState(false);
   const [isEditingName, setIsEditingName] = useState(false);
-  const { openDialog, closeDialog } = useDialogContext();
+  const { openDialog } = useDialogContext();
   const { data: user } = useGetProfile();
   const { data: workspace } = useGetUserWorkspace();
   const { data: codeData, isLoading: isCodeLoading } = useGetCode();
   const defaultSemester = useGetDefaultSemester();
   const currentUserRole = useGetUserWorkspaceRole();
-  const { mutate: renewCode, isPending: isRenewingCode } = useRenewCode();
-  const { mutate: updateCodeStatus, isPending: isUpdatingCodeStatus } =
-    useUpdateCodeStatus();
+  const {
+    mutate: renewCode,
+    isPending: isRenewingCode,
+    error: renewCodeError,
+  } = useRenewCode();
+  const {
+    mutate: updateCodeStatus,
+    isPending: isUpdatingCodeStatus,
+    error: codeStatusError,
+  } = useUpdateCodeStatus();
   const {
     mutate: updateDefaultSemester,
     isPending: isUpdatingDefaultSemester,
+    error: defaultSemesterError,
   } = useUpdateDefaultSemester();
-  const { mutate: leaveWorkspace, isPending: isLeavingWorkspace } =
-    useDeleteMembership();
-  const { mutate: updateWorkspaceName, isPending: isUpdatingWorkspaceName } =
-    useUpdateWorkspaceName();
+  const { mutateAsync: leaveWorkspace } = useDeleteMembership();
+  const {
+    mutate: updateWorkspaceName,
+    isPending: isUpdatingWorkspaceName,
+    error: workspaceNameError,
+    reset: resetWorkspaceNameMutation,
+  } = useUpdateWorkspaceName();
   const {
     register,
     handleSubmit,
@@ -88,6 +100,7 @@ function Settings() {
   function handleCancelEdit() {
     setIsEditingName(false);
     reset({ name: workspace?.name || "" });
+    resetWorkspaceNameMutation();
   }
 
   function onSubmitWorkspaceName(data: WorkspaceNameForm) {
@@ -116,13 +129,12 @@ function Settings() {
 
   function handleLeaveWorkspace() {
     openDialog("CONFIRM_ACTION", {
-      isPending: isLeavingWorkspace,
       title: "Leave Workspace?",
       description:
         "Are you sure you want to leave this workspace? You will lose access to all its content. You can rejoin at any time using a valid invite code.",
       actionButtonVariant: "destructive",
       actionButtonText: "Leave",
-      handleAction: () => leaveWorkspace(user!.id, { onSuccess: closeDialog }),
+      handleAction: () => leaveWorkspace(user!.id),
     });
   }
 
@@ -210,6 +222,7 @@ function Settings() {
                   {errors.name.message}
                 </p>
               )}
+              <FormError error={workspaceNameError} className="mt-1" />
             </div>
           </form>
         ) : (
@@ -303,6 +316,8 @@ function Settings() {
                 </div>
               )}
             </div>
+
+            <FormError error={codeStatusError ?? renewCodeError} />
           </div>
         </div>
       )}
@@ -350,6 +365,7 @@ function Settings() {
                 </SelectContent>
               </Select>
             </div>
+            <FormError error={defaultSemesterError} />
           </div>
         </div>
       )}

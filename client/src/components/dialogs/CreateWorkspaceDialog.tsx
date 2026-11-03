@@ -6,6 +6,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  FormError,
   Input,
   Label,
 } from "@/components";
@@ -29,8 +30,11 @@ function CreateWorkspaceDialog({ onClose }: CreateWorkspaceDialogProps) {
   } = useForm<CreateWorkspaceForm>({
     resolver: zodResolver(WorkspaceSchema),
   });
-  const { mutate: createWorkspace, isPending: isSubmitting } =
-    useCreateWorkspace();
+  const {
+    mutate: createWorkspace,
+    isPending: isSubmitting,
+    error: createWorkspaceError,
+  } = useCreateWorkspace();
 
   function onSubmit({ workspaceName }: CreateWorkspaceForm) {
     createWorkspace(workspaceName, { onSuccess: onClose });
@@ -65,6 +69,8 @@ function CreateWorkspaceDialog({ onClose }: CreateWorkspaceDialogProps) {
               </p>
             )}
           </div>
+
+          <FormError error={createWorkspaceError} />
 
           <DialogFooter>
             <Button

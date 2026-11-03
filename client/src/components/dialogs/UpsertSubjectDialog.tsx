@@ -3,6 +3,7 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
+  FormError,
   Input,
   Label,
 } from "@/components";
@@ -26,8 +27,16 @@ function UpsertSubjectDialog({
   onClose,
   semester,
 }: UpsertSubjectDialogProps) {
-  const { mutate: addSubject, isPending: isAdding } = useAddSubject();
-  const { mutate: updateSubject, isPending: isUpdating } = useUpdateSubject();
+  const {
+    mutate: addSubject,
+    isPending: isAdding,
+    error: addSubjectError,
+  } = useAddSubject();
+  const {
+    mutate: updateSubject,
+    isPending: isUpdating,
+    error: updateSubjectError,
+  } = useUpdateSubject();
   const {
     register,
     handleSubmit,
@@ -130,6 +139,8 @@ function UpsertSubjectDialog({
               )}
             </div>
           </div>
+
+          <FormError error={addSubjectError ?? updateSubjectError} />
 
           <div className="pt-2">
             <Button disabled={isAdding || isUpdating} type="submit">

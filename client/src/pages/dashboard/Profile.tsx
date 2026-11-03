@@ -1,4 +1,4 @@
-import { Button, Input, Label } from "@/components";
+import { Button, FormError, Input, Label } from "@/components";
 import {
   useGetProfile,
   useUpdateProfile,
@@ -17,8 +17,12 @@ type ProfileForm = z.infer<typeof ProfileSchema>;
 function Profile() {
   const [isEditing, setIsEditing] = useState(false);
   const { data: profileData } = useGetProfile();
-  const { mutate: updateProfile, isPending: isUpdatingProfile } =
-    useUpdateProfile();
+  const {
+    mutate: updateProfile,
+    isPending: isUpdatingProfile,
+    error: updateProfileError,
+    reset: resetUpdateProfile,
+  } = useUpdateProfile();
   const { mutate: logout, isPending: isLoggingOut } = useLogout();
   const {
     register,
@@ -47,6 +51,7 @@ function Profile() {
 
   function handleCancel() {
     setIsEditing(false);
+    resetUpdateProfile();
     if (profileData) {
       reset({
         firstName: profileData.firstName,
@@ -178,6 +183,8 @@ function Profile() {
               Contact support to change your email address
             </p>
           </div>
+
+          {isEditing && <FormError error={updateProfileError} />}
 
           {isEditing && (
             <div className="flex items-center justify-end space-x-3 pt-4 border-t border-slate-200">

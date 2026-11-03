@@ -16,9 +16,8 @@ interface SubjectCardProps {
 }
 
 function SubjectCard({ subject, canManage }: SubjectCardProps) {
-  const { mutate: deleteSubject, isPending: isDeletingSubject } =
-    useDeleteSubject();
-  const { openDialog, closeDialog } = useDialogContext();
+  const { mutateAsync: deleteSubject } = useDeleteSubject();
+  const { openDialog } = useDialogContext();
 
   function handleEdit() {
     openDialog("UPSERT_SUBJECT", {
@@ -28,12 +27,11 @@ function SubjectCard({ subject, canManage }: SubjectCardProps) {
 
   function handleDelete() {
     openDialog("CONFIRM_ACTION", {
-      isPending: isDeletingSubject,
       title: "Delete Subject?",
       description: `Are you sure you want to delete the subject "${subject.name}"?`,
       actionButtonVariant: "destructive",
       actionButtonText: "Delete",
-      handleAction: () => deleteSubject(subject.id, { onSuccess: closeDialog }),
+      handleAction: () => deleteSubject(subject.id),
     });
   }
 

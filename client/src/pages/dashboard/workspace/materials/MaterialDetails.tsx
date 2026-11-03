@@ -1,4 +1,4 @@
-import { Button, LoadingPage } from "@/components";
+import { Button, FormError, LoadingPage } from "@/components";
 import {
   useDeleteMaterial,
   useDeleteMaterialGroup,
@@ -26,20 +26,23 @@ import { useNavigate, useParams } from "react-router";
 function MaterialDetails() {
   const navigate = useNavigate();
   const { materialGroupId } = useParams();
-  const { openDialog, closeDialog } = useDialogContext();
+  const { openDialog } = useDialogContext();
   const { data: materialGroup, isLoading: isLoadingMaterialGroup } =
     useGetMaterialGroup(materialGroupId!);
   const { data: materials, isLoading: isLoadingMaterials } = useGetMaterials(
     materialGroupId!
   );
-  const { data: subjects, isLoading: isLoadingSubject } = useGetSubjects();
+  const { data: subjects, isLoading: isLoadingSubject } = useGetSubjects(
+    materialGroup?.semester
+  );
   const currentUserRole = useGetUserWorkspaceRole();
-  const { mutate: deleteMaterialGroup, isPending: isDeletingMaterialGroup } =
-    useDeleteMaterialGroup();
-  const { mutate: downloadMaterial, isPending: isDownloadingMaterial } =
-    useDownloadMaterial();
-  const { mutate: deleteMaterial, isPending: isDeletingMaterial } =
-    useDeleteMaterial();
+  const { mutateAsync: deleteMaterialGroup } = useDeleteMaterialGroup();
+  const {
+    mutate: downloadMaterial,
+    isPending: isDownloadingMaterial,
+    error: downloadError,
+  } = useDownloadMaterial();
+  const { mutateAsync: deleteMaterial } = useDeleteMaterial();
   const canManage =
     currentUserRole === "admin" || currentUserRole === "co-admin";
   const isPageLoading =
@@ -47,27 +50,19 @@ function MaterialDetails() {
     isLoadingMaterials ||
     isLoadingSubject;
 
-  function handleDeleteMaterialGroup() {
-    deleteMaterialGroup(materialGroupId!, {
-      onSuccess: () => {
-        closeDialog();
-      },
-    });
-  }
-
   function handleOpenMaterial(material: Material) {
-    if (material.isLink) window.open(material.url);
+    if (material.isLink)
+      window.open(material.url, "_blank", "noopener,noreferrer");
     else downloadMaterial(material);
   }
 
   function handleDeleteMaterial(material: Material) {
     openDialog("CONFIRM_ACTION", {
-      isPending: isDeletingMaterial,
       title: `Delete "${material.name}"?`,
       description: `Are you sure you want to delete this material? This action cannot be undone.`,
       actionButtonVariant: "destructive",
       actionButtonText: "Delete",
-      handleAction: () => deleteMaterial(material, { onSuccess: closeDialog }),
+      handleAction: () => deleteMaterial(material),
     });
   }
 
@@ -105,12 +100,11 @@ function MaterialDetails() {
             <Button
               onClick={() =>
                 openDialog("CONFIRM_ACTION", {
-                  isPending: isDeletingMaterialGroup,
                   title: `Delete "${materialGroup?.title}"?`,
                   description: `Are you sure you want to delete "${materialGroup?.title}"? This will also delete all ${materialGroup?.materialCount} materials in this group. This action cannot be undone.`,
                   actionButtonVariant: "destructive",
                   actionButtonText: "Delete",
-                  handleAction: handleDeleteMaterialGroup,
+                  handleAction: () => deleteMaterialGroup(materialGroupId!),
                 })
               }
               variant="destructive"
@@ -163,6 +157,8 @@ function MaterialDetails() {
             </Button>
           )}
         </div>
+
+        <FormError error={downloadError} className="px-4 pt-4 sm:px-6" />
 
         <div className="divide-y divide-slate-100">
           {materials?.map((material) => (
