@@ -1,28 +1,16 @@
 import { LoadingPage } from "@/components";
 import { useGetProfile } from "@/hooks";
-import { useEffect, useState } from "react";
-import { Outlet, useNavigate } from "react-router";
+import { Navigate, Outlet } from "react-router";
 
 function PublicLayout() {
   const { data: user, isLoading: isSessionLoading } = useGetProfile();
-  const isAuthenticated = !!user;
-  const [isRedirecting, setIsRedirecting] = useState(false);
-  const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!isSessionLoading && isAuthenticated) {
-      setIsRedirecting(true);
-      navigate("/");
-    }
-  }, [isAuthenticated, isSessionLoading]);
+  if (isSessionLoading) {
+    return <LoadingPage message="Loading..." size="lg" />;
+  }
 
-  if (isSessionLoading || isRedirecting) {
-    return (
-      <LoadingPage
-        message={isSessionLoading ? "Loading..." : "Redirecting..."}
-        size="lg"
-      />
-    );
+  if (user) {
+    return <Navigate to="/" replace />;
   }
 
   return <Outlet />;
