@@ -30,7 +30,7 @@ services:
     build: ./server
     env_file: ./server/.env
     environment:
-      MONGO_URL: mongodb://${MONGO_ROOT_USER:?set in .env}:${MONGO_ROOT_PASSWORD:?set in .env}@mongo:27017/?authSource=admin
+      MONGO_URL: mongodb://mongo:27017
       CLIENT_URL: https://${DOMAIN:?set in .env}
     depends_on:
       mongo:
@@ -45,9 +45,6 @@ services:
 
   mongo:
     image: mongo:8
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER:?set in .env}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:?set in .env}
     volumes:
       - mongo-data:/data/db
     healthcheck:
