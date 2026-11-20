@@ -3,7 +3,8 @@ services:
     build: ./client
     ports:
       - "5173:5173"
-    env_file: ./client/.env
+    environment:
+      API_PROXY_TARGET: http://server:3000
     volumes:
       - ./client:/app
       - /app/node_modules

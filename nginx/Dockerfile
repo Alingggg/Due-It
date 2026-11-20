@@ -3,7 +3,7 @@ WORKDIR /app
 COPY client/package.json client/bun.lock ./
 RUN bun install --frozen-lockfile
 COPY client/ .
-RUN VITE_API_URL=/api bun run build
+RUN bun run build
 
 FROM nginx:1.27-alpine
 COPY nginx/default.conf.template /etc/nginx/templates/default.conf.template

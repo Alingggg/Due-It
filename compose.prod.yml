@@ -31,7 +31,6 @@ services:
     env_file: ./server/.env
     environment:
       MONGO_URL: mongodb://mongo:27017
-      CLIENT_URL: https://${DOMAIN:?set in .env}
     depends_on:
       mongo:
         condition: service_healthy
