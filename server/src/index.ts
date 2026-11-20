@@ -1,5 +1,4 @@
 import cookieParser from "cookie-parser";
-import cors from "cors";
 import express, { type NextFunction, type Request, type Response } from "express";
 import mongoose from "mongoose";
 import multer from "multer";
@@ -11,10 +10,14 @@ import { HttpError } from "./utils/index.ts";
 const PORT = Number(process.env.PORT ?? 3000);
 
 const app = express();
+app.set("trust proxy", 1);
 
-app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
+
+app.get("/api/health", (_req, res) => {
+  res.json({ ok: true });
+});
 
 app.use("/api/auth", authRouter);
 app.use("/api/workspaces", workspaceRouter);

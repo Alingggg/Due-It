@@ -3,13 +3,17 @@ services:
     build: ./client
     ports:
       - "5173:5173"
-    env_file: ./client/.env
+    environment:
+      API_PROXY_TARGET: http://server:3000
     volumes:
       - ./client:/app
       - /app/node_modules
 
   server:
     build: ./server
+    command: ["bun", "--watch", "src/index.ts"]
+    environment:
+      NODE_ENV: development
     ports:
       - "3000:3000"
     env_file: ./server/.env
@@ -21,8 +25,6 @@ services:
 
   mongo:
     image: mongo:8
-    ports:
-      - "127.0.0.1:27017:27017"
     volumes:
       - mongo-data:/data/db
 
