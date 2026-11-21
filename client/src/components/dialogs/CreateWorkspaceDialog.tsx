@@ -11,8 +11,8 @@ import {
   Label,
 } from "@/components";
 import { useCreateWorkspace } from "@/hooks";
-import type { CreateWorkspaceInput } from "@/types";
-import { WorkspaceSchema } from "@/zod-schema";
+import type { WorkspaceNameInput } from "@/types";
+import { WorkspaceNameSchema } from "@/zod-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
@@ -25,8 +25,8 @@ function CreateWorkspaceDialog({ onClose }: CreateWorkspaceDialogProps) {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<CreateWorkspaceInput>({
-    resolver: zodResolver(WorkspaceSchema),
+  } = useForm<WorkspaceNameInput>({
+    resolver: zodResolver(WorkspaceNameSchema),
   });
   const {
     mutate: createWorkspace,
@@ -34,8 +34,8 @@ function CreateWorkspaceDialog({ onClose }: CreateWorkspaceDialogProps) {
     error: createWorkspaceError,
   } = useCreateWorkspace();
 
-  function onSubmit({ workspaceName }: CreateWorkspaceInput) {
-    createWorkspace(workspaceName, { onSuccess: onClose });
+  function onSubmit({ name }: WorkspaceNameInput) {
+    createWorkspace(name, { onSuccess: onClose });
   }
 
   return (
@@ -50,20 +50,20 @@ function CreateWorkspaceDialog({ onClose }: CreateWorkspaceDialogProps) {
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="workspaceName">
+            <Label htmlFor="name">
               Workspace Name <span className="text-red-500">*</span>
             </Label>
             <Input
-              {...register("workspaceName")}
-              id="workspaceName"
+              {...register("name")}
+              id="name"
               placeholder="Enter workspace name"
               disabled={isSubmitting}
               autoFocus
               autoComplete="off"
             />
-            {errors.workspaceName && (
+            {errors.name && (
               <p className="text-red-500 text-xs">
-                {errors.workspaceName.message}
+                {errors.name.message}
               </p>
             )}
           </div>

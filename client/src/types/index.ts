@@ -28,7 +28,6 @@ export type {
   TaskType,
 } from "./Task";
 export type {
-  CreateWorkspaceInput,
   UserWorkspace,
   WorkspaceNameInput,
   WorkspaceRole,
