@@ -1,10 +1,10 @@
 import { useAddMaterials } from "@/hooks";
+import type { MaterialsInput } from "@/types";
 import { MaterialsSchema } from "@/zod-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LucideFile, LucideLink, Trash2, Upload } from "lucide-react";
 import { useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
-import * as z from "zod";
 import {
   Button,
   Dialog,
@@ -15,8 +15,6 @@ import {
   Input,
   Label,
 } from "@/components";
-
-type FormValues = z.infer<typeof MaterialsSchema>;
 
 interface AddMaterialDialogProps {
   onClose: () => void;
@@ -40,7 +38,7 @@ function AddMaterialDialog({
     progress: uploadProgress,
   } = useAddMaterials();
 
-  const form = useForm<FormValues>({
+  const form = useForm<MaterialsInput>({
     defaultValues: {
       files: [],
       links: [],
@@ -191,7 +189,7 @@ function AddMaterialDialog({
     setUrlError("");
   }
 
-  function onSubmit(data: FormValues) {
+  function onSubmit(data: MaterialsInput) {
     const materialsWithFiles = data.files.map((material, index) => ({
       ...material,
       originalFile: fileMap.get(index) as File,

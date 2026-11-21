@@ -1,14 +1,12 @@
 import { Button, Input, Label } from "@/components";
 import { useRegister } from "@/hooks";
+import type { RegisterInput } from "@/types";
 import { RegisterSchema } from "@/zod-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CheckCircle } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router";
-import * as z from "zod";
-
-type FormValues = z.infer<typeof RegisterSchema>;
 
 function SignUp() {
   const [registerError, setRegisterError] = useState<string | null>(null);
@@ -17,11 +15,11 @@ function SignUp() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormValues>({
+  } = useForm<RegisterInput>({
     resolver: zodResolver(RegisterSchema),
   });
 
-  function onSubmit(data: FormValues) {
+  function onSubmit(data: RegisterInput) {
     registerAccount(data, {
       onError: (error: any) => {
         setRegisterError(

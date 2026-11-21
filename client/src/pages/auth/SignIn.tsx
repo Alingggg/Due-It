@@ -1,13 +1,11 @@
 import { Button, Label, Input } from "@/components";
 import { useLogin } from "@/hooks";
+import type { LoginInput } from "@/types";
 import { LoginSchema } from "@/zod-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router";
-import * as z from "zod";
-
-type FormData = z.infer<typeof LoginSchema>;
 
 function SignIn() {
   const [loginError, setLoginError] = useState<string | null>(null);
@@ -16,9 +14,9 @@ function SignIn() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormData>({ resolver: zodResolver(LoginSchema) });
+  } = useForm<LoginInput>({ resolver: zodResolver(LoginSchema) });
 
-  function onSubmit(data: FormData) {
+  function onSubmit(data: LoginInput) {
     setLoginError(null);
     login(data, {
       onError: (err: any) => {

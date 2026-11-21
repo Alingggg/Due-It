@@ -11,12 +11,10 @@ import {
   Label,
 } from "@/components";
 import { useCreateWorkspace } from "@/hooks";
+import type { CreateWorkspaceInput } from "@/types";
 import { WorkspaceSchema } from "@/zod-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import * as z from "zod";
-
-type CreateWorkspaceForm = z.infer<typeof WorkspaceSchema>;
 
 interface CreateWorkspaceDialogProps {
   onClose: () => void;
@@ -27,7 +25,7 @@ function CreateWorkspaceDialog({ onClose }: CreateWorkspaceDialogProps) {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<CreateWorkspaceForm>({
+  } = useForm<CreateWorkspaceInput>({
     resolver: zodResolver(WorkspaceSchema),
   });
   const {
@@ -36,7 +34,7 @@ function CreateWorkspaceDialog({ onClose }: CreateWorkspaceDialogProps) {
     error: createWorkspaceError,
   } = useCreateWorkspace();
 
-  function onSubmit({ workspaceName }: CreateWorkspaceForm) {
+  function onSubmit({ workspaceName }: CreateWorkspaceInput) {
     createWorkspace(workspaceName, { onSuccess: onClose });
   }
 

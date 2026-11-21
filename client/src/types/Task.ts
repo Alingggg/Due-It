@@ -1,3 +1,5 @@
+import type * as z from "zod";
+import type { TaskSchema } from "@/zod-schema";
 import type { Semester } from "./Semester";
 
 type TaskType = "activity" | "exam";
@@ -35,4 +37,13 @@ interface TaskFilters {
   completed?: boolean;
 }
 
-export type { CompletionType, SemesterTask, Task, TaskFilters, TaskType };
+type TaskInput = z.infer<typeof TaskSchema>;
+
+export type {
+  CompletionType,
+  SemesterTask,
+  Task,
+  TaskFilters,
+  TaskInput,
+  TaskType,
+};

@@ -13,20 +13,17 @@ import {
   ToggleGroupField,
 } from "@/components";
 import { useAddTask, useUpdateTask } from "@/hooks";
-import type { SemesterTask, Subject } from "@/types";
+import type { SemesterTask, Subject, TaskInput } from "@/types";
 import { TaskSchema } from "@/zod-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ClipboardList, HelpCircle, User, Users } from "lucide-react";
 import { useForm } from "react-hook-form";
-import * as z from "zod";
 
 interface UpsertTaskDialogProps {
   initialData?: Partial<SemesterTask>;
   subjects: Subject[];
   onClose: () => void;
 }
-
-type TaskFormValues = z.infer<typeof TaskSchema>;
 
 const taskTypeOptions = [
   { value: "exam", label: "Exam", icon: HelpCircle },
@@ -47,7 +44,7 @@ function UpsertTaskDialog({
   const sortedSubjects = [...subjects].sort((a, b) =>
     a.name.localeCompare(b.name)
   );
-  const form = useForm<TaskFormValues>({
+  const form = useForm<TaskInput>({
     defaultValues: {
       title: initialData.title || "",
       description: initialData.description || "",
@@ -71,7 +68,7 @@ function UpsertTaskDialog({
   } = useUpdateTask();
   const isPending = isAddingTask || isUpdatingTask;
 
-  function onSubmit(data: TaskFormValues) {
+  function onSubmit(data: TaskInput) {
     if (initialData.id) {
       updateTask({ id: initialData.id, ...data }, { onSuccess: onClose });
     } else {

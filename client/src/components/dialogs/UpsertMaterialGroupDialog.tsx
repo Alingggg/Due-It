@@ -11,14 +11,11 @@ import {
   Textarea,
 } from "@/components";
 import { useAddMaterialGroup, useUpdateMaterialGroup } from "@/hooks";
-import type { SemesterMaterialGroup, Subject } from "@/types";
+import type { MaterialGroupInput, SemesterMaterialGroup, Subject } from "@/types";
 import { MaterialGroupSchema } from "@/zod-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Upload } from "lucide-react";
 import { useForm } from "react-hook-form";
-import * as z from "zod";
-
-type FormValues = z.infer<typeof MaterialGroupSchema>;
 
 interface UpsertMaterialDialogProps {
   onClose: () => void;
@@ -44,7 +41,7 @@ function UpsertMaterialDialog({
     isPending: isUpdatingMaterialGroup,
     error: updateMaterialGroupError,
   } = useUpdateMaterialGroup();
-  const form = useForm<FormValues>({
+  const form = useForm<MaterialGroupInput>({
     defaultValues: {
       title: materialGroup?.title || "",
       description: materialGroup?.description || "",
@@ -56,7 +53,7 @@ function UpsertMaterialDialog({
   const isEditing = !!materialGroup;
   const isSubmitting = isAddingMaterialGroup || isUpdatingMaterialGroup;
 
-  function onSubmit(data: FormValues) {
+  function onSubmit(data: MaterialGroupInput) {
     if (isEditing && materialGroup?.id) {
       updateMaterialGroup(
         { id: materialGroup.id, ...data },

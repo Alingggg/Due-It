@@ -3,14 +3,14 @@ import { api, queryKeys } from "@/lib";
 import type {
   Material,
   MaterialGroupDetail,
+  MaterialInput,
   SemesterMaterialGroup,
+  UploadTarget,
 } from "@/types";
-import type { MaterialSchema } from "@/zod-schema";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import type z from "zod";
 
 function useGetMaterialGroups() {
   const { data: workspace } = useGetUserWorkspace();
@@ -139,8 +139,6 @@ function useDeleteMaterialGroup() {
   });
 }
 
-type UploadTarget = { key: string; url: string; fields: Record<string, string> };
-
 // files go straight to S3 via presigned POSTs, then the server confirms them
 function useAddMaterials() {
   const queryClient = useQueryClient();
@@ -153,8 +151,8 @@ function useAddMaterials() {
       links,
       materialGroupId,
     }: {
-      files: (z.infer<typeof MaterialSchema> & { originalFile: File })[];
-      links: z.infer<typeof MaterialSchema>[];
+      files: (MaterialInput & { originalFile: File })[];
+      links: MaterialInput[];
       materialGroupId: string;
     }) => {
       const groupUrl = `/workspaces/${workspace!.id}/material-groups/${materialGroupId}`;

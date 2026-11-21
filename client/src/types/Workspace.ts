@@ -1,3 +1,5 @@
+import type * as z from "zod";
+import type { WorkspaceNameSchema, WorkspaceSchema } from "@/zod-schema";
 import type { Semester } from "./Semester";
 
 type WorkspaceRole = "admin" | "co-admin" | "member";
@@ -9,4 +11,13 @@ interface UserWorkspace {
   role: WorkspaceRole;
 }
 
-export type { UserWorkspace, WorkspaceRole };
+type CreateWorkspaceInput = z.infer<typeof WorkspaceSchema>;
+
+type WorkspaceNameInput = z.infer<typeof WorkspaceNameSchema>;
+
+export type {
+  CreateWorkspaceInput,
+  UserWorkspace,
+  WorkspaceNameInput,
+  WorkspaceRole,
+};

@@ -1,17 +1,12 @@
 import { useGetUserWorkspace, useSemesterContext } from "@/hooks";
 import { api, queryKeys } from "@/lib";
-import type { Semester, Subject } from "@/types";
+import type { Semester, Subject, SubjectInput } from "@/types";
 import {
   useQuery,
   useQueryClient,
   useMutation,
   type QueryClient,
 } from "@tanstack/react-query";
-
-type SubjectInput = Pick<
-  Subject,
-  "name" | "subjectCode" | "instructorName" | "semester"
->;
 
 // tasks, schedules and material groups carry their subject's name and
 // semester, and the server deletes them with their subject

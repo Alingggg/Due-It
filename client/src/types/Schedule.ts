@@ -1,3 +1,5 @@
+import type * as z from "zod";
+import type { ScheduleSchema } from "@/zod-schema";
 import type { Semester } from "./Semester";
 
 type DayOfWeek =
@@ -19,4 +21,11 @@ interface SemesterSchedule {
   subjectName: string;
 }
 
-export type { DayOfWeek, SemesterSchedule };
+type ScheduleFormInput = z.infer<typeof ScheduleSchema>;
+
+type ScheduleInput = Pick<
+  SemesterSchedule,
+  "subjectId" | "dayOfWeek" | "startTime" | "endTime"
+>;
+
+export type { DayOfWeek, ScheduleFormInput, ScheduleInput, SemesterSchedule };

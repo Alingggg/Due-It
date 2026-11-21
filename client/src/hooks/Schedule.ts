@@ -1,12 +1,7 @@
 import { useGetUserWorkspace, useSemesterContext } from "@/hooks";
 import { api, queryKeys } from "@/lib";
-import type { SemesterSchedule } from "@/types";
+import type { ScheduleInput, SemesterSchedule } from "@/types";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
-
-type ScheduleInput = Pick<
-  SemesterSchedule,
-  "subjectId" | "dayOfWeek" | "startTime" | "endTime"
->;
 
 function useGetSchedules() {
   const { data: workspace } = useGetUserWorkspace();
