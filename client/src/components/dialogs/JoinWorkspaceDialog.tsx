@@ -32,7 +32,7 @@ function JoinWorkspaceDialog({ onClose }: JoinWorkspaceDialogProps) {
   function onSubmit({ code }: CodeInput) {
     joinWorkspace(code, {
       onSuccess: onClose,
-      onError: (error: any) => {
+      onError: (error) => {
         setError("code", {
           message: error.message || "Failed to join workspace",
         });

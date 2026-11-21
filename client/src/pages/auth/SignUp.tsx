@@ -21,9 +21,9 @@ function SignUp() {
 
   function onSubmit(data: RegisterInput) {
     registerAccount(data, {
-      onError: (error: any) => {
+      onError: (error) => {
         setRegisterError(
-          error?.message || "Registration failed. Please try again."
+          error.message || "Registration failed. Please try again."
         );
       },
     });

@@ -19,8 +19,8 @@ function SignIn() {
   function onSubmit(data: LoginInput) {
     setLoginError(null);
     login(data, {
-      onError: (err: any) => {
-        setLoginError(err?.message || "Login failed. Please try again.");
+      onError: (error) => {
+        setLoginError(error.message || "Login failed. Please try again.");
       },
     });
   }
