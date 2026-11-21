@@ -8,12 +8,15 @@ import {
   createUploadPost,
   deleteFile,
   deleteFiles,
-  deleteMaterialGroups,
+  deletePrefix,
   getDownloadUrl,
   headFile,
 } from "../utils/index.ts";
 
 type MaterialGroup = InstanceType<typeof MaterialGroupModel>;
+type GroupFilter =
+  | { _id: string; workspaceId: Types.ObjectId }
+  | { subjectId: { $in: Types.ObjectId[] } };
 type Subject = { id: string; name: string; semester: number };
 
 // same shape the client got from the old semester_materials view
@@ -93,6 +96,13 @@ export async function updateMaterialGroup(
   if (!group) throw new HttpError(404, "Material group not found");
 
   return group;
+}
+
+// material files live in S3 at <workspaceId>/<materialGroupId>/<materialId>.<ext>
+export async function deleteMaterialGroups(filter: GroupFilter) {
+  const groups = await MaterialGroupModel.find(filter, { workspaceId: 1 });
+  await MaterialGroupModel.deleteMany({ _id: { $in: groups.map((g) => g._id) } });
+  await Promise.all(groups.map((g) => deletePrefix(`${g.workspaceId}/${g._id}/`)));
 }
 
 // also deletes the group's uploaded files

@@ -1,9 +1,11 @@
 import type { Types } from "mongoose";
-import { SubjectModel } from "../models/index.ts";
+import { SubjectModel, TaskModel } from "../models/index.ts";
 import type { ScheduleInput, SubjectInput } from "../types/index.ts";
-import { HttpError, deleteSubjects } from "../utils/index.ts";
+import { HttpError } from "../utils/index.ts";
+import { deleteMaterialGroups } from "./materials.ts";
 
 type ScheduleData = Omit<ScheduleInput, "subjectId">;
+type SubjectFilter = { _id?: string; workspaceId: Types.ObjectId };
 
 export function getSubjects(workspaceId: Types.ObjectId, semester: number) {
   return SubjectModel.find({ workspaceId, semester });
@@ -26,6 +28,15 @@ export async function updateSubject(
   if (!subject) throw new HttpError(404, "Subject not found");
 
   return subject;
+}
+
+export async function deleteSubjects(filter: SubjectFilter) {
+  const subjects = await SubjectModel.find(filter);
+  const subjectIds = subjects.map((s) => s._id);
+
+  await TaskModel.deleteMany({ subjectId: { $in: subjectIds } });
+  await deleteMaterialGroups({ subjectId: { $in: subjectIds } });
+  await SubjectModel.deleteMany({ _id: { $in: subjectIds } });
 }
 
 // also deletes the subject's tasks, material groups and their files
