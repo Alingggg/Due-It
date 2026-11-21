@@ -1,9 +1,17 @@
-import { rm } from "node:fs/promises";
 import path from "node:path";
-import type { Types } from "mongoose";
+import { Types } from "mongoose";
 import { MaterialGroupModel, SubjectModel } from "../models/index.ts";
-import type { MaterialGroupInput, MaterialLinks } from "../types/index.ts";
-import { HttpError, UPLOADS_DIR, deleteMaterialGroups } from "../utils/index.ts";
+import type { AddMaterialsInput, MaterialGroupInput, UploadRequest } from "../types/index.ts";
+import {
+  HttpError,
+  copyFile,
+  createUploadPost,
+  deleteFile,
+  deleteFiles,
+  deleteMaterialGroups,
+  getDownloadUrl,
+  headFile,
+} from "../utils/index.ts";
 
 type MaterialGroup = InstanceType<typeof MaterialGroupModel>;
 type Subject = { id: string; name: string; semester: number };
@@ -98,11 +106,31 @@ export async function deleteMaterialGroup(workspaceId: Types.ObjectId, groupId: 
   await deleteMaterialGroups(filter);
 }
 
+// step 1 of an upload: the browser sends each file straight to S3 under tmp/
+export async function createUploads(
+  workspaceId: Types.ObjectId,
+  groupId: string,
+  files: UploadRequest["files"],
+) {
+  const group = await MaterialGroupModel.findOne({ _id: groupId, workspaceId }, { _id: 1 });
+
+  if (!group) throw new HttpError(404, "Material group not found");
+
+  return Promise.all(
+    files.map(async (file) => {
+      const ext = path.extname(file.name).toLowerCase();
+      const key = `tmp/${workspaceId}/${group.id}/${new Types.ObjectId()}${ext}`;
+      const { url, fields } = await createUploadPost(key, file.type || "application/octet-stream");
+      return { key, url, fields };
+    }),
+  );
+}
+
+// step 2: confirm the uploads, move them out of tmp/ and save them with any links
 export async function addMaterials(
   workspaceId: Types.ObjectId,
   groupId: string,
-  links: MaterialLinks,
-  files: Express.Multer.File[],
+  { links, files }: AddMaterialsInput,
 ) {
   if (!files.length && !links.length) {
     throw new HttpError(400, "At least one file or link is required");
@@ -112,35 +140,55 @@ export async function addMaterials(
 
   if (!group) throw new HttpError(404, "Material group not found");
 
-  for (const link of links) group.materials.push({ ...link, isLink: true });
+  const keyPattern = new RegExp(`^tmp/${group.workspaceId}/${group.id}/([0-9a-f]{24})\\.[a-z0-9]+$`);
+  const uploads = files.map((file) => {
+    const id = keyPattern.exec(file.key)?.[1];
+    if (!id || group.materials.id(id)) throw new HttpError(400, "Invalid upload key");
+    return { ...file, id, finalKey: file.key.slice("tmp/".length) };
+  });
 
-  for (const file of files) {
-    const material = group.materials.create({
-      name: file.originalname,
-      url: "",
-      isLink: false,
-      size: file.size,
-      type: file.mimetype,
-    });
-
-    // stored relative to UPLOADS_DIR, like the old storage path
-    material.url = `${group.workspaceId}/${group.id}/${material._id}${path.extname(file.originalname)}`;
-    await Bun.write(path.join(UPLOADS_DIR, material.url), file.buffer);
-
-    group.materials.push(material);
+  if (new Set(uploads.map((u) => u.key)).size !== uploads.length) {
+    throw new HttpError(400, "Duplicate upload key");
   }
 
-  await group.save();
+  const heads = await Promise.all(uploads.map((u) => headFile(u.key)));
+
+  if (heads.some((head) => !head)) throw new HttpError(400, "File was not uploaded");
+
+  for (const link of links) group.materials.push({ ...link, isLink: true });
+
+  try {
+    await Promise.all(uploads.map((u) => copyFile(u.key, u.finalKey)));
+
+    uploads.forEach((u, i) => {
+      group.materials.push({
+        _id: u.id,
+        name: u.name,
+        url: u.finalKey,
+        isLink: false,
+        size: heads[i]!.size,
+        type: heads[i]!.type,
+      });
+    });
+
+    await group.save();
+  } catch (err) {
+    await deleteFiles(uploads.map((u) => u.finalKey)).catch(() => {});
+    throw err;
+  }
+
+  // anything left behind in tmp/ is expired by the bucket's lifecycle rule
+  await deleteFiles(uploads.map((u) => u.key)).catch(() => {});
 
   return group.materials;
 }
 
-export async function getMaterialFile(workspaceId: Types.ObjectId, materialId: string) {
+export async function getMaterialDownloadUrl(workspaceId: Types.ObjectId, materialId: string) {
   const found = await findMaterial(workspaceId, materialId);
 
   if (!found || found.material.isLink) throw new HttpError(404, "File not found");
 
-  return { filePath: path.join(UPLOADS_DIR, found.material.url), name: found.material.name };
+  return getDownloadUrl(found.material.url, found.material.name);
 }
 
 export async function deleteMaterial(workspaceId: Types.ObjectId, materialId: string) {
@@ -152,5 +200,5 @@ export async function deleteMaterial(workspaceId: Types.ObjectId, materialId: st
   material.deleteOne();
   await group.save();
 
-  if (!material.isLink) await rm(path.join(UPLOADS_DIR, material.url), { force: true });
+  if (!material.isLink) await deleteFile(material.url);
 }

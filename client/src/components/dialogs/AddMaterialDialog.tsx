@@ -37,6 +37,7 @@ function AddMaterialDialog({
     mutate: addMaterials,
     isPending: isAddingMaterials,
     error: addMaterialsError,
+    progress: uploadProgress,
   } = useAddMaterials();
 
   const form = useForm<FormValues>({
@@ -419,7 +420,11 @@ function AddMaterialDialog({
                 {isAddingMaterials ? (
                   <>
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    <span>Adding...</span>
+                    <span>
+                      {fileMap.size > 0 && uploadProgress < 100
+                        ? `Uploading ${uploadProgress}%`
+                        : "Adding..."}
+                    </span>
                   </>
                 ) : (
                   <>
