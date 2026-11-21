@@ -7,6 +7,8 @@ import type {
 } from "@/types";
 import type { MaterialSchema } from "@/zod-schema";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
+import { useState } from "react";
 import { useNavigate } from "react-router";
 import type z from "zod";
 
@@ -137,11 +139,15 @@ function useDeleteMaterialGroup() {
   });
 }
 
+type UploadTarget = { key: string; url: string; fields: Record<string, string> };
+
+// files go straight to S3 via presigned POSTs, then the server confirms them
 function useAddMaterials() {
   const queryClient = useQueryClient();
   const { data: workspace } = useGetUserWorkspace();
+  const [progress, setProgress] = useState(0);
 
-  return useMutation({
+  const mutation = useMutation({
     mutationFn: async ({
       files,
       links,
@@ -151,17 +157,56 @@ function useAddMaterials() {
       links: z.infer<typeof MaterialSchema>[];
       materialGroupId: string;
     }) => {
-      const formData = new FormData();
-      files.forEach((file) => formData.append("files", file.originalFile));
-      formData.append(
-        "links",
-        JSON.stringify(links.map(({ name, url }) => ({ name, url })))
-      );
+      const groupUrl = `/workspaces/${workspace!.id}/material-groups/${materialGroupId}`;
+      const originals = files.map((file) => file.originalFile);
+      let targets: UploadTarget[] = [];
 
-      await api.post(
-        `/workspaces/${workspace!.id}/material-groups/${materialGroupId}/materials`,
-        formData
-      );
+      setProgress(0);
+
+      if (originals.length) {
+        targets = (
+          await api.post<UploadTarget[]>(`${groupUrl}/uploads`, {
+            files: originals.map((file) => ({
+              name: file.name,
+              size: file.size,
+              type: file.type || "application/octet-stream",
+            })),
+          })
+        ).data;
+
+        const totalBytes = originals.reduce((sum, file) => sum + file.size, 0);
+        const loaded = originals.map(() => 0);
+
+        await Promise.all(
+          targets.map(async (target, i) => {
+            const formData = new FormData();
+            Object.entries(target.fields).forEach(([name, value]) =>
+              formData.append(name, value)
+            );
+            formData.append("file", originals[i]);
+
+            try {
+              await axios.post(target.url, formData, {
+                onUploadProgress: (event) => {
+                  loaded[i] = event.loaded;
+                  const sum = loaded.reduce((a, b) => a + b, 0);
+                  setProgress(Math.min(100, Math.round((sum / totalBytes) * 100)));
+                },
+              });
+            } catch {
+              throw new Error(`Failed to upload ${originals[i].name}`);
+            }
+          })
+        );
+      }
+
+      await api.post(`${groupUrl}/materials`, {
+        links: links.map(({ name, url }) => ({ name, url })),
+        files: targets.map((target, i) => ({
+          key: target.key,
+          name: originals[i].name,
+        })),
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -169,6 +214,8 @@ function useAddMaterials() {
       });
     },
   });
+
+  return { ...mutation, progress };
 }
 
 function useDownloadMaterial() {
@@ -176,19 +223,15 @@ function useDownloadMaterial() {
 
   return useMutation({
     mutationFn: async (material: Material) => {
-      const { data } = await api.get<Blob>(
-        `/workspaces/${workspace!.id}/materials/${material.id}/download`,
-        { responseType: "blob" }
+      const { data } = await api.get<{ url: string }>(
+        `/workspaces/${workspace!.id}/materials/${material.id}/download`
       );
 
-      const url = URL.createObjectURL(data);
       const link = document.createElement("a");
-      link.href = url;
-      link.download = material.name;
+      link.href = data.url;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      URL.revokeObjectURL(url);
     },
   });
 }

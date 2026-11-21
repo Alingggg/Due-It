@@ -1,7 +1,6 @@
 import cookieParser from "cookie-parser";
 import express, { type NextFunction, type Request, type Response } from "express";
 import mongoose from "mongoose";
-import multer from "multer";
 import * as z from "zod";
 import connectDb from "./db.ts";
 import { assistantRouter, authRouter, workspaceRouter } from "./routes/index.ts";
@@ -37,7 +36,6 @@ app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
   if (
     err instanceof mongoose.Error.ValidationError ||
     err instanceof mongoose.Error.CastError ||
-    err instanceof multer.MulterError ||
     err instanceof SyntaxError
   ) {
     res.status(400).json({ message: err.message });

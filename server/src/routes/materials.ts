@@ -1,8 +1,8 @@
 import { Router } from "express";
-import multer from "multer";
 import {
   addMaterials,
   createMaterialGroup,
+  createUploads,
   deleteMaterial,
   deleteMaterialGroup,
   downloadMaterial,
@@ -18,14 +18,13 @@ export const materialRouter = Router();
 
 const editor = requireRole(...EDITOR_ROLES);
 
-const upload = multer({ defParamCharset: "utf8", limits: { fileSize: 50 * 1024 * 1024 } });
-
 materialRouter.get("/material-groups", getMaterialGroups);
 materialRouter.get("/material-groups/:id", getMaterialGroup);
 materialRouter.post("/material-groups", editor, createMaterialGroup);
 materialRouter.patch("/material-groups/:id", editor, updateMaterialGroup);
 materialRouter.delete("/material-groups/:id", editor, deleteMaterialGroup);
-materialRouter.post("/material-groups/:id/materials", editor, upload.array("files"), addMaterials);
+materialRouter.post("/material-groups/:id/uploads", editor, createUploads);
+materialRouter.post("/material-groups/:id/materials", editor, addMaterials);
 
 materialRouter.get("/materials/:materialId/download", downloadMaterial);
 materialRouter.delete("/materials/:materialId", editor, deleteMaterial);

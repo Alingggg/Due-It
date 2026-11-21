@@ -1,16 +1,9 @@
-import { rm } from "node:fs/promises";
-import path from "node:path";
 import type { Types } from "mongoose";
 import { MaterialGroupModel, SubjectModel, TaskModel } from "../models/index.ts";
-
-// material files live at uploads/<workspaceId>/<materialGroupId>/<materialId>.<ext>
-export const UPLOADS_DIR = path.resolve("uploads");
+import { deletePrefix } from "./s3.ts";
 
 export function removeUploads(...segments: (string | Types.ObjectId)[]) {
-  return rm(path.join(UPLOADS_DIR, ...segments.map(String)), {
-    recursive: true,
-    force: true,
-  });
+  return deletePrefix(`${segments.map(String).join("/")}/`);
 }
 
 type Filter = { _id?: Types.ObjectId | string; workspaceId?: Types.ObjectId; subjectId?: { $in: Types.ObjectId[] } };
