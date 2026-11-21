@@ -1,50 +1,50 @@
-import { useGetUserWorkspace, useSemesterContext } from "@/hooks";
+import { useSemesterContext, useWorkspaceId } from "@/hooks";
 import { api, queryKeys } from "@/lib";
 import type { SemesterTask, Task, TaskFilters } from "@/types";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 
 function useGetTasks(filters?: TaskFilters) {
-  const { data: workspace } = useGetUserWorkspace();
+  const workspaceId = useWorkspaceId();
   const { semester } = useSemesterContext();
 
   return useQuery({
-    queryKey: queryKeys.tasks.list(workspace?.id!, semester, filters),
+    queryKey: queryKeys.tasks.list(workspaceId, semester, filters),
     queryFn: async () =>
       (
-        await api.get<SemesterTask[]>(`/workspaces/${workspace!.id}/tasks`, {
+        await api.get<SemesterTask[]>(`/workspaces/${workspaceId}/tasks`, {
           params: { semester, ...filters },
         })
       ).data,
-    enabled: !!workspace,
+    enabled: !!workspaceId,
   });
 }
 
 function useGetTask(taskId: string) {
-  const { data: workspace } = useGetUserWorkspace();
+  const workspaceId = useWorkspaceId();
 
   return useQuery({
-    queryKey: queryKeys.tasks.detail(workspace?.id!, taskId),
+    queryKey: queryKeys.tasks.detail(workspaceId, taskId),
     queryFn: async () =>
       (
         await api.get<SemesterTask>(
-          `/workspaces/${workspace!.id}/tasks/${taskId}`
+          `/workspaces/${workspaceId}/tasks/${taskId}`
         )
       ).data,
-    enabled: !!workspace && !!taskId,
+    enabled: !!workspaceId && !!taskId,
   });
 }
 
 function useAddTask() {
   const queryClient = useQueryClient();
-  const { data: workspace } = useGetUserWorkspace();
+  const workspaceId = useWorkspaceId();
 
   return useMutation({
     mutationFn: async (newTask: Omit<Task, "id">) => {
-      await api.post(`/workspaces/${workspace!.id}/tasks`, newTask);
+      await api.post(`/workspaces/${workspaceId}/tasks`, newTask);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.tasks.all(workspace?.id!),
+        queryKey: queryKeys.tasks.all(workspaceId),
       });
     },
   });
@@ -52,15 +52,15 @@ function useAddTask() {
 
 function useUpdateTask() {
   const queryClient = useQueryClient();
-  const { data: workspace } = useGetUserWorkspace();
+  const workspaceId = useWorkspaceId();
 
   return useMutation({
     mutationFn: async ({ id, ...task }: Task) => {
-      await api.patch(`/workspaces/${workspace!.id}/tasks/${id}`, task);
+      await api.patch(`/workspaces/${workspaceId}/tasks/${id}`, task);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.tasks.all(workspace?.id!),
+        queryKey: queryKeys.tasks.all(workspaceId),
       });
     },
   });
@@ -68,18 +68,18 @@ function useUpdateTask() {
 
 function useDeleteTask() {
   const queryClient = useQueryClient();
-  const { data: workspace } = useGetUserWorkspace();
+  const workspaceId = useWorkspaceId();
 
   return useMutation({
     mutationFn: async (taskId: string) => {
-      await api.delete(`/workspaces/${workspace!.id}/tasks/${taskId}`);
+      await api.delete(`/workspaces/${workspaceId}/tasks/${taskId}`);
     },
     onSuccess: (_, taskId) => {
       queryClient.removeQueries({
-        queryKey: queryKeys.tasks.detail(workspace?.id!, taskId),
+        queryKey: queryKeys.tasks.detail(workspaceId, taskId),
       });
       queryClient.invalidateQueries({
-        queryKey: queryKeys.tasks.all(workspace?.id!),
+        queryKey: queryKeys.tasks.all(workspaceId),
       });
     },
   });
@@ -87,7 +87,7 @@ function useDeleteTask() {
 
 function useUpdateCompletionStatus() {
   const queryClient = useQueryClient();
-  const { data: workspace } = useGetUserWorkspace();
+  const workspaceId = useWorkspaceId();
 
   return useMutation({
     mutationFn: async ({
@@ -97,13 +97,13 @@ function useUpdateCompletionStatus() {
       taskId: string;
       markAsDone: boolean;
     }) => {
-      await api.put(`/workspaces/${workspace!.id}/tasks/${taskId}/completion`, {
+      await api.put(`/workspaces/${workspaceId}/tasks/${taskId}/completion`, {
         done: markAsDone,
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.tasks.all(workspace?.id!),
+        queryKey: queryKeys.tasks.all(workspaceId),
       });
     },
   });

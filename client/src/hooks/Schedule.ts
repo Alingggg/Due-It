@@ -1,36 +1,36 @@
-import { useGetUserWorkspace, useSemesterContext } from "@/hooks";
+import { useSemesterContext, useWorkspaceId } from "@/hooks";
 import { api, queryKeys } from "@/lib";
 import type { ScheduleInput, SemesterSchedule } from "@/types";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 
 function useGetSchedules() {
-  const { data: workspace } = useGetUserWorkspace();
+  const workspaceId = useWorkspaceId();
   const { semester } = useSemesterContext();
 
   return useQuery({
-    queryKey: queryKeys.schedule.list(workspace?.id!, semester),
+    queryKey: queryKeys.schedule.list(workspaceId, semester),
     queryFn: async () =>
       (
         await api.get<SemesterSchedule[]>(
-          `/workspaces/${workspace!.id}/schedules`,
+          `/workspaces/${workspaceId}/schedules`,
           { params: { semester } }
         )
       ).data,
-    enabled: !!workspace,
+    enabled: !!workspaceId,
   });
 }
 
 function useAddSchedule() {
   const queryClient = useQueryClient();
-  const { data: workspace } = useGetUserWorkspace();
+  const workspaceId = useWorkspaceId();
 
   return useMutation({
     mutationFn: async (newSchedule: ScheduleInput) => {
-      await api.post(`/workspaces/${workspace!.id}/schedules`, newSchedule);
+      await api.post(`/workspaces/${workspaceId}/schedules`, newSchedule);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.schedule.all(workspace?.id!),
+        queryKey: queryKeys.schedule.all(workspaceId),
       });
     },
   });
@@ -38,15 +38,15 @@ function useAddSchedule() {
 
 function useUpdateSchedule() {
   const queryClient = useQueryClient();
-  const { data: workspace } = useGetUserWorkspace();
+  const workspaceId = useWorkspaceId();
 
   return useMutation({
     mutationFn: async ({ id, ...schedule }: ScheduleInput & { id: string }) => {
-      await api.patch(`/workspaces/${workspace!.id}/schedules/${id}`, schedule);
+      await api.patch(`/workspaces/${workspaceId}/schedules/${id}`, schedule);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.schedule.all(workspace?.id!),
+        queryKey: queryKeys.schedule.all(workspaceId),
       });
     },
   });
@@ -54,15 +54,15 @@ function useUpdateSchedule() {
 
 function useDeleteSchedule() {
   const queryClient = useQueryClient();
-  const { data: workspace } = useGetUserWorkspace();
+  const workspaceId = useWorkspaceId();
 
   return useMutation({
     mutationFn: async (scheduleId: string) => {
-      await api.delete(`/workspaces/${workspace!.id}/schedules/${scheduleId}`);
+      await api.delete(`/workspaces/${workspaceId}/schedules/${scheduleId}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.schedule.all(workspace?.id!),
+        queryKey: queryKeys.schedule.all(workspaceId),
       });
     },
   });

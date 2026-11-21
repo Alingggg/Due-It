@@ -17,7 +17,7 @@ import {
   useDialogContext,
   useGetMaterialGroups,
   useGetSubjects,
-  useGetUserWorkspace,
+  useWorkspaceId,
   useGetUserWorkspaceRole,
 } from "@/hooks";
 import { Filter, FolderOpen, Plus } from "lucide-react";
@@ -32,8 +32,7 @@ function Materials() {
   const [filterSubject, setFilterSubject] = useState(
     searchParams.get("subject") || "all"
   );
-  const { data: workspace } = useGetUserWorkspace();
-  const workspaceId = workspace?.id!;
+  const workspaceId = useWorkspaceId();
   const { data: materialGroups, isLoading: isLoadingMaterialGroups } =
     useGetMaterialGroups();
   const currentUserRole = useGetUserWorkspaceRole();

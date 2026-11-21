@@ -55,10 +55,14 @@ function useGetUserWorkspaces() {
 }
 
 // the workspace in the current URL; useMatch (not useParams) so it also works
-// in providers that sit above <Routes>
+// in providers that sit above <Routes>. "" outside a workspace route
+function useWorkspaceId() {
+  return useMatch("/workspace/:workspaceId/*")?.params.workspaceId ?? "";
+}
+
 function useGetUserWorkspace() {
   const { data: user } = useGetProfile();
-  const workspaceId = useMatch("/workspace/:workspaceId/*")?.params.workspaceId;
+  const workspaceId = useWorkspaceId();
 
   return useQuery({
     queryKey: queryKeys.workspaces.list(),
@@ -70,17 +74,17 @@ function useGetUserWorkspace() {
 }
 
 function useGetWorkspaceMembers() {
-  const { data: workspace } = useGetUserWorkspace();
+  const workspaceId = useWorkspaceId();
 
   return useQuery({
-    queryKey: queryKeys.members.list(workspace?.id!),
+    queryKey: queryKeys.members.list(workspaceId),
     queryFn: async () =>
       (
         await api.get<WorkspaceMemberWithProfile[]>(
-          `/workspaces/${workspace!.id}/members`
+          `/workspaces/${workspaceId}/members`
         )
       ).data,
-    enabled: !!workspace,
+    enabled: !!workspaceId,
   });
 }
 
@@ -98,13 +102,13 @@ function useGetDefaultSemester() {
 
 function useUpdateDefaultSemester() {
   const queryClient = useQueryClient();
-  const { data: workspace } = useGetUserWorkspace();
+  const workspaceId = useWorkspaceId();
 
   return useMutation({
     mutationFn: async (semester: Semester) =>
       (
         await api.patch<UserWorkspace>(
-          `/workspaces/${workspace!.id}/default-semester`,
+          `/workspaces/${workspaceId}/default-semester`,
           { semester }
         )
       ).data,
@@ -117,11 +121,11 @@ function useUpdateDefaultSemester() {
 function useDeleteWorkspace() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const { data: workspace } = useGetUserWorkspace();
+  const workspaceId = useWorkspaceId();
 
   return useMutation({
     mutationFn: async () => {
-      await api.delete(`/workspaces/${workspace!.id}`);
+      await api.delete(`/workspaces/${workspaceId}`);
     },
     onSuccess: () => {
       navigate("/");
@@ -132,12 +136,12 @@ function useDeleteWorkspace() {
 
 function useUpdateWorkspaceName() {
   const queryClient = useQueryClient();
-  const { data: workspace } = useGetUserWorkspace();
+  const workspaceId = useWorkspaceId();
 
   return useMutation({
     mutationFn: async (name: string) =>
       (
-        await api.patch<UserWorkspace>(`/workspaces/${workspace!.id}`, {
+        await api.patch<UserWorkspace>(`/workspaces/${workspaceId}`, {
           name,
         })
       ).data,
@@ -152,6 +156,7 @@ export {
   useCreateWorkspace,
   useGetUserWorkspaces,
   useGetUserWorkspace,
+  useWorkspaceId,
   useGetWorkspaceMembers,
   useGetUserWorkspaceRole,
   useGetDefaultSemester,

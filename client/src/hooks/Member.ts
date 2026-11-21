@@ -1,4 +1,4 @@
-import { useGetProfile, useGetUserWorkspace } from "@/hooks";
+import { useGetProfile, useWorkspaceId } from "@/hooks";
 import { api, queryKeys } from "@/lib";
 import type { WorkspaceRole } from "@/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -8,11 +8,11 @@ function useDeleteMembership() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { data: user } = useGetProfile();
-  const { data: workspace } = useGetUserWorkspace();
+  const workspaceId = useWorkspaceId();
 
   return useMutation({
     mutationFn: async (userId: string) => {
-      await api.delete(`/workspaces/${workspace!.id}/members/${userId}`);
+      await api.delete(`/workspaces/${workspaceId}/members/${userId}`);
     },
     onSuccess: (_, userId) => {
       if (user?.id === userId) {
@@ -22,7 +22,7 @@ function useDeleteMembership() {
         });
       } else {
         queryClient.invalidateQueries({
-          queryKey: queryKeys.members.list(workspace?.id!),
+          queryKey: queryKeys.members.list(workspaceId),
         });
       }
     },
@@ -31,7 +31,7 @@ function useDeleteMembership() {
 
 function useUpdateRole() {
   const queryClient = useQueryClient();
-  const { data: workspace } = useGetUserWorkspace();
+  const workspaceId = useWorkspaceId();
 
   return useMutation({
     mutationFn: async ({
@@ -41,13 +41,13 @@ function useUpdateRole() {
       userId: string;
       role: WorkspaceRole;
     }) => {
-      await api.patch(`/workspaces/${workspace!.id}/members/${userId}`, {
+      await api.patch(`/workspaces/${workspaceId}/members/${userId}`, {
         role,
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.members.list(workspace?.id!),
+        queryKey: queryKeys.members.list(workspaceId),
       });
       queryClient.invalidateQueries({ queryKey: queryKeys.workspaces.list() });
     },

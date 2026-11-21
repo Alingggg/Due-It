@@ -14,7 +14,7 @@ import {
   TodaysClasses,
 } from "@/components";
 import {
-  useGetUserWorkspace,
+  useWorkspaceId,
   useGetTasks,
   useGetSubjects,
   useGetUserWorkspaceRole,
@@ -71,8 +71,7 @@ function Tasks() {
   const [filterCompletionType, setFilterCompletionType] = useState(
     searchParams.get("completionType") || "all"
   );
-  const { data: workspace } = useGetUserWorkspace();
-  const workspaceId = workspace?.id!;
+  const workspaceId = useWorkspaceId();
 
   // fetch every task once; the tabs (and their counts) are split client-side
   const { data: allTasks, isLoading: isLoadingTasks } = useGetTasks();
