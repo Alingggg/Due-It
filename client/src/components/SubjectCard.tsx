@@ -1,10 +1,12 @@
 import {
   Button,
+  ConfirmActionDialog,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  UpsertSubjectDialog,
 } from "@/components";
 import { useDeleteSubject, useDialogContext } from "@/hooks";
 import type { Subject } from "@/types";
@@ -20,13 +22,14 @@ function SubjectCard({ subject, canManage }: SubjectCardProps) {
   const { openDialog } = useDialogContext();
 
   function handleEdit() {
-    openDialog("UPSERT_SUBJECT", {
+    openDialog(UpsertSubjectDialog, {
       initialData: subject,
+      semester: subject.semester,
     });
   }
 
   function handleDelete() {
-    openDialog("CONFIRM_ACTION", {
+    openDialog(ConfirmActionDialog, {
       title: "Delete Subject?",
       description: `Are you sure you want to delete the subject "${subject.name}"?`,
       actionButtonVariant: "destructive",

@@ -1,5 +1,7 @@
 import {
   Button,
+  ConfirmActionDialog,
+  ConfirmDeleteWorkspaceDialog,
   FormError,
   Input,
   Label,
@@ -125,7 +127,7 @@ function Settings() {
   }
 
   function handleLeaveWorkspace() {
-    openDialog("CONFIRM_ACTION", {
+    openDialog(ConfirmActionDialog, {
       title: "Leave Workspace?",
       description:
         "Are you sure you want to leave this workspace? You will lose access to all its content. You can rejoin at any time using a valid invite code.",
@@ -407,8 +409,9 @@ function Settings() {
 
             <Button
               onClick={() =>
-                openDialog("CONFIRM_DELETE_WORKSPACE", {
-                  workspaceName: workspace?.name,
+                workspace &&
+                openDialog(ConfirmDeleteWorkspaceDialog, {
+                  workspaceName: workspace.name,
                 })
               }
               variant="destructive"

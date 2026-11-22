@@ -1,5 +1,6 @@
 import {
   Button,
+  ConfirmActionDialog,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
@@ -62,52 +63,35 @@ function MemberCard({ member, currentUser, currentUserRole }: MemberCardProps) {
   }
 
   function handleRoleChange(newRole: WorkspaceRole) {
-    const action = newRole === "member" ? "demote" : "promote";
     const memberName = `${member.firstName} ${member.lastName}`;
 
-    function getActionDetails() {
-      switch (action) {
-        case "promote":
-          if (newRole === "admin") {
-            return {
-              title: "Promote to Admin",
-              description: `Are you sure you want to promote ${memberName} to Admin? They will have full access to manage this workspace.`,
-              buttonText: "Promote to Admin",
-              buttonVariant: "destructive",
-            };
-          } else if (newRole === "co-admin") {
-            return {
-              title: "Promote to Co-Admin",
-              description: `Are you sure you want to promote ${memberName} to Co-Admin? They will be able to manage members and tasks.`,
-              buttonText: "Promote to Co-Admin",
-              buttonVariant: "default",
-            };
-          }
-          break;
-        case "demote":
-          return {
-            title: "Demote to Member",
-            description: `Are you sure you want to demote ${memberName} to Member? They will lose their administrative privileges.`,
-            buttonText: "Demote to Member",
-            buttonVariant: "default",
-          };
-        default:
-          return {
-            title: "Confirm Action",
-            description: "Are you sure you want to perform this action?",
-            buttonText: "Confirm",
-            buttonVariant: "default",
-          };
-      }
-    }
+    const actionDetails = {
+      admin: {
+        title: "Promote to Admin",
+        description: `Are you sure you want to promote ${memberName} to Admin? They will have full access to manage this workspace.`,
+        buttonText: "Promote to Admin",
+        buttonVariant: "destructive",
+      },
+      "co-admin": {
+        title: "Promote to Co-Admin",
+        description: `Are you sure you want to promote ${memberName} to Co-Admin? They will be able to manage members and tasks.`,
+        buttonText: "Promote to Co-Admin",
+        buttonVariant: "default",
+      },
+      member: {
+        title: "Demote to Member",
+        description: `Are you sure you want to demote ${memberName} to Member? They will lose their administrative privileges.`,
+        buttonText: "Demote to Member",
+        buttonVariant: "default",
+      },
+    } as const satisfies Record<WorkspaceRole, unknown>;
+    const details = actionDetails[newRole];
 
-    const actionDetails = getActionDetails();
-
-    openDialog("CONFIRM_ACTION", {
-      title: actionDetails?.title,
-      description: actionDetails?.description,
-      actionButtonVariant: actionDetails?.buttonVariant,
-      actionButtonText: actionDetails?.buttonText,
+    openDialog(ConfirmActionDialog, {
+      title: details.title,
+      description: details.description,
+      actionButtonVariant: details.buttonVariant,
+      actionButtonText: details.buttonText,
       handleAction: () => updateRole({ userId: member.userId, role: newRole }),
     });
   }
@@ -115,7 +99,7 @@ function MemberCard({ member, currentUser, currentUserRole }: MemberCardProps) {
   function handleKickMember() {
     const memberName = `${member.firstName} ${member.lastName}`;
 
-    openDialog("CONFIRM_ACTION", {
+    openDialog(ConfirmActionDialog, {
       title: "Kick Member",
       description: `Are you sure you want to kick ${memberName} from this workspace? They will lose access immediately and will need to join again if they wish to return.`,
       actionButtonVariant: "destructive",

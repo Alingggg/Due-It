@@ -1,4 +1,10 @@
-import { Button, FormError, LoadingPage } from "@/components";
+import {
+  Button,
+  ConfirmActionDialog,
+  FormError,
+  LoadingPage,
+  UpsertTaskDialog,
+} from "@/components";
 import {
   useDeleteTask,
   useDialogContext,
@@ -52,7 +58,7 @@ function TaskDetails() {
   function handleDeleteTask() {
     if (!task) return;
 
-    openDialog("CONFIRM_ACTION", {
+    openDialog(ConfirmActionDialog, {
       title: `Delete "${task.title}"?`,
       description: `Are you sure you want to delete "${task.title}"? This action cannot be undone.`,
       actionButtonVariant: "destructive",
@@ -116,7 +122,10 @@ function TaskDetails() {
           <div className="flex items-center space-x-2">
             <Button
               onClick={() =>
-                openDialog("UPSERT_TASK", { initialData: task, subjects })
+                openDialog(UpsertTaskDialog, {
+                  initialData: task,
+                  subjects: subjects ?? [],
+                })
               }
               variant="outline"
             >

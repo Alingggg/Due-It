@@ -12,6 +12,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  UpsertMaterialGroupDialog,
 } from "@/components";
 import {
   useDialogContext,
@@ -159,7 +160,7 @@ function Materials() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-slate-800">Materials</h1>
         {(currentUserRole === "admin" || currentUserRole === "co-admin") && (
-          <Button onClick={() => openDialog("UPSERT_MATERIAL", { subjects })}>
+          <Button onClick={() => openDialog(UpsertMaterialGroupDialog, { subjects: subjects ?? [] })}>
             <Plus className="w-4 h-4" />
             Create
           </Button>

@@ -1,4 +1,11 @@
-import { Button, FormError, LoadingPage } from "@/components";
+import {
+  AddMaterialDialog,
+  Button,
+  ConfirmActionDialog,
+  FormError,
+  LoadingPage,
+  UpsertMaterialGroupDialog,
+} from "@/components";
 import {
   useDeleteMaterial,
   useDeleteMaterialGroup,
@@ -57,7 +64,7 @@ function MaterialDetails() {
   }
 
   function handleDeleteMaterial(material: Material) {
-    openDialog("CONFIRM_ACTION", {
+    openDialog(ConfirmActionDialog, {
       title: `Delete "${material.name}"?`,
       description: `Are you sure you want to delete this material? This action cannot be undone.`,
       actionButtonVariant: "destructive",
@@ -90,7 +97,10 @@ function MaterialDetails() {
           <div className="flex items-center space-x-2">
             <Button
               onClick={() =>
-                openDialog("UPSERT_MATERIAL", { subjects, materialGroup })
+                openDialog(UpsertMaterialGroupDialog, {
+                  subjects: subjects ?? [],
+                  materialGroup,
+                })
               }
               variant="outline"
             >
@@ -99,7 +109,7 @@ function MaterialDetails() {
             </Button>
             <Button
               onClick={() =>
-                openDialog("CONFIRM_ACTION", {
+                openDialog(ConfirmActionDialog, {
                   title: `Delete "${materialGroup?.title}"?`,
                   description: `Are you sure you want to delete "${materialGroup?.title}"? This will also delete all ${materialGroup?.materialCount} materials in this group. This action cannot be undone.`,
                   actionButtonVariant: "destructive",
@@ -149,7 +159,9 @@ function MaterialDetails() {
           </h3>
           {canManage && (
             <Button
-              onClick={() => openDialog("ADD_MATERIAL", { materialGroupId })}
+              onClick={() => openDialog(AddMaterialDialog, {
+                  materialGroupId: materialGroupId!,
+                })}
               variant="outline"
             >
               <Plus className="w-4 h-4" />

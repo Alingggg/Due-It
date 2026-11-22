@@ -12,6 +12,7 @@ import {
   SelectValue,
   TaskCard,
   TodaysClasses,
+  UpsertTaskDialog,
 } from "@/components";
 import {
   useWorkspaceId,
@@ -236,7 +237,7 @@ function Tasks() {
           {(currentUserRole === "admin" || currentUserRole === "co-admin") && (
             <Button
               className="h-11 rounded-xl px-5 font-bold"
-              onClick={() => openDialog("UPSERT_TASK", { subjects })}
+              onClick={() => openDialog(UpsertTaskDialog, { subjects: subjects ?? [] })}
             >
               <Plus className="w-4 h-4" />
               <span>Create task</span>
