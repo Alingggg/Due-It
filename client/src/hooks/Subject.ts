@@ -1,17 +1,12 @@
-import { useGetUserWorkspace, useSemesterContext } from "@/hooks";
+import { useSemesterContext, useWorkspaceId } from "@/hooks";
 import { api, queryKeys } from "@/lib";
-import type { Semester, Subject } from "@/types";
+import type { Semester, Subject, SubjectInput } from "@/types";
 import {
   useQuery,
   useQueryClient,
   useMutation,
   type QueryClient,
 } from "@tanstack/react-query";
-
-type SubjectInput = Pick<
-  Subject,
-  "name" | "subjectCode" | "instructorName" | "semester"
->;
 
 // tasks, schedules and material groups carry their subject's name and
 // semester, and the server deletes them with their subject
@@ -29,33 +24,33 @@ function invalidateSubjectData(queryClient: QueryClient, workspaceId: string) {
 }
 
 function useGetSubjects(semesterOverride?: Semester) {
-  const { data: workspace } = useGetUserWorkspace();
+  const workspaceId = useWorkspaceId();
   const { semester: selectedSemester } = useSemesterContext();
   const semester = semesterOverride ?? selectedSemester;
 
   return useQuery({
-    queryKey: queryKeys.subjects.list(workspace?.id!, semester),
+    queryKey: queryKeys.subjects.list(workspaceId, semester),
     queryFn: async () =>
       (
-        await api.get<Subject[]>(`/workspaces/${workspace!.id}/subjects`, {
+        await api.get<Subject[]>(`/workspaces/${workspaceId}/subjects`, {
           params: { semester },
         })
       ).data,
-    enabled: !!workspace,
+    enabled: !!workspaceId,
   });
 }
 
 function useAddSubject() {
   const queryClient = useQueryClient();
-  const { data: workspace } = useGetUserWorkspace();
+  const workspaceId = useWorkspaceId();
 
   return useMutation({
     mutationFn: async (subject: SubjectInput) => {
-      await api.post(`/workspaces/${workspace!.id}/subjects`, subject);
+      await api.post(`/workspaces/${workspaceId}/subjects`, subject);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.subjects.all(workspace?.id!),
+        queryKey: queryKeys.subjects.all(workspaceId),
       });
     },
   });
@@ -63,28 +58,28 @@ function useAddSubject() {
 
 function useUpdateSubject() {
   const queryClient = useQueryClient();
-  const { data: workspace } = useGetUserWorkspace();
+  const workspaceId = useWorkspaceId();
 
   return useMutation({
     mutationFn: async ({ id, ...subject }: SubjectInput & { id: string }) => {
-      await api.patch(`/workspaces/${workspace!.id}/subjects/${id}`, subject);
+      await api.patch(`/workspaces/${workspaceId}/subjects/${id}`, subject);
     },
     onSuccess: () => {
-      invalidateSubjectData(queryClient, workspace!.id);
+      invalidateSubjectData(queryClient, workspaceId);
     },
   });
 }
 
 function useDeleteSubject() {
   const queryClient = useQueryClient();
-  const { data: workspace } = useGetUserWorkspace();
+  const workspaceId = useWorkspaceId();
 
   return useMutation({
     mutationFn: async (subjectId: string) => {
-      await api.delete(`/workspaces/${workspace!.id}/subjects/${subjectId}`);
+      await api.delete(`/workspaces/${workspaceId}/subjects/${subjectId}`);
     },
     onSuccess: () => {
-      invalidateSubjectData(queryClient, workspace!.id);
+      invalidateSubjectData(queryClient, workspaceId);
     },
   });
 }

@@ -10,13 +10,10 @@ import {
   SelectField,
 } from "@/components";
 import { useAddSchedule, useUpdateSchedule } from "@/hooks";
-import type { SemesterSchedule, Subject } from "@/types";
+import type { ScheduleFormInput, SemesterSchedule, Subject } from "@/types";
 import { ScheduleSchema } from "@/zod-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import * as z from "zod";
-
-type ScheduleFormData = z.infer<typeof ScheduleSchema>;
 
 interface UpsertScheduleDialogProps {
   initialData?: Partial<SemesterSchedule>;
@@ -42,7 +39,7 @@ function UpsertScheduleDialog({
   const sortedSubjects = [...subjects].sort((a, b) =>
     a.name.localeCompare(b.name)
   );
-  const form = useForm<ScheduleFormData>({
+  const form = useForm<ScheduleFormInput>({
     defaultValues: {
       subjectId: initialData.subjectId || "",
       dayOfWeek: initialData.dayOfWeek || undefined,
@@ -62,7 +59,7 @@ function UpsertScheduleDialog({
     error: updateScheduleError,
   } = useUpdateSchedule();
 
-  function onSubmit(data: ScheduleFormData) {
+  function onSubmit(data: ScheduleFormInput) {
     if (initialData.id) {
       updateSchedule({ id: initialData.id, ...data }, { onSuccess: onClose });
     } else {

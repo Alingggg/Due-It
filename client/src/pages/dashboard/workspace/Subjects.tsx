@@ -1,4 +1,11 @@
-import { Button, LoadingPage, ScheduleItem, SubjectCard } from "@/components";
+import {
+  Button,
+  LoadingPage,
+  ScheduleItem,
+  SubjectCard,
+  UpsertScheduleDialog,
+  UpsertSubjectDialog,
+} from "@/components";
 import {
   useSemesterContext,
   useDialogContext,
@@ -66,12 +73,10 @@ function Subjects() {
     isLoadingSchedules;
 
   function handleAddSubject() {
-    openDialog("UPSERT_SUBJECT", { semester });
+    openDialog(UpsertSubjectDialog, { semester });
   }
   function handleAddSchedule() {
-    openDialog("UPSERT_SCHEDULE", {
-      subjects,
-    });
+    openDialog(UpsertScheduleDialog, { subjects: subjects ?? [] });
   }
 
   function renderSubjectsTab() {

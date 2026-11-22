@@ -12,12 +12,13 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  UpsertMaterialGroupDialog,
 } from "@/components";
 import {
   useDialogContext,
   useGetMaterialGroups,
   useGetSubjects,
-  useGetUserWorkspace,
+  useWorkspaceId,
   useGetUserWorkspaceRole,
 } from "@/hooks";
 import { Filter, FolderOpen, Plus } from "lucide-react";
@@ -32,8 +33,7 @@ function Materials() {
   const [filterSubject, setFilterSubject] = useState(
     searchParams.get("subject") || "all"
   );
-  const { data: workspace } = useGetUserWorkspace();
-  const workspaceId = workspace?.id!;
+  const workspaceId = useWorkspaceId();
   const { data: materialGroups, isLoading: isLoadingMaterialGroups } =
     useGetMaterialGroups();
   const currentUserRole = useGetUserWorkspaceRole();
@@ -160,7 +160,7 @@ function Materials() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-slate-800">Materials</h1>
         {(currentUserRole === "admin" || currentUserRole === "co-admin") && (
-          <Button onClick={() => openDialog("UPSERT_MATERIAL", { subjects })}>
+          <Button onClick={() => openDialog(UpsertMaterialGroupDialog, { subjects: subjects ?? [] })}>
             <Plus className="w-4 h-4" />
             Create
           </Button>

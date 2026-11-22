@@ -19,7 +19,7 @@ export {
   useDownloadMaterial,
   useDeleteMaterial,
 } from "./Material";
-export { useDeleteMembership, useUpdateRole } from "./Members";
+export { useDeleteMembership, useUpdateRole } from "./Member";
 export {
   useGetSchedules,
   useAddSchedule,
@@ -46,6 +46,7 @@ export {
   useCreateWorkspace,
   useGetUserWorkspaces,
   useGetUserWorkspace,
+  useWorkspaceId,
   useGetWorkspaceMembers,
   useGetUserWorkspaceRole,
   useGetDefaultSemester,

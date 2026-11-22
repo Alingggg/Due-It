@@ -1,5 +1,6 @@
-import { format, isValid, parse } from "date-fns";
+import { format, isValid } from "date-fns";
 import * as z from "zod";
+import { TimeSchema } from "./common";
 
 const TaskSchema = z.object({
   title: z
@@ -40,14 +41,7 @@ const TaskSchema = z.object({
       }
       return val;
     }),
-  dueTime: z.string().refine(
-    (val) => {
-      const parsedWithSeconds = parse(val, "HH:mm:ss", new Date());
-      const parsedWithoutSeconds = parse(val, "HH:mm", new Date());
-      return isValid(parsedWithSeconds) || isValid(parsedWithoutSeconds);
-    },
-    { error: "Invalid time format (expected HH:mm or HH:mm:ss)" }
-  ),
+  dueTime: TimeSchema,
 });
 
 export { TaskSchema };

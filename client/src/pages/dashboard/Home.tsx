@@ -1,4 +1,10 @@
-import { Button, LoadingPage, Sidebar } from "@/components";
+import {
+  Button,
+  CreateWorkspaceDialog,
+  JoinWorkspaceDialog,
+  LoadingPage,
+  Sidebar,
+} from "@/components";
 import { useDialogContext, useGetUserWorkspaces } from "@/hooks";
 import { workspaceColor } from "@/utils";
 import { LayoutGrid, Plus, UserPlus } from "lucide-react";
@@ -24,12 +30,12 @@ function Home() {
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
-                onClick={() => openDialog("JOIN_WORKSPACE")}
+                onClick={() => openDialog(JoinWorkspaceDialog, {})}
               >
                 <UserPlus className="w-4 h-4" />
                 <span className="hidden sm:inline">Join</span>
               </Button>
-              <Button onClick={() => openDialog("CREATE_WORKSPACE")}>
+              <Button onClick={() => openDialog(CreateWorkspaceDialog, {})}>
                 <Plus className="w-4 h-4" />
                 <span className="hidden sm:inline">Create</span>
               </Button>

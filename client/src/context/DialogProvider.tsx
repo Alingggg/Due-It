@@ -1,47 +1,36 @@
-import { DialogContainer } from "@/components";
-import { createContext, useState } from "react";
-
-type DialogType =
-  | "UPSERT_TASK"
-  | "UPSERT_MATERIAL"
-  | "UPSERT_SUBJECT"
-  | "UPSERT_SCHEDULE"
-  | "CONFIRM_ACTION"
-  | "ADD_MATERIAL"
-  | "CONFIRM_DELETE_WORKSPACE"
-  | "CREATE_WORKSPACE"
-  | "JOIN_WORKSPACE"
-  | null;
+import {
+  createContext,
+  useState,
+  type ComponentType,
+  type ReactNode,
+} from "react";
 
 interface DialogContextType {
-  openDialog: (type: DialogType, props?: any) => void;
+  openDialog: <P extends { onClose: () => void }>(
+    component: ComponentType<P>,
+    props: Omit<P, "onClose">
+  ) => void;
   closeDialog: () => void;
-  dialogType: DialogType;
-  dialogProps: any;
 }
 
 const DialogContext = createContext<DialogContextType | undefined>(undefined);
 
-function DialogProvider({ children }: { children: any }) {
-  const [dialogType, setDialogType] = useState<DialogType>(null);
-  const [dialogProps, setDialogProps] = useState<any>(null);
+function DialogProvider({ children }: { children: ReactNode }) {
+  const [dialog, setDialog] = useState<ReactNode>(null);
 
-  const openDialog = (type: DialogType, props?: any) => {
-    setDialogType(type);
-    setDialogProps(props || {});
-  };
+  const closeDialog = () => setDialog(null);
 
-  const closeDialog = () => {
-    setDialogType(null);
-    setDialogProps(null);
+  const openDialog = <P extends { onClose: () => void }>(
+    Component: ComponentType<P>,
+    props: Omit<P, "onClose">
+  ) => {
+    setDialog(<Component {...({ ...props, onClose: closeDialog } as P)} />);
   };
 
   return (
-    <DialogContext.Provider
-      value={{ dialogType, dialogProps, openDialog, closeDialog }}
-    >
+    <DialogContext.Provider value={{ openDialog, closeDialog }}>
       {children}
-      <DialogContainer />
+      {dialog}
     </DialogContext.Provider>
   );
 }

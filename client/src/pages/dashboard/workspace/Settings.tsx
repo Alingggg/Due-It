@@ -1,5 +1,7 @@
 import {
   Button,
+  ConfirmActionDialog,
+  ConfirmDeleteWorkspaceDialog,
   FormError,
   Input,
   Label,
@@ -23,7 +25,7 @@ import {
   useUpdateDefaultSemester,
   useUpdateWorkspaceName,
 } from "@/hooks";
-import type { Semester } from "@/types";
+import type { Semester, WorkspaceNameInput } from "@/types";
 import { WorkspaceNameSchema } from "@/zod-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -37,14 +39,11 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import * as z from "zod";
 
 const SEMESTER_OPTIONS = [
   { value: 1, label: "1" },
   { value: 2, label: "2" },
 ];
-
-type WorkspaceNameForm = z.infer<typeof WorkspaceNameSchema>;
 
 function Settings() {
   const [copied, setCopied] = useState(false);
@@ -83,7 +82,7 @@ function Settings() {
     formState: { errors },
     reset,
     setValue,
-  } = useForm<WorkspaceNameForm>({
+  } = useForm<WorkspaceNameInput>({
     resolver: zodResolver(WorkspaceNameSchema),
     defaultValues: {
       name: workspace?.name || "",
@@ -103,7 +102,7 @@ function Settings() {
     resetWorkspaceNameMutation();
   }
 
-  function onSubmitWorkspaceName(data: WorkspaceNameForm) {
+  function onSubmitWorkspaceName(data: WorkspaceNameInput) {
     updateWorkspaceName(data.name, {
       onSuccess: () => {
         setIsEditingName(false);
@@ -128,7 +127,7 @@ function Settings() {
   }
 
   function handleLeaveWorkspace() {
-    openDialog("CONFIRM_ACTION", {
+    openDialog(ConfirmActionDialog, {
       title: "Leave Workspace?",
       description:
         "Are you sure you want to leave this workspace? You will lose access to all its content. You can rejoin at any time using a valid invite code.",
@@ -410,8 +409,9 @@ function Settings() {
 
             <Button
               onClick={() =>
-                openDialog("CONFIRM_DELETE_WORKSPACE", {
-                  workspaceName: workspace?.name,
+                workspace &&
+                openDialog(ConfirmDeleteWorkspaceDialog, {
+                  workspaceName: workspace.name,
                 })
               }
               variant="destructive"

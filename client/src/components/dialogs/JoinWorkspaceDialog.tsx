@@ -10,12 +10,10 @@ import {
   Label,
 } from "@/components";
 import { useJoinWorkspace } from "@/hooks";
+import type { CodeInput } from "@/types";
 import { CodeSchema } from "@/zod-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import * as z from "zod";
-
-type JoinWorkspaceForm = z.infer<typeof CodeSchema>;
 
 interface JoinWorkspaceDialogProps {
   onClose: () => void;
@@ -27,14 +25,14 @@ function JoinWorkspaceDialog({ onClose }: JoinWorkspaceDialogProps) {
     handleSubmit,
     formState: { errors },
     setError,
-  } = useForm<JoinWorkspaceForm>({ resolver: zodResolver(CodeSchema) });
+  } = useForm<CodeInput>({ resolver: zodResolver(CodeSchema) });
   const { mutate: joinWorkspace, isPending: isSubmitting } =
     useJoinWorkspace();
 
-  function onSubmit({ code }: JoinWorkspaceForm) {
+  function onSubmit({ code }: CodeInput) {
     joinWorkspace(code, {
       onSuccess: onClose,
-      onError: (error: any) => {
+      onError: (error) => {
         setError("code", {
           message: error.message || "Failed to join workspace",
         });

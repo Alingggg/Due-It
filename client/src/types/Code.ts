@@ -1,3 +1,6 @@
+import type * as z from "zod";
+import type { CodeSchema } from "@/zod-schema";
+
 interface Code {
   workspaceId: string;
   code: string;
@@ -5,4 +8,6 @@ interface Code {
   updatedAt: string;
 }
 
-export type { Code };
+type CodeInput = z.infer<typeof CodeSchema>;
+
+export type { Code, CodeInput };

@@ -1,31 +1,31 @@
-import { useGetUserWorkspace, useSemesterContext } from "@/hooks";
+import { useSemesterContext, useWorkspaceId } from "@/hooks";
 import { api, queryKeys } from "@/lib";
 import type {
   Material,
   MaterialGroupDetail,
+  MaterialInput,
   SemesterMaterialGroup,
+  UploadTarget,
 } from "@/types";
-import type { MaterialSchema } from "@/zod-schema";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import type z from "zod";
 
 function useGetMaterialGroups() {
-  const { data: workspace } = useGetUserWorkspace();
+  const workspaceId = useWorkspaceId();
   const { semester } = useSemesterContext();
 
   return useQuery({
-    queryKey: queryKeys.materialGroups.list(workspace?.id!, semester),
+    queryKey: queryKeys.materialGroups.list(workspaceId, semester),
     queryFn: async () =>
       (
         await api.get<SemesterMaterialGroup[]>(
-          `/workspaces/${workspace!.id}/material-groups`,
+          `/workspaces/${workspaceId}/material-groups`,
           { params: { semester } }
         )
       ).data,
-    enabled: !!workspace,
+    enabled: !!workspaceId,
   });
 }
 
@@ -34,21 +34,21 @@ function useMaterialGroupQuery<T = MaterialGroupDetail>(
   materialGroupId: string,
   select?: (group: MaterialGroupDetail) => T
 ) {
-  const { data: workspace } = useGetUserWorkspace();
+  const workspaceId = useWorkspaceId();
 
   return useQuery({
     queryKey: queryKeys.materialGroups.detail(
-      workspace?.id!,
+      workspaceId,
       materialGroupId
     ),
     queryFn: async () =>
       (
         await api.get<MaterialGroupDetail>(
-          `/workspaces/${workspace!.id}/material-groups/${materialGroupId}`
+          `/workspaces/${workspaceId}/material-groups/${materialGroupId}`
         )
       ).data,
     select,
-    enabled: !!workspace && !!materialGroupId,
+    enabled: !!workspaceId && !!materialGroupId,
   });
 }
 
@@ -62,7 +62,7 @@ function useGetMaterials(materialGroupId: string) {
 
 function useAddMaterialGroup() {
   const queryClient = useQueryClient();
-  const { data: workspace } = useGetUserWorkspace();
+  const workspaceId = useWorkspaceId();
   const navigate = useNavigate();
 
   return useMutation({
@@ -73,14 +73,14 @@ function useAddMaterialGroup() {
     }) =>
       (
         await api.post<{ id: string }>(
-          `/workspaces/${workspace!.id}/material-groups`,
+          `/workspaces/${workspaceId}/material-groups`,
           newMaterialGroup
         )
       ).data,
     onSuccess: (materialGroup) => {
-      navigate(`/workspace/${workspace?.id}/materials/${materialGroup.id}`);
+      navigate(`/workspace/${workspaceId}/materials/${materialGroup.id}`);
       queryClient.invalidateQueries({
-        queryKey: queryKeys.materialGroups.all(workspace?.id!),
+        queryKey: queryKeys.materialGroups.all(workspaceId),
       });
     },
   });
@@ -88,7 +88,7 @@ function useAddMaterialGroup() {
 
 function useUpdateMaterialGroup() {
   const queryClient = useQueryClient();
-  const { data: workspace } = useGetUserWorkspace();
+  const workspaceId = useWorkspaceId();
 
   return useMutation({
     mutationFn: async ({
@@ -101,13 +101,13 @@ function useUpdateMaterialGroup() {
       description?: string | undefined;
     }) => {
       await api.patch(
-        `/workspaces/${workspace!.id}/material-groups/${id}`,
+        `/workspaces/${workspaceId}/material-groups/${id}`,
         materialGroup
       );
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.materialGroups.all(workspace?.id!),
+        queryKey: queryKeys.materialGroups.all(workspaceId),
       });
     },
   });
@@ -115,36 +115,34 @@ function useUpdateMaterialGroup() {
 
 function useDeleteMaterialGroup() {
   const queryClient = useQueryClient();
-  const { data: workspace } = useGetUserWorkspace();
+  const workspaceId = useWorkspaceId();
   const navigate = useNavigate();
 
   return useMutation({
     mutationFn: async (materialGroupId: string) => {
       await api.delete(
-        `/workspaces/${workspace!.id}/material-groups/${materialGroupId}`
+        `/workspaces/${workspaceId}/material-groups/${materialGroupId}`
       );
     },
     onSuccess: (_, materialGroupId) => {
-      navigate(`/workspace/${workspace?.id}/materials`);
+      navigate(`/workspace/${workspaceId}/materials`);
       queryClient.removeQueries({
         queryKey: queryKeys.materialGroups.detail(
-          workspace?.id!,
+          workspaceId,
           materialGroupId
         ),
       });
       queryClient.invalidateQueries({
-        queryKey: queryKeys.materialGroups.all(workspace?.id!),
+        queryKey: queryKeys.materialGroups.all(workspaceId),
       });
     },
   });
 }
 
-type UploadTarget = { key: string; url: string; fields: Record<string, string> };
-
 // files go straight to S3 via presigned POSTs, then the server confirms them
 function useAddMaterials() {
   const queryClient = useQueryClient();
-  const { data: workspace } = useGetUserWorkspace();
+  const workspaceId = useWorkspaceId();
   const [progress, setProgress] = useState(0);
 
   const mutation = useMutation({
@@ -153,11 +151,11 @@ function useAddMaterials() {
       links,
       materialGroupId,
     }: {
-      files: (z.infer<typeof MaterialSchema> & { originalFile: File })[];
-      links: z.infer<typeof MaterialSchema>[];
+      files: (MaterialInput & { originalFile: File })[];
+      links: MaterialInput[];
       materialGroupId: string;
     }) => {
-      const groupUrl = `/workspaces/${workspace!.id}/material-groups/${materialGroupId}`;
+      const groupUrl = `/workspaces/${workspaceId}/material-groups/${materialGroupId}`;
       const originals = files.map((file) => file.originalFile);
       let targets: UploadTarget[] = [];
 
@@ -210,7 +208,7 @@ function useAddMaterials() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.materialGroups.all(workspace?.id!),
+        queryKey: queryKeys.materialGroups.all(workspaceId),
       });
     },
   });
@@ -219,12 +217,12 @@ function useAddMaterials() {
 }
 
 function useDownloadMaterial() {
-  const { data: workspace } = useGetUserWorkspace();
+  const workspaceId = useWorkspaceId();
 
   return useMutation({
     mutationFn: async (material: Material) => {
       const { data } = await api.get<{ url: string }>(
-        `/workspaces/${workspace!.id}/materials/${material.id}/download`
+        `/workspaces/${workspaceId}/materials/${material.id}/download`
       );
 
       const link = document.createElement("a");
@@ -238,17 +236,17 @@ function useDownloadMaterial() {
 
 function useDeleteMaterial() {
   const queryClient = useQueryClient();
-  const { data: workspace } = useGetUserWorkspace();
+  const workspaceId = useWorkspaceId();
 
   return useMutation({
     mutationFn: async (material: Material) => {
       await api.delete(
-        `/workspaces/${workspace!.id}/materials/${material.id}`
+        `/workspaces/${workspaceId}/materials/${material.id}`
       );
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.materialGroups.all(workspace?.id!),
+        queryKey: queryKeys.materialGroups.all(workspaceId),
       });
     },
   });

@@ -4,15 +4,13 @@ import {
   useUpdateProfile,
   useLogout,
 } from "@/hooks";
+import type { ProfileInput } from "@/types";
 import { ProfileSchema } from "@/zod-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft, LogOut } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
-import * as z from "zod";
-
-type ProfileForm = z.infer<typeof ProfileSchema>;
 
 function Profile() {
   const [isEditing, setIsEditing] = useState(false);
@@ -29,7 +27,7 @@ function Profile() {
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm<ProfileForm>({
+  } = useForm<ProfileInput>({
     defaultValues: {
       firstName: profileData?.firstName || "",
       lastName: profileData?.lastName || "",
@@ -60,7 +58,7 @@ function Profile() {
     }
   }
 
-  function onSubmit(data: ProfileForm) {
+  function onSubmit(data: ProfileInput) {
     updateProfile(data, {
       onSuccess: () => {
         setIsEditing(false);

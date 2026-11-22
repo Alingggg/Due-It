@@ -10,20 +10,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components";
+import type { Control, FieldPath, FieldValues } from "react-hook-form";
 
 type Option = { label: string; value: string | number };
 
-interface SelectFieldProps {
-  control: any;
-  name: string;
-  label?: string;
-  placeholder?: string;
-  options: Option[];
-  required?: boolean;
-  disabled?: boolean;
-}
-
-export default function SelectField({
+export default function SelectField<T extends FieldValues>({
   control,
   name,
   label,
@@ -31,7 +22,15 @@ export default function SelectField({
   options,
   required = false,
   disabled = false,
-}: SelectFieldProps) {
+}: {
+  control: Control<T>;
+  name: FieldPath<T>;
+  label?: string;
+  placeholder?: string;
+  options: Option[];
+  required?: boolean;
+  disabled?: boolean;
+}) {
   return (
     <FormField
       control={control}

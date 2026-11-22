@@ -9,4 +9,4 @@ export { ProfileSchema } from "./Profile";
 export { ScheduleSchema } from "./Schedule";
 export { SubjectSchema } from "./Subject";
 export { TaskSchema } from "./Task";
-export { WorkspaceSchema, WorkspaceNameSchema } from "./Workspace";
+export { WorkspaceNameSchema } from "./Workspace";

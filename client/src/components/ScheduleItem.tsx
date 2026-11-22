@@ -1,10 +1,12 @@
 import {
   Button,
+  ConfirmActionDialog,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  UpsertScheduleDialog,
 } from "@/components";
 import { useDeleteSchedule, useDialogContext } from "@/hooks";
 import type { SemesterSchedule, Subject } from "@/types";
@@ -28,7 +30,7 @@ function ScheduleItem({
   const { mutateAsync: deleteSchedule } = useDeleteSchedule();
 
   function handleEdit() {
-    openDialog("UPSERT_SCHEDULE", {
+    openDialog(UpsertScheduleDialog, {
       subjects,
       initialData: {
         id: schedule.id,
@@ -41,7 +43,7 @@ function ScheduleItem({
   }
 
   function handleDelete() {
-    openDialog("CONFIRM_ACTION", {
+    openDialog(ConfirmActionDialog, {
       title: "Delete Schedule?",
       description: `Are you sure you want to delete the schedule for "${subjectName}"?`,
       actionButtonVariant: "destructive",

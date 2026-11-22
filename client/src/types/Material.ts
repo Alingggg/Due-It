@@ -1,3 +1,9 @@
+import type * as z from "zod";
+import type {
+  MaterialGroupSchema,
+  MaterialSchema,
+  MaterialsSchema,
+} from "@/zod-schema";
 import type { Semester } from "./Semester";
 
 interface SemesterMaterialGroup {
@@ -25,4 +31,24 @@ interface MaterialGroupDetail extends SemesterMaterialGroup {
   materials: Material[];
 }
 
-export type { SemesterMaterialGroup, Material, MaterialGroupDetail };
+type MaterialGroupInput = z.infer<typeof MaterialGroupSchema>;
+
+type MaterialInput = z.infer<typeof MaterialSchema>;
+
+type MaterialsInput = z.infer<typeof MaterialsSchema>;
+
+type UploadTarget = {
+  key: string;
+  url: string;
+  fields: Record<string, string>;
+};
+
+export type {
+  SemesterMaterialGroup,
+  Material,
+  MaterialGroupDetail,
+  MaterialGroupInput,
+  MaterialInput,
+  MaterialsInput,
+  UploadTarget,
+};

@@ -12,9 +12,10 @@ import {
   SelectValue,
   TaskCard,
   TodaysClasses,
+  UpsertTaskDialog,
 } from "@/components";
 import {
-  useGetUserWorkspace,
+  useWorkspaceId,
   useGetTasks,
   useGetSubjects,
   useGetUserWorkspaceRole,
@@ -71,8 +72,7 @@ function Tasks() {
   const [filterCompletionType, setFilterCompletionType] = useState(
     searchParams.get("completionType") || "all"
   );
-  const { data: workspace } = useGetUserWorkspace();
-  const workspaceId = workspace?.id!;
+  const workspaceId = useWorkspaceId();
 
   // fetch every task once; the tabs (and their counts) are split client-side
   const { data: allTasks, isLoading: isLoadingTasks } = useGetTasks();
@@ -237,7 +237,7 @@ function Tasks() {
           {(currentUserRole === "admin" || currentUserRole === "co-admin") && (
             <Button
               className="h-11 rounded-xl px-5 font-bold"
-              onClick={() => openDialog("UPSERT_TASK", { subjects })}
+              onClick={() => openDialog(UpsertTaskDialog, { subjects: subjects ?? [] })}
             >
               <Plus className="w-4 h-4" />
               <span>Create task</span>

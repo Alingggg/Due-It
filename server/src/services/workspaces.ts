@@ -4,12 +4,8 @@ import {
   WorkspaceModel,
   type WorkspaceRole,
 } from "../models/index.ts";
-import {
-  HttpError,
-  deleteSubjects,
-  generateInviteCode,
-  removeUploads,
-} from "../utils/index.ts";
+import { HttpError, deletePrefix, generateInviteCode } from "../utils/index.ts";
+import { deleteSubjects } from "./subjects.ts";
 
 type Workspace = InstanceType<typeof WorkspaceModel>;
 
@@ -112,7 +108,7 @@ export async function updateDefaultSemester(
 
 export async function deleteWorkspace(workspace: Workspace) {
   await deleteSubjects({ workspaceId: workspace._id });
-  await removeUploads(workspace._id);
+  await deletePrefix(`${workspace._id}/`);
   await workspace.deleteOne();
 }
 
