@@ -1,12 +1,10 @@
 // Custom
 export { default as ChatWidget } from "./chat/ChatWidget";
 export { default as DialogContainer } from "./DialogContainer";
-export { default as FormError } from "./FormError";
 export { default as LoadingPage } from "./LoadingPage";
 export { default as MaterialGroupCard } from "./MaterialGroupCard";
 export { default as MemberCard } from "./MemberCard";
 export { default as ScheduleItem } from "./ScheduleItem";
-export { default as SelectField } from "./SelectField";
 export { default as Sidebar } from "./Sidebar";
 export { default as SubjectCard } from "./SubjectCard";
 export { default as TaskCard } from "./TaskCard";
@@ -103,6 +101,8 @@ export { default as PublicLayout } from "./layout/PublicLayout";
 export { default as WorkspaceLayout } from "./layout/WorkspaceLayout";
 
 export { default as CalendarField } from "./form/CalendarField";
+export { default as FormError } from "./form/FormError";
+export { default as SelectField } from "./form/SelectField";
 export { default as ToggleGroupField } from "./form/ToggleGroupField";
 
 export { default as AddMaterialDialog } from "./dialogs/AddMaterialDialog";

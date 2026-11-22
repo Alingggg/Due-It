@@ -15,29 +15,21 @@ import { ChevronDownIcon } from "lucide-react";
 import { useState } from "react";
 import type { Control, FieldPath, FieldValues } from "react-hook-form";
 
-interface CalendarFieldProps<
-  TFieldValues extends FieldValues = FieldValues,
-  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
-> {
-  control: Control<TFieldValues>;
-  name: TName;
-  label?: string;
-  placeholder?: string;
-  required?: boolean;
-  disabled?: boolean;
-}
-
-function CalendarField<
-  TFieldValues extends FieldValues = FieldValues,
-  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
->({
+function CalendarField<T extends FieldValues>({
   control,
   name,
   label,
   placeholder = "Select date",
   required = false,
   disabled = false,
-}: CalendarFieldProps<TFieldValues, TName>) {
+}: {
+  control: Control<T>;
+  name: FieldPath<T>;
+  label?: string;
+  placeholder?: string;
+  required?: boolean;
+  disabled?: boolean;
+}) {
   const [open, setOpen] = useState(false);
 
   return (
